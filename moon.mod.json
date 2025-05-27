@@ -1,0 +1,11 @@
+{
+  "name": "justjavac/webview",
+  "version": "0.1.0",
+  "readme": "README.md",
+  "repository": "https://github.com/justjavac/moonbit-webview",
+  "license": "MIT",
+  "keywords": ["webview", "webui", "gui", "web"],
+  "description": "",
+  "source": "src",
+  "warn-list": ""
+}
