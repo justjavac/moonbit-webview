@@ -5,5 +5,13 @@
       "path": "justjavac/webview/lib",
       "alias": "webview"
     }
-  ]
+  ],
+  "supported-targets": ["native"],
+  "link": {
+    "native": {
+      "cc-flags": "-fsanitize=address -fsanitize=undefined",
+      "cc-link-flags": "-L ./webview/build/core/Release -lwebview"
+    }
+  },
+  "native-stub": ["stub.c"]
 }
