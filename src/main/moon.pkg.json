@@ -7,9 +7,12 @@
     }
   ],
   "supported-targets": ["native"],
+  "targets": {
+    "main.mbt": ["native"]
+  },
   "link": {
     "native": {
-      "cc-flags": "-fsanitize=address -fsanitize=undefined",
+      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
       "cc-link-flags": "-L ./webview/build/core/Release -lwebview"
     }
   },
