@@ -1,7 +1,6 @@
 {
   "name": "justjavac/webview",
   "version": "0.1.0",
-  "deps": {},
   "readme": "README.md",
   "repository": "https://github.com/justjavac/moonbit-webview",
   "license": "MIT",
@@ -12,6 +11,6 @@
     "web"
   ],
   "description": "MoonBit bindings for webview, a tiny library for creating web-based desktop GUIs.",
-  "source": "src",
+  "source": ".",
   "warn-list": ""
 }

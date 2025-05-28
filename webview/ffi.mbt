@@ -37,7 +37,7 @@ pub extern "C" fn webview_get_native_handle(
 ///| extern void webview_set_title(webview_t w, const char *title);
 pub extern "C" fn webview_set_title(webview : Webview_t, title : Bytes) -> Int = "webview_set_title"
 
-///| extern void webview_set_size(webview_t w, int width, int height, int hints);
+///| extern void webview_set_size(webview_t w, int width, int height, webview_hint_t hints);
 pub extern "C" fn webview_set_size(
   webview : Webview_t,
   width : Int,
