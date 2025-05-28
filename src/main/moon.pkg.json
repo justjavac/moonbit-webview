@@ -15,6 +15,5 @@
       "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
       "cc-link-flags": "-L ./webview/build/core/Release -lwebview"
     }
-  },
-  "native-stub": ["stub.c"]
+  }
 }
