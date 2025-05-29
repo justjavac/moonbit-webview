@@ -1,4 +1,5 @@
 ///|
+/// Creates and runs a webview window that navigates to the MoonBit homepage.
 fn main {
   let webview = @webview.Webview::new(debug=1)
   webview.set_title("Moonbit Webview Example")
