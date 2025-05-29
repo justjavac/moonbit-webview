@@ -26,7 +26,7 @@ Config your `moon.pkg.json` file:
   "link": {
     "native": {
       "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
-      "cc-link-flags": "-L build/lib -lwebview"
+      "cc-link-flags": "-L lib -lwebview"
     }
   }
 }
@@ -58,7 +58,7 @@ Build and test:
 ```shell
 cmake -G Ninja -B build -S . -D CMAKE_BUILD_TYPE=Release
 cmake --build build
-export DYLD_LIBRARY_PATH="$(pwd)/build/lib"
+export DYLD_LIBRARY_PATH="$(pwd)/lib"
 
 moon install
 moon run --target native examples/02_local
