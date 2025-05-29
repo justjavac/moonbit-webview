@@ -1,5 +1,5 @@
 ///|
-/// Defines an HTML template that displays a simple message in the webview.
+/// Defines an HTML template that displays a simple message by executing JavaScript
 let html =
   #| <html>
   #|   <body>
@@ -12,8 +12,7 @@ let html =
   #| </html>
 
 ///|
-/// Creates and runs a webview window that displays a message and injects JavaScript
-/// to set a global variable.
+/// Creates and runs a webview window that evaluates JavaScript
 fn main {
   @webview.Webview::new(debug=1)
   ..set_title("Moonbit Webview Example")
