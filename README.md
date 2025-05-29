@@ -26,10 +26,18 @@ Config your `moon.pkg.json` file:
   "link": {
     "native": {
       "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
-      "cc-link-flags": "-L lib -lwebview"
+      "cc-link-flags": "-L .mooncakes/justjavac/webview/lib -lwebview"
     }
   }
 }
+```
+
+## Setup Env
+
+On macOS, you need to tell the dynamic linker where to find your compiled `.dylib` files. From the project root, run:
+
+```shell
+export DYLD_LIBRARY_PATH="$(pwd)/.mooncakes/justjavac/webview/lib"
 ```
 
 ## Usage
