@@ -18,6 +18,8 @@ let html =
   #| </html>
 
 ///|
+/// Creates and runs a webview window that displays the user agent string of the
+/// browser.
 fn main {
   let webview = @webview.Webview::new(debug=1)
   webview.set_title("Moonbit Webview Example")
