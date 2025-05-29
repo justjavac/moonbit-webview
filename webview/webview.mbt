@@ -140,10 +140,7 @@ pub fn Webview::set_title(self : Webview, title : String) -> Unit {
 /// webview.run()
 /// ```
 pub fn Webview::set_html(self : Webview, html : String) -> Unit {
-  let html = html.to_array()
-  html.push('\u{0000}')
-  let html = html.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
-  let _ = webview_set_html(self.handle, html)
+  let _ = webview_set_html(self.handle, @ffi.to_cstr(html))
 }
 
 ///| Navigates webview to the given URL. URL may be a properly encoded data URI.
