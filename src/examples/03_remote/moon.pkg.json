@@ -2,7 +2,7 @@
   "is-main": true,
   "import": [
     {
-      "path": "justjavac/webview/webview",
+      "path": "justjavac/webview",
       "alias": "webview"
     }
   ],
