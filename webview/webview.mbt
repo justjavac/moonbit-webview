@@ -117,10 +117,7 @@ pub fn Webview::bind(
 /// - `WEBVIEW_ERROR_NOT_FOUND` - No binding exists with the specified name.
 pub fn Webview::unbind(self : Webview, name : String) -> Unit {
   self.callbacks.remove(name)
-  let name = name.to_array()
-  name.push('\u{0000}')
-  let name = name.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
-  let _ = webview_unbind(self.handle, name)
+  let _ = webview_unbind(self.handle, @ffi.to_cstr(name))
 }
 
 ///| Updates the title of the native window.
