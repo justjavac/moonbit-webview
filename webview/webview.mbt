@@ -105,10 +105,7 @@ pub fn Webview::bind(
   arg : Ref[Byte]
 ) -> Unit {
   self.callbacks.set(name, callback)
-  let name = name.to_array()
-  name.push('\u{0000}')
-  let name = name.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
-  let _ = webview_bind(self.handle, name, callback, arg)
+  let _ = webview_bind(self.handle, @ffi.to_cstr(name), callback, arg)
 }
 
 ///| Removes a binding created with `webview.bind()`.
