@@ -202,10 +202,7 @@ pub fn Webview::eval(self : Webview, js : String) -> Unit {
 /// Parameters:
 /// - `js` - The JavaScript code to inject.
 pub fn Webview::init(self : Webview, js : String) -> Unit {
-  let js = js.to_array()
-  js.push('\u{0000}')
-  let js = js.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
-  let _ = webview_init(self.handle, js)
+  let _ = webview_init(self.handle, @ffi.to_cstr(js))
 }
 
 ///| Responds to a binding call from the JS side.
