@@ -1,0 +1,19 @@
+{
+  "is-main": true,
+  "import": [
+    {
+      "path": "justjavac/webview/webview",
+      "alias": "webview"
+    }
+  ],
+  "supported-targets": ["native"],
+  "targets": {
+    "main.mbt": ["native"]
+  },
+  "link": {
+    "native": {
+      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
+      "cc-link-flags": "-L build/lib -lwebview"
+    }
+  }
+}
