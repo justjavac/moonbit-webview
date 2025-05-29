@@ -11,7 +11,8 @@
     "webview",
     "webui",
     "gui",
-    "web"
+    "web",
+    "desktop-app"
   ],
   "description": "MoonBit bindings for webview, a tiny library for creating web-based desktop GUIs.",
   "source": "src",
