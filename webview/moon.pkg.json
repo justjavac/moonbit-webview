@@ -1,4 +1,7 @@
 {
+  "import": [
+    "justjavac/ffi"
+  ],
   "supported-targets": ["native"],
   "targets": {
     "ffi.mbt": ["native"],

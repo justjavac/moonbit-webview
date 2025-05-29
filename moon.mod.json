@@ -1,6 +1,9 @@
 {
   "name": "justjavac/webview",
   "version": "0.1.0",
+  "deps": {
+    "justjavac/ffi": "0.1.2"
+  },
   "readme": "README.md",
   "repository": "https://github.com/justjavac/moonbit-webview",
   "license": "MIT",
