@@ -2,13 +2,6 @@
 /// Defines an HTML template that displays a simple message in the webview.
 let html =
   #| <html>
-  #|   <head>
-  #|     <style>
-  #|       body {
-  #|         font-family: "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
-  #|       }
-  #|     </style>
-  #|   </head>
   #|   <body>
   #|     <script>document.body.innerHTML = foo; </script>
   #|   </body>
