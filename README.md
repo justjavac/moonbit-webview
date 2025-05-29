@@ -3,6 +3,8 @@
 MoonBit bindings for webview, a tiny library for creating web-based desktop
 GUIs.
 
+> ⚠️ This project is still in development.
+
 ![moonbit webview demo](examples/asserts/moonbit-webview.png)
 
 ## Installation
