@@ -1,4 +1,8 @@
 ///|
+/// Defines an HTML template that displays the user agent string of the browser.
+/// 
+/// This example demonstrates how to create a simple webview application that
+/// displays the user agent string of the browser in a styled HTML document.
 let html =
   #| <html>
   #|   <head>
