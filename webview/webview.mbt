@@ -104,11 +104,11 @@ pub fn Webview::bind(
 ) -> Unit {
   self.callbacks.set(name, callback)
   let _ = webview_bind(
-    self.handle, 
-    @ffi.to_cstr(name), 
-    fn (id, req, arg, f) { f(id, req, arg) },
+    self.handle,
+    @ffi.to_cstr(name),
+    fn(id, req, arg, f) { f(id, req, arg) },
     callback,
-    )
+  )
 
 }
 

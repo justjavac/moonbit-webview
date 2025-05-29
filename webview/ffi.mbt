@@ -61,8 +61,10 @@ pub extern "C" fn webview_eval(webview : Webview_t, js : Bytes) -> Int = "webvie
 pub extern "C" fn webview_bind(
   webview : Webview_t,
   name : Bytes,
-  call_closure : FuncRef[(Bytes, Bytes, Ref[Bytes], (Bytes, Bytes, Ref[Bytes]) -> Unit) -> Unit],
-  closure : (Bytes, Bytes, Ref[Bytes]) -> Unit,
+  call_closure : FuncRef[
+    (Bytes, Bytes, Ref[Bytes], (Bytes, Bytes, Ref[Bytes]) -> Unit) -> Unit,
+  ],
+  closure : (Bytes, Bytes, Ref[Bytes]) -> Unit
 ) -> Int = "webview_bind"
 
 ///| extern void webview_unbind(webview_t w, const char *name);
