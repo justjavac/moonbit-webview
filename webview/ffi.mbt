@@ -21,8 +21,8 @@ pub extern "C" fn webview_terminate(webview : Webview_t) -> Int = "webview_termi
 ///| extern void webview_dispatch(webview_t w, void (*fn)(webview_t w, void *arg), void *arg);
 pub extern "C" fn webview_dispatch(
   webview : Webview_t,
-  callback : FuncRef[Byte],
-  data : Ref[Byte]
+  call_closure : FuncRef[(Webview_t, (Webview_t) -> Unit) -> Unit],
+  closure : () -> Unit
 ) -> Int = "webview_dispatch"
 
 ///| extern void *webview_get_window(webview_t w);

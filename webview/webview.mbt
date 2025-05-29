@@ -71,12 +71,8 @@ pub fn Webview::destroy(self : Webview) -> Unit {
 /// Parameters:
 /// - `callback` - The function to be invoked.
 /// - `arg` - An optional argument passed along to the callback function.
-pub fn Webview::dispatch(
-  self : Webview,
-  callback : FuncRef[Byte],
-  arg : Ref[Byte]
-) -> Unit {
-  let _ = webview_dispatch(self.handle, callback, arg)
+pub fn Webview::dispatch(self : Webview, callback : () -> Unit) -> Unit {
+  let _ = webview_dispatch(self.handle, fn(w, f) { f(w) }, callback)
 
 }
 
