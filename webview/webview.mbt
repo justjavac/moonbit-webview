@@ -223,13 +223,7 @@ pub fn Webview::response(
   status : Int,
   result : String
 ) -> Unit {
-  let seq = id.to_array()
-  seq.push('\u{0000}')
-  let seq = seq.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
-  let result = result.to_array()
-  result.push('\u{0000}')
-  let result = result.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
-  let _ = webview_return(self.handle, seq, status, result)
+  let _ = webview_return(self.handle, @ffi.to_cstr(id), status, @ffi.to_cstr(result))
 }
 
 ///| Updates the size of the native window.
