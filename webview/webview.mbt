@@ -59,7 +59,6 @@ pub fn Webview::destroy(self : Webview) -> Unit {
   }
   let _ = webview_terminate(self.handle)
   let _ = webview_destroy(self.handle)
-
 }
 
 ///| Schedules a function to be invoked on the thread with the run/event loop.
@@ -77,14 +76,12 @@ pub fn Webview::dispatch(
   arg : Ref[Byte]
 ) -> Unit {
   let _ = webview_dispatch(self.handle, callback, arg)
-
 }
 
 ///| Stops the main loop. It is safe to call this function from another
 /// background thread.
 pub fn Webview::terminate(self : Webview) -> Unit {
   let _ = webview_terminate(self.handle)
-
 }
 
 ///| Binds a function pointer to a new global JavaScript function.
@@ -112,7 +109,6 @@ pub fn Webview::bind(
   name.push('\u{0000}')
   let name = name.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
   let _ = webview_bind(self.handle, name, callback, arg)
-
 }
 
 ///| Removes a binding created with `webview.bind()`.
@@ -128,7 +124,6 @@ pub fn Webview::unbind(self : Webview, name : String) -> Unit {
   name.push('\u{0000}')
   let name = name.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
   let _ = webview_unbind(self.handle, name)
-
 }
 
 ///| Updates the title of the native window.
@@ -159,7 +154,6 @@ pub fn Webview::set_html(self : Webview, html : String) -> Unit {
   html.push('\u{0000}')
   let html = html.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
   let _ = webview_set_html(self.handle, html)
-
 }
 
 ///| Navigates webview to the given URL. URL may be a properly encoded data URI.
@@ -180,7 +174,6 @@ pub fn Webview::navigate(self : Webview, url : String) -> Unit {
   url.push('\u{0000}')
   let url = url.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
   let _ = webview_navigate(self.handle, url)
-
 }
 
 ///| Returns the native handle of the window associated with the webview instance.
@@ -217,7 +210,6 @@ pub fn Webview::eval(self : Webview, js : String) -> Unit {
   js.push('\u{0000}')
   let js = js.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
   let _ = webview_eval(self.handle, js)
-
 }
 
 ///| Injects JavaScript code to be executed immediately upon loading a page.
@@ -230,7 +222,6 @@ pub fn Webview::init(self : Webview, js : String) -> Unit {
   js.push('\u{0000}')
   let js = js.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
   let _ = webview_init(self.handle, js)
-
 }
 
 ///| Responds to a binding call from the JS side.
@@ -258,7 +249,6 @@ pub fn Webview::response(
   result.push('\u{0000}')
   let result = result.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
   let _ = webview_return(self.handle, seq, status, result)
-
 }
 
 ///| Updates the size of the native window.
@@ -283,7 +273,6 @@ pub fn Webview::set_size(
   hints : SizeHint
 ) -> Unit {
   let _ = webview_set_size(self.handle, width, height, hints)
-
 }
 
 ///| Runs the main loop until it's terminated.
