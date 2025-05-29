@@ -80,7 +80,7 @@ pub fn Webview::dispatch(
 
 }
 
-///| Stops the main loop. It is safe to call this function from another other
+///| Stops the main loop. It is safe to call this function from another
 /// background thread.
 pub fn Webview::terminate(self : Webview) -> Unit {
   let _ = webview_terminate(self.handle)
