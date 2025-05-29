@@ -193,10 +193,7 @@ pub fn Webview::get_handle(self : Webview) -> Webview_t {
 /// Parameters:
 /// - `js` - The JavaScript code to evaluate.
 pub fn Webview::eval(self : Webview, js : String) -> Unit {
-  let js = js.to_array()
-  js.push('\u{0000}')
-  let js = js.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
-  let _ = webview_eval(self.handle, js)
+  let _ = webview_eval(self.handle, @ffi.to_cstr(js))
 }
 
 ///| Injects JavaScript code to be executed immediately upon loading a page.
