@@ -1,4 +1,6 @@
 ///|
+/// Defines an HTML template that displays "Hello, Moonbit!" in the center of the
+/// window.
 let html =
   #| <html>
   #|   <head>
@@ -24,6 +26,10 @@ let html =
   #| </html>
 
 ///|
+/// Creates a window with "Hello, Moonbit!" displayed in the center using a
+/// customized HTML template.
+/// 
+/// The text is rendered after the DOM content is loaded using JavaScript.
 fn main {
   let webview = @webview.Webview::new(debug=1)
   webview.set_title("Moonbit Webview Example")
