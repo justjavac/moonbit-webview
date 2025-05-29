@@ -1,4 +1,6 @@
 ///|
+/// Defines the HTML template for the local webview example. Contains a centered
+/// "Hello, Moonbit!" message with custom styling.
 let html =
   #| <html>
   #|   <head>
@@ -20,6 +22,15 @@ let html =
   #| </html>
 
 ///|
+/// Creates and runs a webview window displaying a local HTML content with a
+/// "Hello, Moonbit!" message.
+///
+/// The webview window is configured with:
+///
+/// * Debug mode enabled
+/// * Custom title "Moonbit Webview Example"
+/// * Window size of 800x600 pixels
+/// * Centered text content with custom styling
 fn main {
   let webview = @webview.Webview::new(debug=1)
   webview.set_title("Moonbit Webview Example")
