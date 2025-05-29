@@ -131,11 +131,7 @@ pub fn Webview::unbind(self : Webview, name : String) -> Unit {
 /// Parameters:
 /// - `title` - The new title.
 pub fn Webview::set_title(self : Webview, title : String) -> Unit {
-  let title = title.to_array()
-  title.push('\u{0000}')
-  let title = title.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
-  let _ = webview_set_title(self.handle, title)
-
+  let _ = webview_set_title(self.handle, @ffi.to_cstr(title))
 }
 
 ///| Load HTML content into the webview.
