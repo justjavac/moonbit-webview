@@ -37,6 +37,11 @@ jobs:
         run: |
           moon version --all
 
+      - name: moon install
+        run: |
+          moon update
+          moon install
+
       - name: moon check
         run: moon check --target native --deny-warn
 
@@ -103,6 +108,11 @@ jobs:
       - name: moon version
         run: |
           moon version --all
+
+      - name: moon install
+        run: |
+          moon update
+          moon install
 
       - name: Set ulimit and run moon test
         if: ${{ matrix.os != 'windows-latest' }}
