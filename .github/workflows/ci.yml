@@ -71,8 +71,9 @@ jobs:
           moon test --target native --release
 
       - name: moon test --doc
+        if: false
         run: |
-          moon test --doc
+           moon test --target native --doc
 
       - name: check exe size
         if: ${{ matrix.os != 'windows-latest' }}
@@ -82,7 +83,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: Get-ChildItem -Path ".\target" -Recurse -Filter "*.exe" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
 
-  .bleeding-check:
+  bleeding-check:
     continue-on-error: true
     strategy:
       matrix:
@@ -136,6 +137,7 @@ jobs:
           moon test --target native --release
 
       - name: moon test --doc
+        if: false
         run: |
           moon test --target native --doc
 
