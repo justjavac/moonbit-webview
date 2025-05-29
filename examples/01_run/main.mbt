@@ -7,7 +7,7 @@
 /// * Window size is set to 800x600 pixels
 /// * No size hint constraints
 fn main {
-  let webview = @webview.Webview::new(debug=1)
-  webview.set_size(800, 600, @webview.SizeHint::None)
-  webview.run()
+  @webview.Webview::new(debug=1)
+  ..set_size(800, 600, @webview.SizeHint::None)
+  ..run()
 }
