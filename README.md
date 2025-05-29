@@ -5,7 +5,7 @@ GUIs.
 
 > ⚠️ This project is still in development.
 
-![moonbit webview demo](examples/asserts/moonbit-webview.png)
+![moonbit webview demo](asserts/moonbit-webview.png)
 
 ## Installation
 
