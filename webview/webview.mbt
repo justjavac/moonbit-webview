@@ -190,6 +190,8 @@ pub fn Webview::get_native_handle(
 }
 
 ///|
+/// Returns the internal webview handle of the webview instance. This handle is
+/// the raw pointer used by the underlying webview library.
 pub fn Webview::get_handle(self : Webview) -> Webview_t {
   self.handle
 }
