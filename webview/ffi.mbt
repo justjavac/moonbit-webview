@@ -57,12 +57,12 @@ pub extern "C" fn webview_init(webview : Webview_t, js : Bytes) -> Int = "webvie
 ///| extern void webview_eval(webview_t w, const char *js);
 pub extern "C" fn webview_eval(webview : Webview_t, js : Bytes) -> Int = "webview_eval"
 
-///| extern void webview_bind(webview_t w, const char *name, void (*fn)(const char *seq, const char *req, void *arg), void *arg);
+///| extern void webview_bind(webview_t w, const char *name, void (*fn)(const char *id, const char *req, void *arg), void *arg);
 pub extern "C" fn webview_bind(
   webview : Webview_t,
   name : Bytes,
-  callback : FuncRef[Unit], //TODO void (*fn)(const char *seq, const char *req, void *arg)
-  data : Ref[Byte]
+  call_closure : FuncRef[(Bytes, Bytes, Ref[Bytes], (Bytes, Bytes, Ref[Bytes]) -> Unit) -> Unit],
+  closure : (Bytes, Bytes, Ref[Bytes]) -> Unit,
 ) -> Int = "webview_bind"
 
 ///| extern void webview_unbind(webview_t w, const char *name);
