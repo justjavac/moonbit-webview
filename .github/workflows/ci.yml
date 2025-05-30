@@ -1,11 +1,6 @@
 name: check
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-  merge_group:
+on: [push, pull_request]
 
 env:
   DYLD_LIBRARY_PATH: ${{ github.workspace }}/lib
