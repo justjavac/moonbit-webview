@@ -25,7 +25,7 @@ Config your `moon.pkg.json` file:
   "is-main": true,
   "link": {
     "native": {
-      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
+      "cc-flags": "$CC_FLAGS",
       "cc-link-flags": "-L .mooncakes/justjavac/webview/lib -lwebview"
     }
   }

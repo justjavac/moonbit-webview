@@ -12,8 +12,9 @@
   },
   "link": {
     "native": {
-      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
-      "cc-link-flags": "-L lib -lwebview"
+      "cc" : "$CC",
+      "cc-flags": "$CC_FLAGS",
+      "cc-link-flags": "$CC_LINK_FLAGS"
     }
   }
 }
