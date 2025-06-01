@@ -1,4 +1,4 @@
-name: check
+name: ci
 
 on: [push, pull_request]
 
@@ -6,7 +6,7 @@ env:
   DYLD_LIBRARY_PATH: ${{ github.workspace }}/lib
 
 jobs:
-  stable-check:
+  stable:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, macos-13, windows-latest]
@@ -57,6 +57,11 @@ jobs:
         run: |
            moon test --target native --doc
 
+      - name: moon build
+        if: false
+        run: |
+           moon build --target native
+
       - name: check exe size
         if: ${{ matrix.os != 'windows-latest' }}
         run: find ./target -name '*.exe' | xargs ls -lh
@@ -65,7 +70,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: Get-ChildItem -Path ".\target" -Recurse -Filter "*.exe" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
 
-  bleeding-check:
+  bleeding:
     continue-on-error: true
     strategy:
       matrix:
