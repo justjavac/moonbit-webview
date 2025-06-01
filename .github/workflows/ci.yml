@@ -118,9 +118,14 @@ jobs:
       - name: moon check
         run: moon check --target native --deny-warn
 
-      - name: check exe size
-        run: find ./target -name '*.exe' | xargs ls -lh
-
       - name: format diff
         run: |
           moon fmt --check
+
+      - name: moon build
+        if: false
+        run: |
+           moon build --target native
+      
+      - name: check exe size
+        run: find ./target -name '*.exe' | xargs ls -lh
