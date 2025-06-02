@@ -58,7 +58,6 @@ jobs:
            moon test --target native --doc
 
       - name: moon build
-        if: false
         run: |
            moon build --target native
 
