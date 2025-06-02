@@ -40,6 +40,12 @@ On macOS, you need to tell the dynamic linker where to find your compiled `.dyli
 export DYLD_LIBRARY_PATH="$(pwd)/.mooncakes/justjavac/webview/lib"
 ```
 
+On Windows, you need to set the `PATH` environment variable to include the directory where the `webview.dll` is located.
+
+```bat
+set PATH=%PATH%;.mooncakes\justjavac\webview\bin
+```
+
 ## Usage
 
 ```moonbit
