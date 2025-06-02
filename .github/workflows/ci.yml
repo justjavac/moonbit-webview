@@ -4,6 +4,8 @@ on: [push, pull_request]
 
 env:
   DYLD_LIBRARY_PATH: ${{ github.workspace }}/lib
+  _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+  PATH: ${{ github.workspace }}/bin:$PATH
 
 jobs:
   stable:
