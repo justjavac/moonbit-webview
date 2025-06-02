@@ -2,11 +2,6 @@ name: ci
 
 on: [push, pull_request]
 
-env:
-  DYLD_LIBRARY_PATH: ${{ github.workspace }}/lib
-  _CL_: /link /LIBPATH:lib webview.lib /DEBUG
-  PATH: ${{ github.workspace }}/bin:$PATH
-
 jobs:
   stable:
     strategy:
@@ -57,11 +52,19 @@ jobs:
       - name: moon test --doc
         if: false
         run: |
-           moon test --target native --doc
+          moon test --target native --doc
 
       - name: moon build
+        if: ${{ matrix.os != 'windows-latest' }}
         run: |
-           moon build --target native
+          scripts/env.sh
+          moon build --target native
+
+      - name: moon build on windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          scripts/env.bat
+          moon build --target native
 
       - name: check exe size
         if: ${{ matrix.os != 'windows-latest' }}
@@ -126,7 +129,7 @@ jobs:
       - name: moon build
         if: false
         run: |
-           moon build --target native
+          moon build --target native
       
       - name: check exe size
         run: find ./target -name '*.exe' | xargs ls -lh
