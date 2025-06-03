@@ -129,9 +129,18 @@ jobs:
           moon fmt --check
 
       - name: moon build
-        if: false
+        if: ${{ matrix.os != 'windows-latest' }}
+        env:
+          DYLD_LIBRARY_PATH: lib
         run: |
           moon build --target native
-      
+
+      - name: moon build on windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+        run: |
+          moon build --target native
+
       - name: check exe size
         run: find ./target -name '*.exe' | xargs ls -lh
