@@ -54,7 +54,6 @@ jobs:
           moon test --target native
 
       - name: moon test --doc
-        if: false
         run: |
           moon test --target native --doc
 
@@ -125,7 +124,6 @@ jobs:
           moon test --target native
 
       - name: moon test --doc
-        if: false
         run: |
           moon test --target native --doc
 
