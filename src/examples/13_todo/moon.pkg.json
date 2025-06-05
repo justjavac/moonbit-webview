@@ -1,0 +1,26 @@
+{
+  "is-main": true,
+  "import": [
+    {
+      "path": "justjavac/webview",
+      "alias": "webview"
+    }
+  ],
+  "supported-targets": ["native"],
+  "targets": {
+    "main.mbt": ["native"]
+  },
+  "link": {
+    "native": {
+      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
+      "cc-link-flags": "-Llib -lwebview"
+    }
+  },
+  "pre-build": [
+    {
+      "input": "bundle.html",
+      "output": "bundle.mbt",
+      "command": ":embed -i $input -o $output"
+    }
+  ]
+}
