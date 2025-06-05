@@ -25,16 +25,14 @@ let html =
 /// Creates and runs two webview windows displaying a local HTML content with a
 /// "Hello, Moonbit!" message.
 fn main {
-  let webview1 = @webview.Webview::new(debug=1);
-  webview1.set_title("Moonbit Webview Example");
-  webview1.set_size(800, 600, @webview.SizeHint::None);
-  webview1.set_html(html);
-
-  let webview2 = @webview.Webview::new(debug=1);
-  webview2.set_title("Moonbit Webview Example");
-  webview2.set_size(800, 600, @webview.SizeHint::None);
-  webview2.set_html(html);
-
-  webview1.run();
-  webview2.run();
+  let webview1 = @webview.Webview::new(debug=1)
+  webview1.set_title("Moonbit Webview Example")
+  webview1.set_size(800, 600, @webview.SizeHint::None)
+  webview1.set_html(html)
+  let webview2 = @webview.Webview::new(debug=1)
+  webview2.set_title("Moonbit Webview Example")
+  webview2.set_size(800, 600, @webview.SizeHint::None)
+  webview2.set_html(html)
+  webview1.run()
+  webview2.run()
 }
