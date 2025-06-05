@@ -53,22 +53,33 @@ jobs:
         run: |
           moon test --target native
 
-      - name: moon test --doc
-        if: false
-        run: |
-          moon test --target native --doc
-
-      - name: moon build
-        if: ${{ matrix.os != 'windows-latest' }}
-        env:
-          DYLD_LIBRARY_PATH: lib
-        run: |
-          moon build --target native
-
-      - name: moon build on windows
+      - name: moon test --doc (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         env:
           _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+          PATH: lib;${{ env.PATH }}
+        run: |
+          moon test --target native --doc
+
+      # - name: moon test --doc (non-windows)
+      #   if: ${{ matrix.os != 'windows-latest' }}
+      #   env:
+      #     DYLD_LIBRARY_PATH: lib
+      #   run: |
+      #     moon test --target native --doc
+
+      - name: moon build (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+          PATH: lib;${{ env.PATH }}
+        run: |
+          moon build --target native
+
+      - name: moon build (non-windows)
+        if: ${{ matrix.os != 'windows-latest' }}
+        env:
+          DYLD_LIBRARY_PATH: lib
         run: |
           moon build --target native
 
@@ -81,7 +92,6 @@ jobs:
         run: Get-ChildItem -Path ".\target" -Recurse -Filter "*.exe" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
 
   bleeding:
-    continue-on-error: true
     strategy:
       matrix:
         os:
@@ -89,6 +99,7 @@ jobs:
           - macos-latest
           # - macos-13
           - windows-latest
+    continue-on-error: false
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -100,9 +111,9 @@ jobs:
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: install on windows
+        if: ${{ matrix.os == 'windows-latest' }}
         env:
           MOONBIT_INSTALL_VERSION: bleeding
-        if: ${{ matrix.os == 'windows-latest' }}
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
@@ -124,10 +135,20 @@ jobs:
         run: |
           moon test --target native
 
-      - name: moon test --doc
-        if: false
+      - name: moon test --doc (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+          PATH: lib;${{ env.PATH }}
         run: |
           moon test --target native --doc
+
+      # - name: moon test --doc (non-windows)
+      #   if: ${{ matrix.os != 'windows-latest' }}
+      #   env:
+      #     DYLD_LIBRARY_PATH: lib
+      #   run: |
+      #     moon test --target native --doc
 
       - name: moon check
         run: moon check --target native --deny-warn
@@ -136,17 +157,18 @@ jobs:
         run: |
           moon fmt --check
 
-      - name: moon build
-        if: ${{ matrix.os != 'windows-latest' }}
-        env:
-          DYLD_LIBRARY_PATH: lib
-        run: |
-          moon build --target native
-
-      - name: moon build on windows
+      - name: moon build (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         env:
           _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+          PATH: lib;${{ env.PATH }}
+        run: |
+          moon build --target native
+
+      - name: moon build (non-windows)
+        if: ${{ matrix.os != 'windows-latest' }}
+        env:
+          DYLD_LIBRARY_PATH: lib
         run: |
           moon build --target native
 
