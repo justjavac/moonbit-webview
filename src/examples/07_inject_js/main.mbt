@@ -14,7 +14,7 @@ fn main {
   @webview.Webview::new(debug=1)
   ..set_title("Moonbit Webview Example")
   ..set_size(800, 600, @webview.SizeHint::None)
+  ..init("(window.foo = 'bar')")
   ..set_html(html)
-  ..init("window.foo = 'bar';")
   ..run()
 }
