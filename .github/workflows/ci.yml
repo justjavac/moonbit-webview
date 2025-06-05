@@ -19,12 +19,16 @@ jobs:
 
       - name: install
         if: ${{ matrix.os != 'windows-latest' }}
+        env:
+          DYLD_LIBRARY_PATH: lib
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: install on windows
         if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
@@ -58,16 +62,6 @@ jobs:
           moon test --target native --doc
 
       - name: moon build
-        if: ${{ matrix.os != 'windows-latest' }}
-        env:
-          DYLD_LIBRARY_PATH: lib
-        run: |
-          moon build --target native
-
-      - name: moon build on windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        env:
-          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
         run: |
           moon build --target native
 
@@ -94,6 +88,8 @@ jobs:
 
       - name: install
         if: ${{ matrix.os != 'windows-latest' }}
+        env:
+          DYLD_LIBRARY_PATH: lib
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s bleeding
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
@@ -101,6 +97,7 @@ jobs:
       - name: install on windows
         env:
           MOONBIT_INSTALL_VERSION: bleeding
+          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
@@ -135,16 +132,6 @@ jobs:
           moon fmt --check
 
       - name: moon build
-        if: ${{ matrix.os != 'windows-latest' }}
-        env:
-          DYLD_LIBRARY_PATH: lib
-        run: |
-          moon build --target native
-
-      - name: moon build on windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        env:
-          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
         run: |
           moon build --target native
 
