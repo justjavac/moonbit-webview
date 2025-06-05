@@ -75,10 +75,10 @@ jobs:
 
   bleeding:
     env:
-      DYLD_LIBRARY_PATH: ${{ matrix.os != 'windows-latest' && 'lib' || '' }}
-      MOONBIT_INSTALL_VERSION: ${{ matrix.os == 'windows-latest' && 'bleeding' || '' }}
-      _CL_: ${{ matrix.os == 'windows-latest' && '/link /LIBPATH:lib webview.lib /DEBUG' || '' }}
-      PATH: ${{ matrix.os == 'windows-latest' && 'lib;${{ env.PATH }}' || '' }}
+      MOONBIT_INSTALL_VERSION: bleeding
+      DYLD_LIBRARY_PATH: lib
+      _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+      PATH: lib;${{ env.PATH }}
     continue-on-error: true
     strategy:
       matrix:
