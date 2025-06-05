@@ -30,6 +30,7 @@ pub(all) enum SizeHint {
 /// webview.set_title("My Webview")
 /// webview.set_size(800, 600, @webview.SizeHint::None)
 /// webview.set_html("<html><body><h1>Hello, World!</h1></body></html>")
+/// webview.dispatch(fn() { webview.terminate() })
 /// webview.run()
 /// ```
 struct Webview {
@@ -143,6 +144,7 @@ pub fn Webview::set_title(self : Webview, title : String) -> Unit {
 /// ```moonbit
 /// let webview = @webview.Webview::new()
 /// webview.set_html("<html><body><h1>Hello, World!</h1></body></html>")
+/// webview.dispatch(fn() { webview.terminate() })
 /// webview.run()
 /// ```
 pub fn Webview::set_html(self : Webview, html : String) -> Unit {
@@ -161,6 +163,7 @@ pub fn Webview::set_html(self : Webview, html : String) -> Unit {
 /// webview.navigate("https://www.example.com")
 /// webview.navigate("data:text/html,<h1>Hello, World!</h1>")
 /// webview.navigate("data:text/html;base64,PGgxPkhlbGxvPC9oMT4=")
+/// webview.dispatch(fn() { webview.terminate() })
 /// webview.run()
 /// ```
 pub fn Webview::navigate(self : Webview, url : String) -> Unit {
