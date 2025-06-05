@@ -4,10 +4,6 @@ on: [push, pull_request]
 
 jobs:
   stable:
-    env:
-      DYLD_LIBRARY_PATH: lib
-      _CL_: /link /LIBPATH:lib webview.lib /DEBUG
-      PATH: lib;${{ env.PATH }}
     strategy:
       matrix:
         os:
@@ -57,11 +53,33 @@ jobs:
         run: |
           moon test --target native
 
-      - name: moon test --doc
+      - name: moon test --doc (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+          PATH: lib;${{ env.PATH }}
         run: |
           moon test --target native --doc
 
-      - name: moon build
+      - name: moon test --doc (non-windows)
+        if: ${{ matrix.os != 'windows-latest' }}
+        env:
+          DYLD_LIBRARY_PATH: lib
+        run: |
+          moon test --target native --doc
+
+      - name: moon build (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+          PATH: lib;${{ env.PATH }}
+        run: |
+          moon build --target native
+
+      - name: moon build (non-windows)
+        if: ${{ matrix.os != 'windows-latest' }}
+        env:
+          DYLD_LIBRARY_PATH: lib
         run: |
           moon build --target native
 
@@ -74,12 +92,6 @@ jobs:
         run: Get-ChildItem -Path ".\target" -Recurse -Filter "*.exe" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
 
   bleeding:
-    env:
-      MOONBIT_INSTALL_VERSION: bleeding
-      DYLD_LIBRARY_PATH: lib
-      _CL_: /link /LIBPATH:lib webview.lib /DEBUG
-      PATH: lib;${{ env.PATH }}
-    continue-on-error: true
     strategy:
       matrix:
         os:
@@ -87,6 +99,7 @@ jobs:
           - macos-latest
           # - macos-13
           - windows-latest
+    continue-on-error: false
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -120,7 +133,19 @@ jobs:
         run: |
           moon test --target native
 
-      - name: moon test --doc
+      - name: moon test --doc (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          MOONBIT_INSTALL_VERSION: bleeding
+          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+          PATH: lib;${{ env.PATH }}
+        run: |
+          moon test --target native --doc
+
+      - name: moon test --doc (non-windows)
+        if: ${{ matrix.os != 'windows-latest' }}
+        env:
+          DYLD_LIBRARY_PATH: lib
         run: |
           moon test --target native --doc
 
@@ -131,7 +156,19 @@ jobs:
         run: |
           moon fmt --check
 
-      - name: moon build
+      - name: moon build (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          MOONBIT_INSTALL_VERSION: bleeding
+          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+          PATH: lib;${{ env.PATH }}
+        run: |
+          moon build --target native
+
+      - name: moon build (non-windows)
+        if: ${{ matrix.os != 'windows-latest' }}
+        env:
+          DYLD_LIBRARY_PATH: lib
         run: |
           moon build --target native
 
