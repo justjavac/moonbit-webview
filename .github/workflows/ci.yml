@@ -49,7 +49,18 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Run moon test (--target native)
+      - name: Run moon test (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+          PATH: lib;${{ env.PATH }}
+        run: |
+          moon test --target native
+
+      - name: Run moon test (non-windows)
+        if: ${{ matrix.os != 'windows-latest' }}
+        env:
+          DYLD_LIBRARY_PATH: lib
         run: |
           moon test --target native
 
@@ -131,7 +142,18 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Run moon test (--target native)
+      - name: Run moon test (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /link /LIBPATH:lib webview.lib /DEBUG
+          PATH: lib;${{ env.PATH }}
+        run: |
+          moon test --target native
+
+      - name: Run moon test (non-windows)
+        if: ${{ matrix.os != 'windows-latest' }}
+        env:
+          DYLD_LIBRARY_PATH: lib
         run: |
           moon test --target native
 
