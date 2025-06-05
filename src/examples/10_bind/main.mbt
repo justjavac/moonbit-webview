@@ -44,11 +44,10 @@ fn main {
   @webview.Webview::new(debug=1)
   ..set_title("Moonbit Webview Example")
   ..set_size(800, 600, @webview.SizeHint::None)
-  ..bind("press", fn(id, req, arg) {
+  ..bind("press", fn(id, req) {
     counter += 1
     println(id)
     println(req)
-    println(arg)
     println(counter)
   })
   ..set_html(html)

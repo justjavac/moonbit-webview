@@ -35,7 +35,7 @@ pub(all) enum SizeHint {
 /// ```
 struct Webview {
   handle : Webview_t
-  callbacks : Map[String, (Bytes, Bytes, Ref[Bytes]) -> Unit]
+  callbacks : Map[String, (Bytes, Bytes) -> Unit]
 }
 
 ///| Creates a new webview instance from a webview handle.
@@ -101,13 +101,13 @@ pub fn Webview::terminate(self : Webview) -> Unit {
 pub fn Webview::bind(
   self : Webview,
   name : String,
-  callback : (Bytes, Bytes, Ref[Bytes]) -> Unit
+  callback : (Bytes, Bytes) -> Unit
 ) -> Unit {
   self.callbacks.set(name, callback)
   let _ = webview_bind(
     self.handle,
     @ffi.to_cstr(name),
-    fn(id, req, arg, f) { f(id, req, arg) },
+    fn(id, req, f) { f(id, req) },
     callback,
   )
 
