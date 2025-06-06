@@ -4,7 +4,7 @@
   ],
   "supported-targets": ["native"],
   "targets": {
-    "ffi.mbt": ["native"],
+    "binding.mbt": ["native"],
     "webview.mbt": ["native"]
   }
 }
