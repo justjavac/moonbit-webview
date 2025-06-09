@@ -43,6 +43,7 @@ export DYLD_LIBRARY_PATH="$(pwd)/.mooncakes/justjavac/webview/lib"
 On Windows, you need to set the `PATH` environment variable to include the directory where the `webview.dll` is located.
 
 ```bat
+set _CL_=/link /LIBPATH:.mooncakes\justjavac\webview\lib webview.lib /DEBUG
 set PATH=%PATH%;.mooncakes\justjavac\webview\lib
 ```
 
@@ -72,7 +73,10 @@ Build and test:
 ```shell
 cmake -G Ninja -B build -S . -D CMAKE_BUILD_TYPE=Release
 cmake --build build
-scripts/env.sh # Or `scripts/env.bat` on Windows
+export DYLD_LIBRARY_PATH="$(pwd)/lib"
+# Or on Windows
+# set _CL_=/link /LIBPATH:lib webview.lib /DEBUG
+# set PATH=%PATH%;lib
 
 moon update
 moon install
