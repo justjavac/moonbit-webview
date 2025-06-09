@@ -80,7 +80,7 @@ export DYLD_LIBRARY_PATH="$(pwd)/lib"
 
 moon update
 moon install
-moon run --target native src/examples/02_local
+moon run --target native examples/02_local
 ```
 
 ## License
