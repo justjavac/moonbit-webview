@@ -47,6 +47,13 @@ set _CL_=/link /LIBPATH:.mooncakes\justjavac\webview\lib webview.lib /DEBUG
 set PATH=%PATH%;.mooncakes\justjavac\webview\lib
 ```
 
+Or power shell:
+
+```powershell
+$env:_CL_="/link /LIBPATH:.mooncakes\justjavac\webview\lib webview.lib /DEBUG"
+$env:PATH="$env:PATH;.mooncakes\justjavac\webview\lib"
+```
+
 ## Usage
 
 ```moonbit
@@ -77,6 +84,9 @@ export DYLD_LIBRARY_PATH="$(pwd)/lib"
 # Or on Windows
 # set _CL_=/link /LIBPATH:lib webview.lib /DEBUG
 # set PATH=%PATH%;lib
+# Or on Windows PowerShell
+# $env:_CL_="/link /LIBPATH:lib webview.lib /DEBUG"
+# $env:PATH="$env:PATH;lib"
 
 moon update
 moon install
