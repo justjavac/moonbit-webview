@@ -1,10 +1,7 @@
 {
   "is-main": true,
   "import": [
-    {
-      "path": "justjavac/webview",
-      "alias": "webview"
-    }
+    "justjavac/webview"
   ],
   "supported-targets": ["native"],
   "targets": {
