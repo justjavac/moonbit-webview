@@ -41,7 +41,7 @@ jobs:
       - name: moon check
         run: moon check --target native --deny-warn
 
-      - name: format diff
+      - name: format check
         run: |
           moon fmt --check
 
@@ -175,7 +175,7 @@ jobs:
       - name: moon check
         run: moon check --target native
 
-      - name: format diff
+      - name: format check
         run: |
           moon fmt --check
 
