@@ -4,7 +4,8 @@
 /// see: https://github.com/webview/webview/blob/f1a9d6b6fb8bcc2e266057224887a3d628f30f90/webview.i
 
 ///| typedef void *webview_t;
-pub extern type Webview_t
+#external
+pub type Webview_t
 
 ///| extern webview_t webview_create(int debug, void *window);
 pub extern "C" fn webview_create(debug : Int, window : Int64) -> Webview_t = "webview_create"
