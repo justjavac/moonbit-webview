@@ -1,0 +1,17 @@
+{
+  "is-main": true,
+  "import": [
+    "justjavac/webview"
+  ],
+  "supported-targets": ["native"],
+  "targets": {
+    "main": ["native"],
+    "webview_test": ["native"]
+  },
+  "link": {
+    "native": {
+      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
+      "cc-link-flags": "-Llib -lwebview"
+    }
+  }
+}
