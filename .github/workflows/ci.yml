@@ -96,11 +96,11 @@ jobs:
 
       - name: check exe size
         if: ${{ matrix.os != 'windows-latest' }}
-        run: find ./target -name '*.exe' | xargs ls -lh
+        run: find ./examples/target -name '*.exe' | xargs ls -lh
 
       - name: check core size on windows
         if: ${{ matrix.os == 'windows-latest' }}
-        run: Get-ChildItem -Path ".\target" -Recurse -Filter "*.exe" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
+        run: Get-ChildItem -Path ".\examples\target" -Recurse -Filter "*.exe" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
 
   bleeding:
     strategy:
@@ -195,4 +195,9 @@ jobs:
           moon build --target native -C examples
 
       - name: check exe size
-        run: find ./target -name '*.exe' | xargs ls -lh
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: find ./examples/target -name '*.exe' | xargs ls -lh
+
+      - name: check core size on windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: Get-ChildItem -Path ".\examples\target" -Recurse -Filter "*.exe" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
