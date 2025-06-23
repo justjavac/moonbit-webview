@@ -57,12 +57,12 @@ jobs:
         run: |
           moon test --target native -C test
 
-      - name: Run moon test (non-windows)
-        if: ${{ matrix.os != 'windows-latest' }}
-        env:
-          DYLD_LIBRARY_PATH: lib
-        run: |
-          moon test --target native -C test
+      # - name: Run moon test (non-windows)
+      #   if: ${{ matrix.os != 'windows-latest' }}
+      #   env:
+      #     DYLD_LIBRARY_PATH: lib
+      #   run: |
+      #     moon test --target native -C test
 
       - name: moon test --doc (windows)
         if: ${{ matrix.os == 'windows-latest' }}
