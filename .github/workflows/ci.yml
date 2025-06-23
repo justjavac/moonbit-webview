@@ -85,14 +85,14 @@ jobs:
           _CL_: /link /LIBPATH:lib webview.lib /DEBUG
           PATH: lib;${{ env.PATH }}
         run: |
-          moon build --target native
+          moon build --target native -C examples
 
       - name: moon build (non-windows)
         if: ${{ matrix.os != 'windows-latest' }}
         env:
           DYLD_LIBRARY_PATH: lib
         run: |
-          moon build --target native
+          moon build --target native -C examples
 
       - name: check exe size
         if: ${{ matrix.os != 'windows-latest' }}
@@ -185,14 +185,14 @@ jobs:
           _CL_: /link /LIBPATH:lib webview.lib /DEBUG
           PATH: lib;${{ env.PATH }}
         run: |
-          moon build --target native
+          moon build --target native -C examples
 
       - name: moon build (non-windows)
         if: ${{ matrix.os != 'windows-latest' }}
         env:
           DYLD_LIBRARY_PATH: lib
         run: |
-          moon build --target native
+          moon build --target native -C examples
 
       - name: check exe size
         run: find ./target -name '*.exe' | xargs ls -lh
