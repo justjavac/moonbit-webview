@@ -1,11 +1,13 @@
 {
-  "name": "justjavac/webview",
-  "version": "0.1.8",
+  "name": "justjavac/webview/examples",
+  "version": "0.1.0",
   "deps": {
-    "justjavac/ffi": "0.1.6"
+    "justjavac/webview": {
+      "path": ".."
+    }
   },
   "readme": "README.md",
-  "repository": "https://github.com/justjavac/moonbit-webview",
+  "repository": "https://github.com/justjavac/moonbit-webview/tree/main/examples",
   "license": "MIT",
   "keywords": [
     "webview",
@@ -15,6 +17,6 @@
     "desktop-app"
   ],
   "description": "MoonBit bindings for webview, a tiny library for creating web-based desktop GUIs.",
-  "source": "src",
+  "source": "",
   "warn-list": ""
 }
