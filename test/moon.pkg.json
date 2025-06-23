@@ -1,11 +1,9 @@
 {
-  "is-main": true,
   "import": [
     "justjavac/webview"
   ],
   "supported-targets": ["native"],
   "targets": {
-    "main": ["native"],
     "webview_test": ["native"]
   },
   "link": {
