@@ -6,5 +6,11 @@
   "targets": {
     "binding.mbt": ["native"],
     "webview.mbt": ["native"]
+  },
+  "link": {
+    "native": {
+      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
+      "cc-link-flags": "-Llib -lwebview"
+    }
   }
 }
