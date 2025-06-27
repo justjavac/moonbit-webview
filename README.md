@@ -17,7 +17,7 @@ HTML, CSS, and JavaScript.
 > ⚠️ **Note**: This project is currently in active development. APIs may change
 > in future releases.
 
-![moonbit webview demo](asserts/moonbit-webview.png)
+![moonbit webview demo](https://dl.deno.js.cn/moonbit-webview.png)
 
 ## 📦 Installation
 
