@@ -24,3 +24,8 @@ Desktop.ini
 *.log
 *.bak
 *.orig
+
+# Coverage-related files
+moonbit-coverage-*.txt
+_coverage
+bisect.coverage
