@@ -117,7 +117,7 @@ fn main {
 
 ## 📚 Examples
 
-This repository includes various examples in the `examples/` directory:
+This repository includes several examples in the `examples/` directory:
 
 - **01_run** - Basic window creation
 - **02_local** - Loading local HTML files
@@ -150,7 +150,7 @@ moon run --target native -C examples <example_name>
 - Ninja build system
 - C/C++ compiler (GCC, Clang, or MSVC)
 
-### Building from Source
+### Build from Source
 
 1. **Clone and build dependencies:**
    ```shell
