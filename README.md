@@ -1,5 +1,7 @@
 # MoonBit WebView
 
+[![ci](https://github.com/justjavac/moonbit-webview/actions/workflows/ci.yml/badge.svg)](https://github.com/justjavac/moonbit-webview/actions/workflows/ci.yml)
+
 MoonBit bindings for [webview](https://github.com/webview/webview), a tiny
 cross-platform library for creating modern web-based desktop applications using
 HTML, CSS, and JavaScript.
