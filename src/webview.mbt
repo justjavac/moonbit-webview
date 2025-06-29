@@ -51,8 +51,8 @@ pub fn Webview::new(debug~ : Int = 0) -> Webview {
   webview
 }
 
-///| Stops the main loop. It is safe to call this function from another other
-/// background thread.
+///| Destroys the webview and closes the window. It is safe to call this
+/// function from another background thread.
 pub fn Webview::destroy(self : Webview) -> Unit {
   for name, _callback in self.callbacks {
     let _ = self.unbind(name)
@@ -77,11 +77,10 @@ pub fn Webview::dispatch(self : Webview, callback : () -> Unit) -> Unit {
 
 }
 
-///| Stops the main loop. It is safe to call this function from another
+///| Stops the main event loop. It is safe to call this function from another
 /// background thread.
 pub fn Webview::terminate(self : Webview) -> Unit {
   let _ = webview_terminate(self.handle)
-
 }
 
 ///| Binds a function pointer to a new global JavaScript function.
