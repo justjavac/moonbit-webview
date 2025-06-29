@@ -167,11 +167,7 @@ pub fn Webview::set_html(self : Webview, html : String) -> Unit {
 /// webview.run()
 /// ```
 pub fn Webview::navigate(self : Webview, url : String) -> Unit {
-  let url = url.to_array()
-  url.push('\u{0000}')
-  let url = url.map(fn(c) { c.to_int().to_byte() }) |> Bytes::from_array
-  let _ = webview_navigate(self.handle, url)
-
+  let _ = webview_navigate(self.handle, @ffi.to_cstr(url))
 }
 
 ///| Returns the native handle of the window associated with the webview instance.
