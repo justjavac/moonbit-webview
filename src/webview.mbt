@@ -81,6 +81,7 @@ pub fn Webview::dispatch(self : Webview, callback : () -> Unit) -> Unit {
 /// background thread.
 pub fn Webview::terminate(self : Webview) -> Unit {
   let _ = webview_terminate(self.handle)
+
 }
 
 ///| Binds a function pointer to a new global JavaScript function.
@@ -167,6 +168,7 @@ pub fn Webview::set_html(self : Webview, html : String) -> Unit {
 /// ```
 pub fn Webview::navigate(self : Webview, url : String) -> Unit {
   let _ = webview_navigate(self.handle, @ffi.to_cstr(url))
+
 }
 
 ///| Returns the native handle of the window associated with the webview instance.
