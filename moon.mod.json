@@ -1,6 +1,6 @@
 {
   "name": "justjavac/webview",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "deps": {
     "justjavac/ffi": "0.1.6"
   },
