@@ -3,23 +3,22 @@
 ///|
 let resource : String =
   #|<html>
-  #|
-  #|<head>
+  #|  <head>
   #|    <style>
-  #|        body {
-  #|            display: flex;
-  #|            align-items: center;
-  #|            justify-content: center;
-  #|            height: 100vh;
-  #|            margin: 0;
-  #|            font-size: 3.75rem;
-  #|            font-family: "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
-  #|        }
+  #|      body {
+  #|        display: flex;
+  #|        align-items: center;
+  #|        justify-content: center;
+  #|        height: 100vh;
+  #|        margin: 0;
+  #|        font-size: 3.75rem;
+  #|        font-family: "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
+  #|      }
   #|    </style>
-  #|</head>
+  #|  </head>
   #|
-  #|<body>
+  #|  <body>
   #|    Hello, Moonbit!
-  #|</body>
-  #|
+  #|  </body>
   #|</html>
+  #|
