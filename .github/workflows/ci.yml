@@ -17,17 +17,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: install
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
-
-      - name: install on windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
-          "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      - name: Setup Moonbit
+        uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
 
       - name: moon version
         run: |
@@ -115,19 +108,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: install
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s bleeding
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
-
-      - name: install on windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        env:
-          MOONBIT_INSTALL_VERSION: bleeding
-        run: |
-          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
-          "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      - name: Setup Moonbit
+        uses: hustcer/setup-moonbit@v1
+        with:
+          version: bleeding
 
       - name: moon version
         run: |
@@ -201,4 +185,3 @@ jobs:
       - name: check core size on windows
         if: ${{ matrix.os == 'windows-latest' }}
         run: Get-ChildItem -Path ".\examples\target" -Recurse -Filter "*.exe" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
-
