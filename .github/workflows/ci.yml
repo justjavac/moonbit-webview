@@ -102,7 +102,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: Get-ChildItem -Path ".\examples\target" -Recurse -Filter "*.exe" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
 
-  bleeding:
+  nightly:
     strategy:
       matrix:
         os:
@@ -118,13 +118,13 @@ jobs:
       - name: install
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s bleeding
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s nightly
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: install on windows
         if: ${{ matrix.os == 'windows-latest' }}
         env:
-          MOONBIT_INSTALL_VERSION: bleeding
+          MOONBIT_INSTALL_VERSION: nightly
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append

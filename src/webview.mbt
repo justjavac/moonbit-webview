@@ -1,4 +1,5 @@
-///| Native handle kind. The actual type depends on the backend.
+///|
+/// Native handle kind. The actual type depends on the backend.
 pub(all) enum NativeHandleKind {
   /// Top-level window. `GtkWindow` pointer (GTK), `NSWindow` pointer (Cocoa) or `HWND` (Win32).
   Window = 0
@@ -9,7 +10,8 @@ pub(all) enum NativeHandleKind {
   Browser = 2
 } derive(Show)
 
-///| Window size hints
+///|
+/// Window size hints
 pub(all) enum SizeHint {
   /// Width and height are default size.
   None = 0
@@ -21,7 +23,8 @@ pub(all) enum SizeHint {
   Fixed = 3
 } derive(Show)
 
-///| An instance of a webview window.
+///|
+/// An instance of a webview window.
 /// 
 /// Example:
 ///
@@ -38,11 +41,12 @@ struct Webview {
   callbacks : Map[String, (Bytes, Bytes) -> Unit]
 }
 
-///| Creates a new webview instance from a webview handle.
+///|
+/// Creates a new webview instance from a webview handle.
 /// 
 /// Parameters:
 /// - `debug` - If set to 1, enables debugging mode which provides additional logging.
-pub fn Webview::new(debug~ : Int = 0) -> Webview {
+pub fn Webview::new(debug? : Int = 0) -> Webview {
   let window : Int64 = 0
   let webview = Webview::{
     handle: webview_create(debug, window),
@@ -51,7 +55,8 @@ pub fn Webview::new(debug~ : Int = 0) -> Webview {
   webview
 }
 
-///| Destroys the webview and closes the window. It is safe to call this
+///|
+/// Destroys the webview and closes the window. It is safe to call this
 /// function from another background thread.
 pub fn Webview::destroy(self : Webview) -> Unit {
   for name, _callback in self.callbacks {
@@ -63,7 +68,8 @@ pub fn Webview::destroy(self : Webview) -> Unit {
 
 }
 
-///| Schedules a function to be invoked on the thread with the run/event loop.
+///|
+/// Schedules a function to be invoked on the thread with the run/event loop.
 /// 
 /// Since library functions generally do not have thread safety guarantees,
 /// this function can be used to schedule code to execute on the main/GUI
@@ -77,14 +83,16 @@ pub fn Webview::dispatch(self : Webview, callback : () -> Unit) -> Unit {
 
 }
 
-///| Stops the main event loop. It is safe to call this function from another
+///|
+/// Stops the main event loop. It is safe to call this function from another
 /// background thread.
 pub fn Webview::terminate(self : Webview) -> Unit {
   let _ = webview_terminate(self.handle)
 
 }
 
-///| Binds a function pointer to a new global JavaScript function.
+///|
+/// Binds a function pointer to a new global JavaScript function.
 /// 
 /// Internally, JS glue code is injected to create the JS function by the
 /// given name. The callback function is passed a request identifier,
@@ -101,7 +109,7 @@ pub fn Webview::terminate(self : Webview) -> Unit {
 pub fn Webview::bind(
   self : Webview,
   name : String,
-  callback : (Bytes, Bytes) -> Unit
+  callback : (Bytes, Bytes) -> Unit,
 ) -> Unit {
   self.callbacks.set(name, callback)
   let _ = webview_bind(
@@ -113,7 +121,8 @@ pub fn Webview::bind(
 
 }
 
-///| Removes a binding created with `webview.bind()`.
+///|
+/// Removes a binding created with `webview.bind()`.
 /// 
 /// Parameters:
 /// - `name` - The name of the JavaScript function to unbind.
@@ -126,7 +135,8 @@ pub fn Webview::unbind(self : Webview, name : String) -> Unit {
 
 }
 
-///| Updates the title of the native window.
+///|
+/// Updates the title of the native window.
 /// 
 /// Parameters:
 /// - `title` - The new title.
@@ -135,7 +145,8 @@ pub fn Webview::set_title(self : Webview, title : String) -> Unit {
 
 }
 
-///| Load HTML content into the webview.
+///|
+/// Load HTML content into the webview.
 /// 
 /// Parameters:
 /// - `html` - The HTML content to load.
@@ -152,7 +163,8 @@ pub fn Webview::set_html(self : Webview, html : String) -> Unit {
 
 }
 
-///| Navigates webview to the given URL. URL may be a properly encoded data URI.
+///|
+/// Navigates webview to the given URL. URL may be a properly encoded data URI.
 /// 
 /// Parameters:
 /// - `url` - The URL to navigate to.
@@ -171,20 +183,22 @@ pub fn Webview::navigate(self : Webview, url : String) -> Unit {
 
 }
 
-///| Returns the native handle of the window associated with the webview instance.
+///|
+/// Returns the native handle of the window associated with the webview instance.
 /// The handle can be a `GtkWindow` pointer (GTK), `NSWindow` pointer (Cocoa)
 /// or `HWND` (Win32).
 pub fn Webview::get_window(self : Webview) -> Int64 {
   webview_get_window(self.handle)
 }
 
-///| Get a native handle of choice.
+///|
+/// Get a native handle of choice.
 /// 
 /// Parameters:
 /// - `kind` - The kind of handle to retrieve.
 pub fn Webview::get_native_handle(
   self : Webview,
-  kind : NativeHandleKind
+  kind : NativeHandleKind,
 ) -> Int64 {
   webview_get_native_handle(self.handle, kind)
 }
@@ -196,7 +210,8 @@ pub fn Webview::get_handle(self : Webview) -> Webview_t {
   self.handle
 }
 
-///| Evaluates arbitrary JavaScript code.
+///|
+/// Evaluates arbitrary JavaScript code.
 /// 
 /// Use bindings if you need to communicate the result of the evaluation.
 /// 
@@ -207,7 +222,8 @@ pub fn Webview::eval(self : Webview, js : String) -> Unit {
 
 }
 
-///| Injects JavaScript code to be executed immediately upon loading a page.
+///|
+/// Injects JavaScript code to be executed immediately upon loading a page.
 /// The code will be executed before `window.onload`.
 /// 
 /// Parameters:
@@ -217,7 +233,8 @@ pub fn Webview::init(self : Webview, js : String) -> Unit {
 
 }
 
-///| Responds to a binding call from the JS side.
+///|
+/// Responds to a binding call from the JS side.
 /// 
 /// This function is safe to call from another thread.
 /// 
@@ -233,7 +250,7 @@ pub fn Webview::response(
   self : Webview,
   id : String,
   status : Int,
-  result : String
+  result : String,
 ) -> Unit {
   let _ = webview_return(
     self.handle,
@@ -244,7 +261,8 @@ pub fn Webview::response(
 
 }
 
-///| Updates the size of the native window.
+///|
+/// Updates the size of the native window.
 /// 
 /// Remarks:
 /// - Using `WEBVIEW_HINT_MAX` for setting the maximum window size is not
@@ -263,13 +281,14 @@ pub fn Webview::set_size(
   self : Webview,
   width : Int,
   height : Int,
-  hints : SizeHint
+  hints : SizeHint,
 ) -> Unit {
   let _ = webview_set_size(self.handle, width, height, hints)
 
 }
 
-///| Runs the main loop until it's terminated.
+///|
+/// Runs the main loop until it's terminated.
 pub fn Webview::run(self : Webview) -> Unit {
   let _ = webview_run(self.handle)
   self.destroy()

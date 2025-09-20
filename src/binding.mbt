@@ -3,76 +3,101 @@
 /// 
 /// see: https://github.com/webview/webview/blob/f1a9d6b6fb8bcc2e266057224887a3d628f30f90/webview.i
 
-///| typedef void *webview_t;
+///|
+/// typedef void *webview_t;
 #external
 pub type Webview_t
 
-///| extern webview_t webview_create(int debug, void *window);
+///|
+/// extern webview_t webview_create(int debug, void *window);
 pub extern "C" fn webview_create(debug : Int, window : Int64) -> Webview_t = "webview_create"
 
-///| extern void webview_destroy(webview_t w);
+///|
+/// extern void webview_destroy(webview_t w);
 pub extern "C" fn webview_destroy(webview : Webview_t) -> Int = "webview_destroy"
 
-///| extern void webview_run(webview_t w);
+///|
+/// extern void webview_run(webview_t w);
 pub extern "C" fn webview_run(webview : Webview_t) -> Int = "webview_run"
 
-///| extern void webview_terminate(webview_t w);
+///|
+/// extern void webview_terminate(webview_t w);
 pub extern "C" fn webview_terminate(webview : Webview_t) -> Int = "webview_terminate"
 
-///| extern void webview_dispatch(webview_t w, void (*fn)(webview_t w, void *arg), void *arg);
+///|
+/// extern void webview_dispatch(webview_t w, void (*fn)(webview_t w, void *arg), void *arg);
 pub extern "C" fn webview_dispatch(
   webview : Webview_t,
   call_closure : FuncRef[(Webview_t, (Webview_t) -> Unit) -> Unit],
-  closure : () -> Unit
+  closure : () -> Unit,
 ) -> Int = "webview_dispatch"
 
-///| extern void *webview_get_window(webview_t w);
+///|
+/// extern void *webview_get_window(webview_t w);
 pub extern "C" fn webview_get_window(webview : Webview_t) -> Int64 = "webview_get_window"
 
-///| extern void *webview_get_native_handle(webview_t w, webview_native_handle_kind_t kind);
+///|
+/// extern void *webview_get_native_handle(webview_t w, webview_native_handle_kind_t kind);
 pub extern "C" fn webview_get_native_handle(
   webview : Webview_t,
-  kind : NativeHandleKind
+  kind : NativeHandleKind,
 ) -> Int64 = "webview_get_native_handle"
 
-///| extern void webview_set_title(webview_t w, const char *title);
+///|
+/// extern void webview_set_title(webview_t w, const char *title);
+#borrow(title)
 pub extern "C" fn webview_set_title(webview : Webview_t, title : Bytes) -> Int = "webview_set_title"
 
-///| extern void webview_set_size(webview_t w, int width, int height, webview_hint_t hints);
+///|
+/// extern void webview_set_size(webview_t w, int width, int height, webview_hint_t hints);
 pub extern "C" fn webview_set_size(
   webview : Webview_t,
   width : Int,
   height : Int,
-  hint : SizeHint
+  hint : SizeHint,
 ) -> Int = "webview_set_size"
 
-///| extern void webview_navigate(webview_t w, const char *url);
-pub extern "C" fn webview_navigate(webview : Webview_t, html : Bytes) -> Int = "webview_navigate"
+///|
+/// extern void webview_navigate(webview_t w, const char *url);
+#borrow(url)
+pub extern "C" fn webview_navigate(webview : Webview_t, url : Bytes) -> Int = "webview_navigate"
 
-///| extern void webview_set_html(webview_t w, const char *html);
+///|
+/// extern void webview_set_html(webview_t w, const char *html);
+#borrow(html)
 pub extern "C" fn webview_set_html(webview : Webview_t, html : Bytes) -> Int = "webview_set_html"
 
-///| extern void webview_init(webview_t w, const char *js);
+///|
+/// extern void webview_init(webview_t w, const char *js);
+#borrow(js)
 pub extern "C" fn webview_init(webview : Webview_t, js : Bytes) -> Int = "webview_init"
 
-///| extern void webview_eval(webview_t w, const char *js);
+///|
+/// extern void webview_eval(webview_t w, const char *js);
+#borrow(js)
 pub extern "C" fn webview_eval(webview : Webview_t, js : Bytes) -> Int = "webview_eval"
 
-///| extern void webview_bind(webview_t w, const char *name, void (*fn)(const char *id, const char *req, void *arg), void *arg);
+///|
+/// extern void webview_bind(webview_t w, const char *name, void (*fn)(const char *id, const char *req, void *arg), void *arg);
+#borrow(name)
 pub extern "C" fn webview_bind(
   webview : Webview_t,
   name : Bytes,
   call_closure : FuncRef[(Bytes, Bytes, (Bytes, Bytes) -> Unit) -> Unit],
-  closure : (Bytes, Bytes) -> Unit
+  closure : (Bytes, Bytes) -> Unit,
 ) -> Int = "webview_bind"
 
-///| extern void webview_unbind(webview_t w, const char *name);
+///|
+/// extern void webview_unbind(webview_t w, const char *name);
+#borrow(name)
 pub extern "C" fn webview_unbind(webview : Webview_t, name : Bytes) -> Int = "webview_unbind"
 
-///| extern void webview_return(webview_t w, const char *seq, int status, const char *result);
+///|
+/// extern void webview_return(webview_t w, const char *seq, int status, const char *result);
+#borrow(seq, result)
 pub extern "C" fn webview_return(
   webview : Webview_t,
   seq : Bytes,
   status : Int,
-  result : Bytes
+  result : Bytes,
 ) -> Int = "webview_return"
