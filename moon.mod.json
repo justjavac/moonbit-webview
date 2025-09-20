@@ -2,7 +2,7 @@
   "name": "justjavac/webview",
   "version": "0.1.10",
   "deps": {
-    "justjavac/ffi": "0.1.7"
+    "justjavac/ffi": "0.1.11"
   },
   "readme": "README.md",
   "repository": "https://github.com/justjavac/moonbit-webview",
