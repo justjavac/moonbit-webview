@@ -1,0 +1,80 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "justjavac/webview"
+
+// Values
+pub fn webview_bind(Webview_t, Bytes, FuncRef[(Bytes, Bytes, (Bytes, Bytes) -> Unit) -> Unit], (Bytes, Bytes) -> Unit) -> Int
+
+pub fn webview_create(Int, Int64) -> Webview_t
+
+pub fn webview_destroy(Webview_t) -> Int
+
+pub fn webview_dispatch(Webview_t, FuncRef[(Webview_t, (Webview_t) -> Unit) -> Unit], () -> Unit) -> Int
+
+pub fn webview_eval(Webview_t, Bytes) -> Int
+
+pub fn webview_get_native_handle(Webview_t, NativeHandleKind) -> Int64
+
+pub fn webview_get_window(Webview_t) -> Int64
+
+pub fn webview_init(Webview_t, Bytes) -> Int
+
+pub fn webview_navigate(Webview_t, Bytes) -> Int
+
+pub fn webview_return(Webview_t, Bytes, Int, Bytes) -> Int
+
+pub fn webview_run(Webview_t) -> Int
+
+pub fn webview_set_html(Webview_t, Bytes) -> Int
+
+pub fn webview_set_size(Webview_t, Int, Int, SizeHint) -> Int
+
+pub fn webview_set_title(Webview_t, Bytes) -> Int
+
+pub fn webview_terminate(Webview_t) -> Int
+
+pub fn webview_unbind(Webview_t, Bytes) -> Int
+
+// Errors
+
+// Types and methods
+pub(all) enum NativeHandleKind {
+  Window
+  Widget
+  Browser
+}
+pub impl Show for NativeHandleKind
+
+pub(all) enum SizeHint {
+  None
+  Min
+  Max
+  Fixed
+}
+pub impl Show for SizeHint
+
+type Webview
+pub fn Webview::bind(Self, String, (Bytes, Bytes) -> Unit) -> Unit
+pub fn Webview::destroy(Self) -> Unit
+pub fn Webview::dispatch(Self, () -> Unit) -> Unit
+pub fn Webview::eval(Self, String) -> Unit
+pub fn Webview::get_handle(Self) -> Webview_t
+pub fn Webview::get_native_handle(Self, NativeHandleKind) -> Int64
+pub fn Webview::get_window(Self) -> Int64
+pub fn Webview::init(Self, String) -> Unit
+pub fn Webview::navigate(Self, String) -> Unit
+pub fn Webview::new(debug? : Int) -> Self
+pub fn Webview::response(Self, String, Int, String) -> Unit
+pub fn Webview::run(Self) -> Unit
+pub fn Webview::set_html(Self, String) -> Unit
+pub fn Webview::set_size(Self, Int, Int, SizeHint) -> Unit
+pub fn Webview::set_title(Self, String) -> Unit
+pub fn Webview::terminate(Self) -> Unit
+pub fn Webview::unbind(Self, String) -> Unit
+
+#external
+pub type Webview_t
+
+// Type aliases
+
+// Traits
+
