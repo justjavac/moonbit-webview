@@ -109,7 +109,7 @@ fn main {
   ..set_title("MoonBit WebView Example")
   ..set_size(800, 600, @webview.SizeHint::None)
   ..set_html(html)
-  ..run()
+  .run()
 }
 ```
 
