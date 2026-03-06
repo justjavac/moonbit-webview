@@ -28,7 +28,7 @@ pub(all) enum SizeHint {
 /// 
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let webview = @webview.Webview::new(debug=1)
 /// webview.set_title("My Webview")
 /// webview.set_size(800, 600, @webview.SizeHint::None)
@@ -61,11 +61,9 @@ pub fn Webview::new(debug? : Int = 0) -> Webview {
 pub fn Webview::destroy(self : Webview) -> Unit {
   for name, _callback in self.callbacks {
     let _ = self.unbind(name)
-
   }
   let _ = webview_terminate(self.handle)
   let _ = webview_destroy(self.handle)
-
 }
 
 ///|
@@ -80,7 +78,6 @@ pub fn Webview::destroy(self : Webview) -> Unit {
 /// - `arg` - An optional argument passed along to the callback function.
 pub fn Webview::dispatch(self : Webview, callback : () -> Unit) -> Unit {
   let _ = webview_dispatch(self.handle, fn(w, f) { f(w) }, callback)
-
 }
 
 ///|
@@ -88,7 +85,6 @@ pub fn Webview::dispatch(self : Webview, callback : () -> Unit) -> Unit {
 /// background thread.
 pub fn Webview::terminate(self : Webview) -> Unit {
   let _ = webview_terminate(self.handle)
-
 }
 
 ///|
@@ -118,7 +114,6 @@ pub fn Webview::bind(
     fn(id, req, f) { f(id, req) },
     callback,
   )
-
 }
 
 ///|
@@ -132,7 +127,6 @@ pub fn Webview::bind(
 pub fn Webview::unbind(self : Webview, name : String) -> Unit {
   self.callbacks.remove(name)
   let _ = webview_unbind(self.handle, @ffi.to_cstr(name))
-
 }
 
 ///|
@@ -142,7 +136,6 @@ pub fn Webview::unbind(self : Webview, name : String) -> Unit {
 /// - `title` - The new title.
 pub fn Webview::set_title(self : Webview, title : String) -> Unit {
   let _ = webview_set_title(self.handle, @ffi.to_cstr(title))
-
 }
 
 ///|
@@ -152,7 +145,7 @@ pub fn Webview::set_title(self : Webview, title : String) -> Unit {
 /// - `html` - The HTML content to load.
 /// 
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// let webview = @webview.Webview::new()
 /// webview.set_html("<html><body><h1>Hello, World!</h1></body></html>")
 /// webview.dispatch(fn() { webview.terminate() })
@@ -160,7 +153,6 @@ pub fn Webview::set_title(self : Webview, title : String) -> Unit {
 /// ```
 pub fn Webview::set_html(self : Webview, html : String) -> Unit {
   let _ = webview_set_html(self.handle, @ffi.to_cstr(html))
-
 }
 
 ///|
@@ -170,7 +162,7 @@ pub fn Webview::set_html(self : Webview, html : String) -> Unit {
 /// - `url` - The URL to navigate to.
 /// 
 /// Example:
-/// ```moonbit
+/// ```moonbit nocheck
 /// let webview = @webview.Webview::new()
 /// webview.navigate("https://www.example.com")
 /// webview.navigate("data:text/html,<h1>Hello, World!</h1>")
@@ -180,7 +172,6 @@ pub fn Webview::set_html(self : Webview, html : String) -> Unit {
 /// ```
 pub fn Webview::navigate(self : Webview, url : String) -> Unit {
   let _ = webview_navigate(self.handle, @ffi.to_cstr(url))
-
 }
 
 ///|
@@ -219,7 +210,6 @@ pub fn Webview::get_handle(self : Webview) -> Webview_t {
 /// - `js` - The JavaScript code to evaluate.
 pub fn Webview::eval(self : Webview, js : String) -> Unit {
   let _ = webview_eval(self.handle, @ffi.to_cstr(js))
-
 }
 
 ///|
@@ -230,7 +220,6 @@ pub fn Webview::eval(self : Webview, js : String) -> Unit {
 /// - `js` - The JavaScript code to inject.
 pub fn Webview::init(self : Webview, js : String) -> Unit {
   let _ = webview_init(self.handle, @ffi.to_cstr(js))
-
 }
 
 ///|
@@ -258,7 +247,6 @@ pub fn Webview::response(
     status,
     @ffi.to_cstr(result),
   )
-
 }
 
 ///|
@@ -284,7 +272,6 @@ pub fn Webview::set_size(
   hints : SizeHint,
 ) -> Unit {
   let _ = webview_set_size(self.handle, width, height, hints)
-
 }
 
 ///|

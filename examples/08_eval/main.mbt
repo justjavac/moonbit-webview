@@ -19,5 +19,5 @@ fn main {
   ..set_size(800, 600, @webview.SizeHint::None)
   ..set_html(html)
   ..eval("foo('Hello from Moonbit!');")
-  ..run()
+  .run()
 }

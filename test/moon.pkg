@@ -1,0 +1,14 @@
+import {
+  "justjavac/webview",
+}
+
+options(
+  link: {
+    "native": {
+      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
+      "cc-link-flags": "-Llib -lwebview",
+    },
+  },
+  "supported-targets": [ "native" ],
+  targets: { "webview_test": [ "native" ] },
+)

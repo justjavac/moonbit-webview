@@ -30,18 +30,18 @@ moon add justjavac/webview
 
 ## ⚙️ Configuration
 
-Configure your `moon.pkg.json` file to link with the webview library:
+Configure your `moon.pkg` file to link with the webview library:
 
-```json
-{
+```moonbit
+options(
   "is-main": true,
-  "link": {
+  link: {
     "native": {
       "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
-      "cc-link-flags": "-L .mooncakes/justjavac/webview/lib -lwebview"
-    }
-  }
-}
+      "cc-link-flags": "-L .mooncakes/justjavac/webview/lib -lwebview",
+    },
+  },
+)
 ```
 
 ## 🔧 Environment Setup
@@ -109,7 +109,7 @@ fn main {
   ..set_title("MoonBit WebView Example")
   ..set_size(800, 600, @webview.SizeHint::None)
   ..set_html(html)
-  ..run()
+  .run()
 }
 ```
 
@@ -136,7 +136,7 @@ This repository includes several examples in the `examples/` directory:
 Run any example:
 
 ```shell
-moon run --target native -C examples <example_name>
+moon -C examples run <example_name> --target native
 ```
 
 ## 🛠️ Development
@@ -177,7 +177,7 @@ moon run --target native -C examples <example_name>
    ```shell
    moon update
    moon install
-   moon run --target native -C examples 02_local
+   moon -C examples run 02_local --target native
    ```
 
 ### Running Tests

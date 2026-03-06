@@ -16,5 +16,5 @@ fn main {
   ..set_size(800, 600, @webview.SizeHint::None)
   ..init("(window.foo = 'bar')")
   ..set_html(html)
-  ..run()
+  .run()
 }

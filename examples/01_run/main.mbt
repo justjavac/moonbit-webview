@@ -9,5 +9,5 @@
 fn main {
   @webview.Webview::new(debug=1)
   ..set_size(800, 600, @webview.SizeHint::None)
-  ..run()
+  .run()
 }
