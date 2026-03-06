@@ -38,7 +38,7 @@ pub(all) enum SizeHint {
 /// ```
 struct Webview {
   handle : Webview_t
-  bindings : Map[String, Int64]
+  bindings : Map[String, BindingHandle]
 }
 
 ///|
@@ -113,7 +113,7 @@ pub fn Webview::bind(
     },
     callback,
   )
-  if binding != 0 {
+  if !webview_binding_is_null(binding) {
     self.bindings.set(name, binding)
   }
 }

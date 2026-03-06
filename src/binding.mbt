@@ -9,6 +9,16 @@
 pub type Webview_t
 
 ///|
+/// Opaque C string pointer received from the native webview callback.
+#external
+pub type CStr
+
+///|
+/// Opaque binding handle returned by the native webview wrapper.
+#external
+pub type BindingHandle
+
+///|
 /// extern webview_t webview_create(int debug, void *window);
 pub extern "C" fn webview_create(debug : Int, window : Int64) -> Webview_t = "webview_create"
 
@@ -84,14 +94,18 @@ pub extern "C" fn webview_eval(webview : Webview_t, js : Bytes) -> Int = "webvie
 pub extern "C" fn webview_bind(
   webview : Webview_t,
   name : Bytes,
-  call_closure : FuncRef[(Int64, Int64, (Bytes, Bytes) -> Unit) -> Unit],
+  call_closure : FuncRef[(CStr, CStr, (Bytes, Bytes) -> Unit) -> Unit],
   closure : (Bytes, Bytes) -> Unit,
-) -> Int64 = "moonbit_webview_bind"
+) -> BindingHandle = "moonbit_webview_bind"
 
 ///|
 /// Copies a raw C string into MoonBit-managed bytes, preserving the trailing
 /// null terminator.
-extern "C" fn webview_copy_cstr(cstr : Int64) -> Bytes = "moonbit_webview_copy_cstr"
+extern "C" fn webview_copy_cstr(cstr : CStr) -> Bytes = "moonbit_webview_copy_cstr"
+
+///|
+/// Checks whether a native binding handle is null.
+extern "C" fn webview_binding_is_null(binding : BindingHandle) -> Bool = "moonbit_is_null"
 
 ///|
 /// extern void webview_unbind(webview_t w, const char *name);
@@ -99,7 +113,7 @@ extern "C" fn webview_copy_cstr(cstr : Int64) -> Bytes = "moonbit_webview_copy_c
 pub extern "C" fn webview_unbind(
   webview : Webview_t,
   name : Bytes,
-  binding : Int64,
+  binding : BindingHandle,
 ) -> Int = "moonbit_webview_unbind"
 
 ///|
