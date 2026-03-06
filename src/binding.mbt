@@ -88,7 +88,9 @@ pub extern "C" fn webview_init(webview : Webview_t, js : Bytes) -> Int = "webvie
 pub extern "C" fn webview_eval(webview : Webview_t, js : Bytes) -> Int = "webview_eval"
 
 ///|
-/// extern void webview_bind(webview_t w, const char *name, void (*fn)(const char *id, const char *req, void *arg), void *arg);
+/// Wrapper around `webview_bind` that stores the owned MoonBit closure inside
+/// an opaque native binding record and returns that record as a handle for
+/// later unbind/cleanup.
 #borrow(name)
 #owned(closure)
 pub extern "C" fn webview_bind(
@@ -108,7 +110,8 @@ extern "C" fn webview_copy_cstr(cstr : CStr) -> Bytes = "moonbit_webview_copy_cs
 extern "C" fn webview_binding_is_null(binding : BindingHandle) -> Bool = "moonbit_is_null"
 
 ///|
-/// extern void webview_unbind(webview_t w, const char *name);
+/// Wrapper around `webview_unbind` that also releases the opaque native
+/// binding handle returned by `webview_bind`.
 #borrow(name)
 pub extern "C" fn webview_unbind(
   webview : Webview_t,

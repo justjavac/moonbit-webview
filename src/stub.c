@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -51,6 +52,9 @@ void *moonbit_webview_bind(
   int result;
 
   if (binding == NULL) {
+    if (arg != NULL) {
+      moonbit_decref(arg);
+    }
     return NULL;
   }
 
@@ -84,6 +88,9 @@ moonbit_bytes_t moonbit_webview_copy_cstr(void *raw_cstr) {
   }
 
   len = strlen(cstr) + 1;
+  if (len > INT32_MAX) {
+    abort();
+  }
   bytes = moonbit_make_bytes_raw((int32_t)len);
   memcpy(bytes, cstr, len);
   return bytes;
