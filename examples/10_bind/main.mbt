@@ -46,7 +46,7 @@ let html =
   #|   </head>
   #|   <body>
   #|     <h1>Hello, Moonbit!</h1>
-  #|     <button onclick="press('I was pressed!', 123, new Date().toISOString()).then(log).catch(logError);">
+  #|     <button onclick="window.press('I was pressed!', 123, new Date().toISOString()).then(log).catch(logError);">
   #|        Press me!
   #|     </button>
   #|     <pre id="output">Click the button to call MoonBit.</pre>

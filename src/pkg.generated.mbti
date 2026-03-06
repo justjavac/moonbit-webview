@@ -2,7 +2,7 @@
 package "justjavac/webview"
 
 // Values
-pub fn webview_bind(Webview_t, Bytes, FuncRef[(Bytes, Bytes, (Bytes, Bytes) -> Unit) -> Unit], (Bytes, Bytes) -> Unit) -> Int
+pub fn webview_bind(Webview_t, Bytes, FuncRef[(CStr, CStr, (Bytes, Bytes) -> Unit) -> Unit], (Bytes, Bytes) -> Unit) -> BindingHandle
 
 pub fn webview_create(Int, Int64) -> Webview_t
 
@@ -32,11 +32,17 @@ pub fn webview_set_title(Webview_t, Bytes) -> Int
 
 pub fn webview_terminate(Webview_t) -> Int
 
-pub fn webview_unbind(Webview_t, Bytes) -> Int
+pub fn webview_unbind(Webview_t, Bytes, BindingHandle) -> Int
 
 // Errors
 
 // Types and methods
+#external
+pub type BindingHandle
+
+#external
+pub type CStr
+
 pub(all) enum NativeHandleKind {
   Window
   Widget

@@ -9,6 +9,16 @@
 pub type Webview_t
 
 ///|
+/// Opaque C string pointer received from the native webview callback.
+#external
+pub type CStr
+
+///|
+/// Opaque binding handle returned by the native webview wrapper.
+#external
+pub type BindingHandle
+
+///|
 /// extern webview_t webview_create(int debug, void *window);
 pub extern "C" fn webview_create(debug : Int, window : Int64) -> Webview_t = "webview_create"
 
@@ -78,19 +88,36 @@ pub extern "C" fn webview_init(webview : Webview_t, js : Bytes) -> Int = "webvie
 pub extern "C" fn webview_eval(webview : Webview_t, js : Bytes) -> Int = "webview_eval"
 
 ///|
-/// extern void webview_bind(webview_t w, const char *name, void (*fn)(const char *id, const char *req, void *arg), void *arg);
+/// Wrapper around `webview_bind` that stores the owned MoonBit closure inside
+/// an opaque native binding record and returns that record as a handle for
+/// later unbind/cleanup.
 #borrow(name)
+#owned(closure)
 pub extern "C" fn webview_bind(
   webview : Webview_t,
   name : Bytes,
-  call_closure : FuncRef[(Bytes, Bytes, (Bytes, Bytes) -> Unit) -> Unit],
+  call_closure : FuncRef[(CStr, CStr, (Bytes, Bytes) -> Unit) -> Unit],
   closure : (Bytes, Bytes) -> Unit,
-) -> Int = "webview_bind"
+) -> BindingHandle = "moonbit_webview_bind"
 
 ///|
-/// extern void webview_unbind(webview_t w, const char *name);
+/// Copies a raw C string into MoonBit-managed bytes, preserving the trailing
+/// null terminator.
+extern "C" fn webview_copy_cstr(cstr : CStr) -> Bytes = "moonbit_webview_copy_cstr"
+
+///|
+/// Checks whether a native binding handle is null.
+extern "C" fn webview_binding_is_null(binding : BindingHandle) -> Bool = "moonbit_is_null"
+
+///|
+/// Wrapper around `webview_unbind` that also releases the opaque native
+/// binding handle returned by `webview_bind`.
 #borrow(name)
-pub extern "C" fn webview_unbind(webview : Webview_t, name : Bytes) -> Int = "webview_unbind"
+pub extern "C" fn webview_unbind(
+  webview : Webview_t,
+  name : Bytes,
+  binding : BindingHandle,
+) -> Int = "moonbit_webview_unbind"
 
 ///|
 /// extern void webview_return(webview_t w, const char *seq, int status, const char *result);

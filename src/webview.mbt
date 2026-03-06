@@ -38,7 +38,7 @@ pub(all) enum SizeHint {
 /// ```
 struct Webview {
   handle : Webview_t
-  callbacks : Map[String, (Bytes, Bytes) -> Unit]
+  bindings : Map[String, BindingHandle]
 }
 
 ///|
@@ -48,10 +48,7 @@ struct Webview {
 /// - `debug` - If set to 1, enables debugging mode which provides additional logging.
 pub fn Webview::new(debug? : Int = 0) -> Webview {
   let window : Int64 = 0
-  let webview = Webview::{
-    handle: webview_create(debug, window),
-    callbacks: {},
-  }
+  let webview = Webview::{ handle: webview_create(debug, window), bindings: {} }
   webview
 }
 
@@ -59,10 +56,9 @@ pub fn Webview::new(debug? : Int = 0) -> Webview {
 /// Destroys the webview and closes the window. It is safe to call this
 /// function from another background thread.
 pub fn Webview::destroy(self : Webview) -> Unit {
-  for name, _callback in self.callbacks {
-    let _ = self.unbind(name)
+  for name, binding in self.bindings {
+    let _ = webview_unbind(self.handle, @ffi.to_cstr(name), binding)
   }
-  let _ = webview_terminate(self.handle)
   let _ = webview_destroy(self.handle)
 }
 
@@ -107,13 +103,19 @@ pub fn Webview::bind(
   name : String,
   callback : (Bytes, Bytes) -> Unit,
 ) -> Unit {
-  self.callbacks.set(name, callback)
-  let _ = webview_bind(
+  let binding = webview_bind(
     self.handle,
     @ffi.to_cstr(name),
-    fn(id, req, f) { f(id, req) },
+    fn(raw_id, raw_req, f) {
+      let id = webview_copy_cstr(raw_id)
+      let req = webview_copy_cstr(raw_req)
+      f(id, req)
+    },
     callback,
   )
+  if !webview_binding_is_null(binding) {
+    self.bindings.set(name, binding)
+  }
 }
 
 ///|
@@ -125,8 +127,13 @@ pub fn Webview::bind(
 /// Returns:
 /// - `WEBVIEW_ERROR_NOT_FOUND` - No binding exists with the specified name.
 pub fn Webview::unbind(self : Webview, name : String) -> Unit {
-  self.callbacks.remove(name)
-  let _ = webview_unbind(self.handle, @ffi.to_cstr(name))
+  match self.bindings.get(name) {
+    Some(binding) => {
+      self.bindings.remove(name)
+      let _ = webview_unbind(self.handle, @ffi.to_cstr(name), binding)
+    }
+    None => ()
+  }
 }
 
 ///|
