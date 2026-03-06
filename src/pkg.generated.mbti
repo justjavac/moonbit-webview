@@ -2,7 +2,7 @@
 package "justjavac/webview"
 
 // Values
-pub fn webview_bind(Webview_t, Bytes, FuncRef[(Bytes, Bytes, (Bytes, Bytes) -> Unit) -> Unit], (Bytes, Bytes) -> Unit) -> Int
+pub fn webview_bind(Webview_t, Bytes, FuncRef[(Int64, Int64, (Bytes, Bytes) -> Unit) -> Unit], (Bytes, Bytes) -> Unit) -> Int64
 
 pub fn webview_create(Int, Int64) -> Webview_t
 
@@ -32,7 +32,7 @@ pub fn webview_set_title(Webview_t, Bytes) -> Int
 
 pub fn webview_terminate(Webview_t) -> Int
 
-pub fn webview_unbind(Webview_t, Bytes) -> Int
+pub fn webview_unbind(Webview_t, Bytes, Int64) -> Int
 
 // Errors
 
@@ -77,4 +77,3 @@ pub type Webview_t
 // Type aliases
 
 // Traits
-

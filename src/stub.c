@@ -1,79 +1,91 @@
-#include "webview/webview.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
-webview_t moonbit_webview_create(int debug, void *window) {
-  return webview_create(debug, window);
+#include "moonbit.h"
+
+typedef void *webview_t;
+
+typedef void (*moonbit_webview_bind_callback_t)(int64_t seq, int64_t req, void *arg);
+
+struct moonbit_webview_binding {
+  moonbit_webview_bind_callback_t callback;
+  void *arg;
+};
+
+int webview_bind(
+  webview_t w,
+  const char *name,
+  void (*fn)(const char *seq, const char *req, void *arg),
+  void *arg
+);
+int webview_unbind(webview_t w, const char *name);
+
+static void moonbit_webview_free_binding(struct moonbit_webview_binding *binding) {
+  if (binding == NULL) {
+    return;
+  }
+  if (binding->arg != NULL) {
+    moonbit_decref(binding->arg);
+  }
+  free(binding);
 }
 
-void moonbit_webview_destroy(webview_t w) {
-  webview_destroy(w);
+static void moonbit_webview_bind_trampoline(
+  const char *seq,
+  const char *req,
+  void *arg
+) {
+  struct moonbit_webview_binding *binding = arg;
+  binding->callback((int64_t)(intptr_t)seq, (int64_t)(intptr_t)req, binding->arg);
 }
 
-// void webview_run(webview_t w);
-void moonbit_webview_run(webview_t w) {
-  webview_run(w);
+int64_t moonbit_webview_bind(
+  webview_t w,
+  const char *name,
+  moonbit_webview_bind_callback_t fn,
+  void *arg
+) {
+  struct moonbit_webview_binding *binding =
+    (struct moonbit_webview_binding *)malloc(sizeof(struct moonbit_webview_binding));
+  int result;
+
+  if (binding == NULL) {
+    return 0;
+  }
+
+  binding->callback = fn;
+  binding->arg = arg;
+  result = webview_bind(w, name, moonbit_webview_bind_trampoline, binding);
+  if (result != 0) {
+    moonbit_webview_free_binding(binding);
+    return 0;
+  }
+
+  return (int64_t)(intptr_t)binding;
 }
 
-// void webview_terminate(webview_t w);
-void moonbit_webview_terminate(webview_t w) {
-  webview_terminate(w);
+int moonbit_webview_unbind(webview_t w, const char *name, int64_t raw_binding) {
+  struct moonbit_webview_binding *binding =
+    (struct moonbit_webview_binding *)(intptr_t)raw_binding;
+  int result = webview_unbind(w, name);
+  moonbit_webview_free_binding(binding);
+  return result;
 }
 
-// void webview_dispatch(webview_t w, void (*fn)(webview_t w, void *arg), void *arg);
-void moonbit_webview_dispatch(webview_t w, void (*fn)(webview_t w, void *arg), void *arg) {
-  webview_dispatch(w, fn, arg);
-}
+moonbit_bytes_t moonbit_webview_copy_cstr(int64_t raw_cstr) {
+  const char *cstr = (const char *)(intptr_t)raw_cstr;
+  moonbit_bytes_t bytes;
+  size_t len;
 
-// void *webview_get_window(webview_t w);
-void *moonbit_webview_get_window(webview_t w) {
-  return webview_get_window(w);
-}
+  if (cstr == NULL) {
+    bytes = moonbit_make_bytes_raw(1);
+    bytes[0] = '\0';
+    return bytes;
+  }
 
-// void *webview_get_native_handle(webview_t w, webview_native_handle_kind_t kind);
-void *moonbit_webview_get_native_handle(webview_t w, webview_native_handle_kind_t kind) {
-  return webview_get_native_handle(w, kind);
-}
-
-// void webview_set_title(webview_t w, const char *title);
-void moonbit_webview_set_title(webview_t w, const char *title) {
-  webview_set_title(w, title);
-}
-
-// void webview_set_size(webview_t w, int width, int height, webview_hint_t hints);
-void moonbit_webview_set_size(webview_t w, int width, int height, webview_hint_t hints) {
-  webview_set_size(w, width, height, hints);
-}
-
-// void webview_navigate(webview_t w, const char *url);
-void moonbit_webview_navigate(webview_t w, const char *url) {
-  webview_navigate(w, url);
-}
-
-// void webview_set_html(webview_t w, const char *html);
-void moonbit_webview_set_html(webview_t w, const char *html) {
-  webview_set_html(w, html);
-}
-
-// void webview_init(webview_t w, const char *js);
-void moonbit_webview_init(webview_t w, const char *js) {
-  webview_init(w, js);
-}
-
-// void webview_eval(webview_t w, const char *js);
-void moonbit_webview_eval(webview_t w, const char *js) {
-  webview_eval(w, js);
-}
-
-// void webview_bind(webview_t w, const char *name, void (*fn)(const char *seq, const char *req, void *arg), void *arg);
-void moonbit_webview_bind(webview_t w, const char *name, void (*fn)(const char *seq, const char *req, void *arg), void *arg) {
-  webview_bind(w, name, fn, arg);
-}
-
-// void webview_unbind(webview_t w, const char *name);
-void moonbit_webview_unbind(webview_t w, const char *name) {
-  webview_unbind(w, name);
-}
-
-// void webview_return(webview_t w, const char *seq, int status, const char *result);
-void moonbit_webview_return(webview_t w, const char *seq, int status, const char *result) {
-  webview_return(w, seq, status, result);
+  len = strlen(cstr) + 1;
+  bytes = moonbit_make_bytes_raw((int32_t)len);
+  memcpy(bytes, cstr, len);
+  return bytes;
 }

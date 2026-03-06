@@ -2,6 +2,7 @@
   "name": "justjavac/webview/test",
   "version": "0.1.0",
   "deps": {
+    "justjavac/ffi": "0.1.12",
     "justjavac/webview": {
       "path": ".."
     }

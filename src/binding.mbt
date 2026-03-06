@@ -80,17 +80,27 @@ pub extern "C" fn webview_eval(webview : Webview_t, js : Bytes) -> Int = "webvie
 ///|
 /// extern void webview_bind(webview_t w, const char *name, void (*fn)(const char *id, const char *req, void *arg), void *arg);
 #borrow(name)
+#owned(closure)
 pub extern "C" fn webview_bind(
   webview : Webview_t,
   name : Bytes,
-  call_closure : FuncRef[(Bytes, Bytes, (Bytes, Bytes) -> Unit) -> Unit],
+  call_closure : FuncRef[(Int64, Int64, (Bytes, Bytes) -> Unit) -> Unit],
   closure : (Bytes, Bytes) -> Unit,
-) -> Int = "webview_bind"
+) -> Int64 = "moonbit_webview_bind"
+
+///|
+/// Copies a raw C string into MoonBit-managed bytes, preserving the trailing
+/// null terminator.
+extern "C" fn webview_copy_cstr(cstr : Int64) -> Bytes = "moonbit_webview_copy_cstr"
 
 ///|
 /// extern void webview_unbind(webview_t w, const char *name);
 #borrow(name)
-pub extern "C" fn webview_unbind(webview : Webview_t, name : Bytes) -> Int = "webview_unbind"
+pub extern "C" fn webview_unbind(
+  webview : Webview_t,
+  name : Bytes,
+  binding : Int64,
+) -> Int = "moonbit_webview_unbind"
 
 ///|
 /// extern void webview_return(webview_t w, const char *seq, int status, const char *result);
