@@ -70,19 +70,30 @@ pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle(
 
 ///|
 /// Emits a named command from MoonBit to JavaScript.
+///
+/// The JS dispatch is scheduled onto the webview event loop so this remains
+/// safe to call off the UI thread.
 pub fn[Payload : ToJson] CommandBridge::send(
   self : CommandBridge,
   name : String,
   payload : Payload,
 ) -> Unit {
   let command = Command::{ name, payload: ToJson::to_json(payload) }
-  self.webview.eval(
-    make_command_dispatch_script(
-      self.global_name,
-      self.event_name,
-      command.to_json().stringify(),
-    ),
+  let script = make_command_dispatch_script(
+    self.global_name,
+    self.event_name,
+    command.to_json().stringify(),
   )
+  self.webview.dispatch(fn() { self.webview.eval(script) })
+}
+
+///|
+fn CommandBridge::respond_error(
+  self : CommandBridge,
+  id : String,
+  message : String,
+) -> Unit {
+  self.webview.response(id, 1, Json::string(message).stringify())
 }
 
 ///|
@@ -98,11 +109,11 @@ fn CommandBridge::handle_request(
         Some(handler) =>
           match handler(command.payload) {
             Ok(result) => self.webview.response(id, 0, result.stringify())
-            Err(message) => self.webview.response(id, 1, message)
+            Err(message) => self.respond_error(id, message)
           }
-        None => self.webview.response(id, 1, "Unknown command: " + command.name)
+        None => self.respond_error(id, "Unknown command: " + command.name)
       }
-    Err(message) => self.webview.response(id, 1, message)
+    Err(message) => self.respond_error(id, message)
   }
 }
 
