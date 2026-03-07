@@ -203,6 +203,8 @@ For module-level JS APIs, build on top of `CommandBridge` with `PluginHost`.
 - JavaScript calls the installed API through
   `window.MoonBitPlugins.<plugin>.<api>(payload)` or
   `window.MoonBitPlugins["@@call"](plugin, api, payload)`.
+- Plugin JS calls resolve to the same `CommandResponse` shape returned by
+  `CommandBridge.send(...)`, with `status`, `payload`, and `error`.
 - JavaScript subscribes to plugin events through
   `window.MoonBitPlugins.<plugin>["@@on"](listener)` or
   `window.MoonBitPlugins.<plugin>["@@onEvent"](name, listener)`.
@@ -255,7 +257,13 @@ fn main {
     #|   });
     #|   window.MoonBitPlugins.math
     #|     .sum({ left: 20, right: 22 })
-    #|     .then((response) => console.log(response))
+    #|     .then((response) => {
+    #|       if (response.status === "ok") {
+    #|         console.log("plugin payload", response.payload);
+    #|         return;
+    #|       }
+    #|       console.error("plugin error", response.error);
+    #|     })
     #|     .catch(console.error);
     #| </script>,
   )
@@ -272,8 +280,10 @@ Notes:
   normal application shutdown.
 - Install a plugin before loading content if you want the JS API to exist on the
   first page load.
-- Plugin names starting with `@@` are reserved for framework/internal use.
-- Plugin API names starting with `@@` are reserved for framework/internal use.
+- Plugin names and API names starting with `@@` are reserved for
+  framework/internal use.
+- Special JavaScript property names such as `__proto__`, `prototype`, and
+  `constructor` are also reserved for plugin names and API names.
 - The JS host uses reserved helper keys `@@call`, `@@has`, `@@ensurePlugin`,
   `@@defineApi`, `@@on`, `@@onEvent`, and `@@emit`.
 - Duplicate plugin names or duplicate APIs inside the same plugin abort during

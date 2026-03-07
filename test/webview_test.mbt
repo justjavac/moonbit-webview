@@ -422,6 +422,13 @@ test "panic PluginHost::install rejects reserved plugin names" {
 }
 
 ///|
+test "panic PluginHost::install rejects special JavaScript property names" {
+  let webview = @webview.Webview::new()
+  let plugins = @webview.PluginHost::new(webview)
+  plugins.install(@webview.Plugin::new("__proto__", fn(_plugin) {  }))
+}
+
+///|
 test "Plugin lifecycle hooks run on install and destroy" {
   let mut installed_plugin : String? = None
   let mut destroyed_plugin : String? = None
@@ -455,6 +462,17 @@ test "panic PluginContext::command rejects reserved API names" {
   plugins.install(
     @webview.Plugin::new("math", fn(plugin) {
       plugin.command("@@on", fn(payload : Json) { payload })
+    }),
+  )
+}
+
+///|
+test "panic PluginContext::command rejects special JavaScript property names" {
+  let webview = @webview.Webview::new()
+  let plugins = @webview.PluginHost::new(webview)
+  plugins.install(
+    @webview.Plugin::new("math", fn(plugin) {
+      plugin.command("constructor", fn(payload : Json) { payload })
     }),
   )
 }

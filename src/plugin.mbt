@@ -288,13 +288,21 @@ fn plugin_event_command_name() -> String {
 }
 
 ///|
+fn is_disallowed_js_property_name(name : String) -> Bool {
+  name.has_prefix("@@") ||
+  name == "__proto__" ||
+  name == "prototype" ||
+  name == "constructor"
+}
+
+///|
 fn is_reserved_plugin_name(plugin_name : String) -> Bool {
-  plugin_name.has_prefix("@@")
+  is_disallowed_js_property_name(plugin_name)
 }
 
 ///|
 fn is_reserved_api_name(api_name : String) -> Bool {
-  api_name.has_prefix("@@")
+  is_disallowed_js_property_name(api_name)
 }
 
 ///|
@@ -338,6 +346,9 @@ fn make_plugin_host_script(
   "    }" +
   "    if (typeof plugin['@@onEvent'] !== 'function') {" +
   "      plugin['@@onEvent'] = function(eventName, listener) {" +
+  "        if (typeof listener !== 'function') {" +
+  "          throw new TypeError('MoonBit plugin listener must be a function');" +
+  "        }" +
   "        return plugin['@@on'](function(event) {" +
   "          if (event.name === eventName) {" +
   "            listener(event);" +

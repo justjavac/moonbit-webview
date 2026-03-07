@@ -42,7 +42,7 @@ let html =
   #|   <body>
   #|     <main>
   #|       <h1>Plugin Host</h1>
-  #|       <p>A MoonBit plugin module installs a namespaced JS API and event stream on <code>window.MoonBitPlugins</code>.</p>
+  #|       <p>A MoonBit plugin module installs a namespaced JS API and event stream on <code>window.MoonBitPlugins</code>, and each call returns a structured <code>CommandResponse</code>.</p>
   #|       <button id="run">Call math.sum</button>
   #|       <pre id="output">Click the button.</pre>
   #|     </main>
@@ -58,9 +58,14 @@ let html =
   #|         window.MoonBitPlugins.math
   #|           .sum({ left: 20, right: 22 })
   #|           .then((response) => {
+  #|             if (response.status === "ok") {
+  #|               output.textContent =
+  #|                 "Plugin payload:\n" + JSON.stringify(response.payload, null, 2) +
+  #|                 "\n\nLast event:\n" + JSON.stringify(lastEvent, null, 2);
+  #|               return;
+  #|             }
   #|             output.textContent =
-  #|               "Plugin response:\n" + JSON.stringify(response, null, 2) +
-  #|               "\n\nLast event:\n" + JSON.stringify(lastEvent, null, 2);
+  #|               "Plugin error:\n" + JSON.stringify(response, null, 2);
   #|           })
   #|           .catch((error) => {
   #|             output.textContent = "Transport error:\n" + String(error);
