@@ -78,6 +78,34 @@ pub impl Show for CommandResponse
 pub impl ToJson for CommandResponse
 pub impl @json.FromJson for CommandResponse
 
+pub struct PluginEvent {
+  plugin : String
+  name : String
+  payload : Json
+}
+pub impl Eq for PluginEvent
+pub impl Show for PluginEvent
+pub impl ToJson for PluginEvent
+pub impl @json.FromJson for PluginEvent
+
+type Plugin
+pub fn Plugin::new(String, (PluginContext) -> Unit, on_install? : (PluginContext) -> Unit, on_destroy? : (PluginContext) -> Unit) -> Self
+
+type PluginContext
+pub fn[Payload : @json.FromJson, Reply : ToJson] PluginContext::command(Self, String, (Payload) -> Reply) -> Unit
+pub fn[Payload : @json.FromJson, Reply : ToJson] PluginContext::command_result(Self, String, (Payload) -> Result[Reply, String]) -> Unit
+pub fn[Payload : ToJson] PluginContext::emit(Self, String, Payload) -> Unit
+pub fn PluginContext::name(Self) -> String
+
+type PluginHost
+pub fn PluginHost::command_bridge(Self) -> CommandBridge
+pub fn PluginHost::destroy(Self) -> Unit
+pub fn[Payload : ToJson] PluginHost::emit(Self, String, String, Payload) -> Unit
+pub fn PluginHost::global_name(Self) -> String
+pub fn PluginHost::install(Self, Plugin) -> Unit
+pub fn PluginHost::new(Webview, global_name? : String, command_global_name? : String, binding_name? : String, event_name? : String) -> Self
+pub fn PluginHost::run(Self) -> Unit
+
 pub(all) enum NativeHandleKind {
   Window
   Widget
@@ -118,4 +146,3 @@ pub type Webview_t
 // Type aliases
 
 // Traits
-

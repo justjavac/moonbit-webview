@@ -1,0 +1,16 @@
+import {
+  "moonbitlang/core/json",
+  "justjavac/webview",
+}
+
+options(
+  "is-main": true,
+  link: {
+    "native": {
+      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
+      "cc-link-flags": "-L../lib -lwebview",
+    },
+  },
+  "supported-targets": [ "native" ],
+  targets: { "main.mbt": [ "native" ] },
+)

@@ -15,6 +15,7 @@ options(
   targets: {
     "binding.mbt": [ "native" ],
     "command.mbt": [ "native" ],
+    "plugin.mbt": [ "native" ],
     "webview.mbt": [ "native" ],
   },
 )

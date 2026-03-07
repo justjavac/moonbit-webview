@@ -193,6 +193,102 @@ fn main {
 }
 ```
 
+## Plugin System
+
+For module-level JS APIs, build on top of `CommandBridge` with `PluginHost`.
+
+- A MoonBit module exports a `Plugin`.
+- The main program installs that plugin on a `PluginHost`.
+- Plugins can define native install/destroy hooks.
+- JavaScript calls the installed API through
+  `window.MoonBitPlugins.<plugin>.<api>(payload)` or
+  `window.MoonBitPlugins["@@call"](plugin, api, payload)`.
+- Plugin JS calls resolve to the same `CommandResponse` shape returned by
+  `CommandBridge.send(...)`, with `status`, `payload`, and `error`.
+- JavaScript subscribes to plugin events through
+  `window.MoonBitPlugins.<plugin>["@@on"](listener)` or
+  `window.MoonBitPlugins.<plugin>["@@onEvent"](name, listener)`.
+
+```moonbit
+struct SumPayload {
+  left : Int
+  right : Int
+} derive(ToJson, FromJson)
+
+struct SumReply {
+  total : Int
+} derive(ToJson, FromJson)
+
+struct NoticePayload {
+  message : String
+} derive(ToJson, FromJson)
+
+pub fn math_plugin() -> @webview.Plugin {
+  @webview.Plugin::new(
+    "math",
+    fn(plugin) {
+      plugin.command("sum", fn(payload : SumPayload) {
+        let reply = SumReply::{ total: payload.left + payload.right }
+        plugin.emit("computed", NoticePayload::{
+          message: "MoonBit computed " + reply.total.to_string(),
+        })
+        reply
+      })
+    },
+    on_install=fn(plugin) {
+      // Native setup can happen here.
+      let _ = plugin.name()
+    },
+    on_destroy=fn(plugin) {
+      // Native cleanup can happen here.
+      let _ = plugin.name()
+    },
+  )
+}
+
+fn main {
+  let webview = @webview.Webview::new(debug=1)
+  let plugins = @webview.PluginHost::new(webview)
+  plugins.install(math_plugin())
+  webview.set_html(
+    #| <script>
+    #|   window.MoonBitPlugins.math["@@onEvent"]("computed", (event) => {
+    #|     console.log("plugin event", event);
+    #|   });
+    #|   window.MoonBitPlugins.math
+    #|     .sum({ left: 20, right: 22 })
+    #|     .then((response) => {
+    #|       if (response.status === "ok") {
+    #|         console.log("plugin payload", response.payload);
+    #|         return;
+    #|       }
+    #|       console.error("plugin error", response.error);
+    #|     })
+    #|     .catch(console.error);
+    #| </script>,
+  )
+  plugins.run()
+}
+```
+
+Notes:
+- `PluginHost` uses `CommandBridge` internally; access it with
+  `plugins.command_bridge()` if you need lower-level command registration too.
+- Use `plugins.emit(plugin, name, payload)` when the main program, rather than a
+  plugin context, needs to push a plugin-scoped event into JavaScript.
+- Use `plugins.run()` when you need plugin `on_destroy` hooks to run as part of
+  normal application shutdown.
+- Install a plugin before loading content if you want the JS API to exist on the
+  first page load.
+- Plugin names and API names starting with `@@` are reserved for
+  framework/internal use.
+- Special JavaScript property names such as `__proto__`, `prototype`, and
+  `constructor` are also reserved for plugin names and API names.
+- The JS host uses reserved helper keys `@@call`, `@@has`, `@@ensurePlugin`,
+  `@@defineApi`, `@@on`, `@@onEvent`, and `@@emit`.
+- Duplicate plugin names or duplicate APIs inside the same plugin abort during
+  installation.
+
 ## 📚 Examples
 
 This repository includes several examples in the `examples/` directory:
@@ -213,6 +309,7 @@ This repository includes several examples in the `examples/` directory:
 - **14_beforeunload** - Handling window close events
 - **15_close** - Window close management
 - **16_command** - Structured JS <-> MoonBit command bridge
+- **17_plugin** - Plugin modules exposed as JavaScript APIs
 
 Run any example:
 
