@@ -63,9 +63,14 @@ pub fn CommandResponse::is_ok(self : CommandResponse) -> Bool {
 ///
 /// JS -> MoonBit resolves to a `CommandResponse`, so command-level failures are
 /// encoded in the response object instead of rejecting the promise.
+///
+/// `CommandBridge::new(...)` aborts if `binding_name` is already bound on the
+/// target `Webview`, because duplicate internal bindings would leave the new
+/// bridge unreachable from JavaScript.
 struct CommandBridge {
   webview : Webview
   global_name : String
+  binding_name : String
   event_name : String
   handlers : Map[String, (Json) -> CommandResponse]
 }
@@ -79,15 +84,27 @@ struct CommandBridge {
 ///
 /// Parameters:
 /// - `global_name` controls the injected `window[...]` object name
-/// - `binding_name` controls the internal JS -> MoonBit webview binding name
+/// - `binding_name` controls the internal JS -> MoonBit webview binding name;
+///   it must be unique per `Webview`
 /// - `event_name` controls the browser event used for MoonBit -> JS delivery
+///
+/// This function aborts if `binding_name` is already registered on `webview`.
 pub fn CommandBridge::new(
   webview : Webview,
   global_name? : String = "MoonBitBridge",
   binding_name? : String = "__moonbit_command",
   event_name? : String = "moonbit:command",
 ) -> CommandBridge {
-  let bridge = CommandBridge::{ webview, global_name, event_name, handlers: {} }
+  guard webview.bindings.get(binding_name) is None else {
+    abort("CommandBridge::new: binding name already in use: " + binding_name)
+  }
+  let bridge = CommandBridge::{
+    webview,
+    global_name,
+    binding_name,
+    event_name,
+    handlers: {},
+  }
   bridge.webview.bind(binding_name, fn(id, req) {
     bridge.handle_request(id, req)
   })
@@ -107,6 +124,20 @@ pub fn CommandBridge::global_name(self : CommandBridge) -> String {
 /// Returns the browser event name used for native-to-JS commands.
 pub fn CommandBridge::event_name(self : CommandBridge) -> String {
   self.event_name
+}
+
+///|
+/// Unregisters the bridge's internal JS -> MoonBit binding and drops all
+/// registered handlers.
+///
+/// This does not destroy the underlying `Webview`.
+///
+/// The JS bootstrap installed with `webview.init(...)` cannot be retracted for
+/// future page loads, but after `destroy()` the old bridge binding is no longer
+/// callable and the same `binding_name` can be reused for a new bridge.
+pub fn CommandBridge::destroy(self : CommandBridge) -> Unit {
+  self.handlers.clear()
+  self.webview.unbind(self.binding_name)
 }
 
 ///|

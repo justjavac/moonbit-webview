@@ -55,14 +55,14 @@ jobs:
           _CL_: /link /LIBPATH:lib webview.lib /DEBUG
           PATH: lib;${{ env.PATH }}
         run: |
-          moon --manifest-path test/moon.mod.json test --target native
+          moon -C test test --target native
 
       # - name: Run moon test (non-windows)
       #   if: ${{ matrix.os != 'windows-latest' }}
       #   env:
       #     DYLD_LIBRARY_PATH: lib
       #   run: |
-      #     moon --manifest-path test/moon.mod.json test --target native
+      #     moon -C test test --target native
 
       - name: moon test --doc (windows)
         if: ${{ matrix.os == 'windows-latest' }}
@@ -148,14 +148,14 @@ jobs:
           _CL_: /link /LIBPATH:lib webview.lib /DEBUG
           PATH: lib;${{ env.PATH }}
         run: |
-          moon --manifest-path test/moon.mod.json test --target native
+          moon -C test test --target native
 
       # - name: Run moon test (non-windows)
       #   if: ${{ matrix.os != 'windows-latest' }}
       #   env:
       #     DYLD_LIBRARY_PATH: lib
       #   run: |
-      #     moon --manifest-path test/moon.mod.json test --target native
+      #     moon -C test test --target native
 
       - name: moon test --doc (windows)
         if: ${{ matrix.os == 'windows-latest' }}

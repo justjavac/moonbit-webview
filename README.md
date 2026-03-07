@@ -134,6 +134,10 @@ Notes:
   page; it does not wait for a JavaScript reply.
 - MoonBit -> JS delivery is scheduled onto the webview event loop internally,
   so `bridge.send(...)` is safe to call off the UI thread.
+- `binding_name` must be unique per `Webview`. `CommandBridge::new(...)`
+  aborts immediately if that internal binding name is already in use.
+- Call `bridge.destroy()` if you want to unregister the bridge binding and
+  reuse the same `binding_name` on the same `Webview`.
 - If you want raw JSON handling on the MoonBit side, register the handler with
   `Json` as the payload type.
 

@@ -57,6 +57,7 @@ pub impl ToJson for Command
 pub impl @json.FromJson for Command
 
 type CommandBridge
+pub fn CommandBridge::destroy(Self) -> Unit
 pub fn CommandBridge::event_name(Self) -> String
 pub fn CommandBridge::global_name(Self) -> String
 pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle(Self, String, (Payload) -> Reply) -> Unit

@@ -253,3 +253,18 @@ test "Command bridge returns structured errors for unknown commands" {
   webview.run()
   assert_eq(seen_response, Some(expected_response))
 }
+
+///|
+test "panic CommandBridge::new rejects duplicate binding names" {
+  let webview = @webview.Webview::new()
+  let _first = @webview.CommandBridge::new(webview)
+  let _second = @webview.CommandBridge::new(webview)
+}
+
+///|
+test "CommandBridge::destroy unbinds the internal binding" {
+  let webview = @webview.Webview::new()
+  let first = @webview.CommandBridge::new(webview)
+  first.destroy()
+  let _second = @webview.CommandBridge::new(webview)
+}
