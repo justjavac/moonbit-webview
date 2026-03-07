@@ -17,4 +17,4 @@
 | 13_todo         | ✓      |                                         |
 | 16_command      | ✓      | Structured JS <-> MoonBit bridge       |
 | 17_plugin       | ✓      | Generic plugin modules exposed as JS APIs |
-| 18_plugin_fs    | ✓      | Filesystem plugin module example       |
+| 18_plugin_fs    | ✓      | Filesystem plugin workbench with absolute paths |

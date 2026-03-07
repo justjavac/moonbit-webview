@@ -50,6 +50,9 @@ fn main {
 - These plugins currently target `native`.
 - JS calls return `CommandResponse` values, so check `status` before reading
   `payload`.
+- Plugins may expose native utility commands in addition to handle-based APIs.
+  For example, `fs.resolvePath({ path })` resolves a portable input into a
+  platform-specific absolute path.
 - Plugin events are available through `window.MoonBitPlugins.<plugin>["@@on"]`
   and `["@@onEvent"]`.
 - Use `webview.plugin_host()` only when you need direct access to the default

@@ -40,6 +40,14 @@ if (response.status === "ok") {
 }
 ```
 
+If you want the native absolute path before opening a file, resolve it first:
+
+```js
+const resolved = await window.MoonBitPlugins.fs.resolvePath({
+  path: "demo.txt",
+});
+```
+
 ### Commands
 
 - `fs.open({ path, mode })`
@@ -91,6 +99,8 @@ Event payload shape:
 - This plugin currently targets the native backend.
 - Use relative paths like `demo.txt` for portable examples across macOS, Linux,
   and Windows.
+- Resolve relative paths with `fs.resolvePath({ path })` when the UI should
+  display the actual absolute location chosen by the native runtime.
 - `open` stores the resolved absolute path for each handle, so `fstat({ handle
   })` reports an absolute `path`.
 - `read` and `write` use UTF-8 text payloads.

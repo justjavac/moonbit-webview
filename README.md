@@ -285,6 +285,9 @@ Notes:
   JS namespace or bridge names.
 - Reusable plugins can live in separate MoonBit modules such as
   [plugins/fs/README.md](plugins/fs/README.md).
+- Plugin modules can add utility APIs beyond handle-based commands. For
+  example, the fs plugin exposes `fs.resolvePath({ path })` so JavaScript can
+  ask the native backend for the platform-specific absolute path.
 - Plugin cleanup is attached to the `Webview` lifecycle, so `on_destroy` hooks
   run during normal `webview.run()` / `webview.destroy()`.
 - Install a plugin before loading content if you want the JS API to exist on the
@@ -319,7 +322,7 @@ This repository includes several examples in the `examples/` directory:
 - **15_close** - Window close management
 - **16_command** - Structured JS <-> MoonBit command bridge
 - **17_plugin** - Generic plugin modules exposed as JavaScript APIs
-- **18_plugin_fs** - Filesystem plugin module example
+- **18_plugin_fs** - Filesystem plugin workbench with absolute-path resolution
 
 Run any example:
 
