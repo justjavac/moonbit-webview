@@ -76,6 +76,10 @@ int moonbit_webview_unbind(webview_t w, const char *name, void *raw_binding) {
   return result;
 }
 
+int64_t moonbit_webview_identity(webview_t w) {
+  return (int64_t)(intptr_t)w;
+}
+
 moonbit_bytes_t moonbit_webview_copy_cstr(void *raw_cstr) {
   const char *cstr = raw_cstr;
   moonbit_bytes_t bytes;

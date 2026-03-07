@@ -125,13 +125,16 @@ type Webview
 pub fn Webview::bind(Self, String, (Bytes, Bytes) -> Unit) -> Unit
 pub fn Webview::destroy(Self) -> Unit
 pub fn Webview::dispatch(Self, () -> Unit) -> Unit
+pub fn[Payload : ToJson] Webview::emit_plugin(Self, String, String, Payload) -> Unit
 pub fn Webview::eval(Self, String) -> Unit
 pub fn Webview::get_handle(Self) -> Webview_t
 pub fn Webview::get_native_handle(Self, NativeHandleKind) -> Int64
 pub fn Webview::get_window(Self) -> Int64
 pub fn Webview::init(Self, String) -> Unit
+pub fn Webview::install_plugin(Self, Plugin) -> Unit
 pub fn Webview::navigate(Self, String) -> Unit
 pub fn Webview::new(debug? : Int) -> Self
+pub fn Webview::plugin_host(Self) -> PluginHost
 pub fn Webview::response(Self, String, Int, String) -> Unit
 pub fn Webview::run(Self) -> Unit
 pub fn Webview::set_html(Self, String) -> Unit

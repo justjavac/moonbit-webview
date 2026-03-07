@@ -295,13 +295,12 @@ test "Plugin host exposes plugin APIs into JavaScript" {
   let mut seen_event : PluginNoticeEvent? = None
   let mut js_error : String? = None
   let webview = @webview.Webview::new()
-  let plugins = @webview.PluginHost::new(webview)
   let finish = fn() {
     if seen_response is Some(_) && seen_event is Some(_) {
       webview.terminate()
     }
   }
-  plugins.install(
+  webview.install_plugin(
     @webview.Plugin::new("math", fn(plugin) {
       plugin.command("multiply", fn(payload : MultiplyPayload) {
         let reply = MultiplyReply::{ total: payload.left * payload.right }
@@ -392,7 +391,7 @@ test "Plugin host exposes plugin APIs into JavaScript" {
       #| </html>,
     ),
   )
-  plugins.run()
+  webview.run()
   assert_eq(seen_response, Some(expected_response))
   assert_eq(seen_event, Some(expected_event))
   assert_eq(js_error, None)
@@ -433,8 +432,7 @@ test "Plugin lifecycle hooks run on install and destroy" {
   let mut installed_plugin : String? = None
   let mut destroyed_plugin : String? = None
   let webview = @webview.Webview::new()
-  let plugins = @webview.PluginHost::new(webview)
-  plugins.install(
+  webview.install_plugin(
     @webview.Plugin::new(
       "math",
       fn(_plugin) {  },
@@ -444,7 +442,7 @@ test "Plugin lifecycle hooks run on install and destroy" {
   )
   assert_eq(installed_plugin, Some("math"))
   assert_eq(destroyed_plugin, None)
-  plugins.destroy()
+  webview.plugin_host().destroy()
   assert_eq(destroyed_plugin, Some("math"))
 }
 
@@ -453,6 +451,15 @@ test "PluginHost::install allows helper-like plugin names outside the @@ namespa
   let webview = @webview.Webview::new()
   let plugins = @webview.PluginHost::new(webview)
   plugins.install(@webview.Plugin::new("call", fn(_plugin) {  }))
+}
+
+///|
+test "Webview::plugin_host reuses the default host" {
+  let webview = @webview.Webview::new()
+  let first = webview.plugin_host()
+  first.install(@webview.Plugin::new("math", fn(_plugin) {  }))
+  let second = webview.plugin_host()
+  second.install(@webview.Plugin::new("stats", fn(_plugin) {  }))
 }
 
 ///|

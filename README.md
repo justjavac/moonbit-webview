@@ -195,10 +195,13 @@ fn main {
 
 ## Plugin System
 
-For module-level JS APIs, build on top of `CommandBridge` with `PluginHost`.
+For module-level JS APIs, install `Plugin` modules on a `Webview`. The default
+plugin runtime is built on top of `CommandBridge` and exposed as
+`window.MoonBitPlugins`.
 
 - A MoonBit module exports a `Plugin`.
-- The main program installs that plugin on a `PluginHost`.
+- The main program usually installs that plugin with
+  `webview.install_plugin(...)`.
 - Plugins can define native install/destroy hooks.
 - JavaScript calls the installed API through
   `window.MoonBitPlugins.<plugin>.<api>(payload)` or
@@ -248,8 +251,7 @@ pub fn math_plugin() -> @webview.Plugin {
 
 fn main {
   let webview = @webview.Webview::new(debug=1)
-  let plugins = @webview.PluginHost::new(webview)
-  plugins.install(math_plugin())
+  webview.install_plugin(math_plugin())
   webview.set_html(
     #| <script>
     #|   window.MoonBitPlugins.math["@@onEvent"]("computed", (event) => {
@@ -267,17 +269,24 @@ fn main {
     #|     .catch(console.error);
     #| </script>,
   )
-  plugins.run()
+  webview.run()
 }
 ```
 
 Notes:
-- `PluginHost` uses `CommandBridge` internally; access it with
-  `plugins.command_bridge()` if you need lower-level command registration too.
-- Use `plugins.emit(plugin, name, payload)` when the main program, rather than a
-  plugin context, needs to push a plugin-scoped event into JavaScript.
-- Use `plugins.run()` when you need plugin `on_destroy` hooks to run as part of
-  normal application shutdown.
+- `webview.install_plugin(...)` uses a default `PluginHost` under
+  `window.MoonBitPlugins`.
+- Use `webview.emit_plugin(plugin, name, payload)` when the main program,
+  rather than a plugin context, needs to push a plugin-scoped event into
+  JavaScript.
+- `webview.plugin_host()` returns that default host if you need direct access to
+  `PluginHost` or the underlying `CommandBridge`.
+- You can still construct `PluginHost::new(...)` directly when you need custom
+  JS namespace or bridge names.
+- Reusable plugins can live in separate MoonBit modules such as
+  [plugins/fs/README.md](plugins/fs/README.md).
+- Plugin cleanup is attached to the `Webview` lifecycle, so `on_destroy` hooks
+  run during normal `webview.run()` / `webview.destroy()`.
 - Install a plugin before loading content if you want the JS API to exist on the
   first page load.
 - Plugin names and API names starting with `@@` are reserved for
@@ -309,7 +318,8 @@ This repository includes several examples in the `examples/` directory:
 - **14_beforeunload** - Handling window close events
 - **15_close** - Window close management
 - **16_command** - Structured JS <-> MoonBit command bridge
-- **17_plugin** - Plugin modules exposed as JavaScript APIs
+- **17_plugin** - Generic plugin modules exposed as JavaScript APIs
+- **18_plugin_fs** - Filesystem plugin module example
 
 Run any example:
 

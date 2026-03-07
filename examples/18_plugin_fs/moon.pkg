@@ -1,5 +1,5 @@
 import {
-  "moonbitlang/core/json",
+  "plugins/fs",
   "justjavac/webview",
 }
 
@@ -12,5 +12,5 @@ options(
     },
   },
   "supported-targets": [ "native" ],
-  targets: { "main.mbt": [ "native" ], "math_plugin.mbt": [ "native" ] },
+  targets: { "main.mbt": [ "native" ] },
 )

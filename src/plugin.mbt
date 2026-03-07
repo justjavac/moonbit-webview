@@ -1,5 +1,8 @@
 ///|
-/// A plugin definition that can be installed into a `PluginHost`.
+let default_plugin_hosts : Map[Int64, PluginHost] = {}
+
+///|
+/// A plugin definition that can be installed into a `Webview` or `PluginHost`.
 ///
 /// A plugin is typically exposed from a MoonBit module:
 ///
@@ -14,8 +17,8 @@
 /// ```
 ///
 /// `on_install` runs after the plugin has finished registering commands and
-/// JS helpers on the host. `on_destroy` runs when `PluginHost::destroy()` is
-/// called, before the underlying `CommandBridge` is torn down.
+/// JS helpers on the host. `on_destroy` runs when the owning webview/plugin
+/// host is destroyed, before the underlying `CommandBridge` is torn down.
 struct Plugin {
   name : String
   register : (PluginContext) -> Unit
@@ -24,8 +27,12 @@ struct Plugin {
 }
 
 ///|
-/// Installs MoonBit plugins into a `Webview` and exposes them as JavaScript
-/// APIs through the existing `CommandBridge`.
+/// Advanced plugin host built on top of `CommandBridge`.
+///
+/// Most applications should install plugins through
+/// `webview.install_plugin(...)`, which uses a default `PluginHost` under
+/// `window.MoonBitPlugins`. Construct `PluginHost` directly only when you need
+/// custom JS namespace or bridge names.
 ///
 /// On the JavaScript side this exposes:
 /// - `window[global_name]["@@call"](plugin_name, api_name, payload)`
@@ -43,6 +50,8 @@ struct PluginHost {
   plugins : Map[String, Bool]
   apis : Map[String, Bool]
   destroy_hooks : Map[String, () -> Unit]
+  destroy_hook_name : String
+  default_registry_key : Int64?
 }
 
 ///|
@@ -61,7 +70,8 @@ pub struct PluginEvent {
 } derive(ToJson, FromJson, Show, Eq)
 
 ///|
-/// Builds a plugin value that can later be installed on a `PluginHost`.
+/// Builds a plugin value that can later be installed on a `Webview` or
+/// `PluginHost`.
 pub fn Plugin::new(
   name : String,
   register : (PluginContext) -> Unit,
@@ -73,6 +83,9 @@ pub fn Plugin::new(
 
 ///|
 /// Creates a plugin host backed by a `CommandBridge`.
+///
+/// This is the advanced/manual API. For the default host attached to a webview,
+/// prefer `webview.install_plugin(...)` and `webview.plugin_host()`.
 ///
 /// `global_name` controls the JavaScript namespace used for plugin APIs and
 /// defaults to `window.MoonBitPlugins`.
@@ -86,6 +99,62 @@ pub fn PluginHost::new(
   binding_name? : String = "__moonbit_command",
   event_name? : String = "moonbit:command",
 ) -> PluginHost {
+  make_plugin_host(
+    webview,
+    global_name~,
+    command_global_name~,
+    binding_name~,
+    event_name~,
+  )
+}
+
+///|
+/// Returns the default plugin host attached to this webview.
+///
+/// The host is created lazily and reused by `webview.install_plugin(...)` and
+/// `webview.emit_plugin(...)`.
+pub fn Webview::plugin_host(self : Webview) -> PluginHost {
+  let key = self.identity()
+  match default_plugin_hosts.get(key) {
+    Some(host) => host
+    None => {
+      let host = make_plugin_host(self, default_registry_key=Some(key))
+      default_plugin_hosts.set(key, host)
+      host
+    }
+  }
+}
+
+///|
+/// Installs a plugin into the webview's default plugin host.
+pub fn Webview::install_plugin(self : Webview, plugin : Plugin) -> Unit {
+  self.plugin_host().install(plugin)
+}
+
+///|
+/// Emits a plugin-scoped event from the main program through the webview's
+/// default plugin host.
+pub fn[Payload : ToJson] Webview::emit_plugin(
+  self : Webview,
+  plugin_name : String,
+  event_name : String,
+  payload : Payload,
+) -> Unit {
+  self.plugin_host().emit(plugin_name, event_name, payload)
+}
+
+///|
+fn make_plugin_host(
+  webview : Webview,
+  global_name? : String = "MoonBitPlugins",
+  command_global_name? : String = "MoonBitBridge",
+  binding_name? : String = "__moonbit_command",
+  event_name? : String = "moonbit:command",
+  default_registry_key? : Int64? = None,
+) -> PluginHost {
+  let destroy_hook_name = plugin_host_destroy_hook_name(
+    global_name, binding_name,
+  )
   let host = PluginHost::{
     webview,
     bridge: CommandBridge::new(
@@ -98,7 +167,10 @@ pub fn PluginHost::new(
     plugins: {},
     apis: {},
     destroy_hooks: {},
+    destroy_hook_name,
+    default_registry_key,
   }
+  webview.register_destroy_hook(destroy_hook_name, fn() { host.destroy() })
   host.install_script(make_plugin_host_script(global_name, command_global_name))
   host
 }
@@ -141,6 +213,11 @@ pub fn PluginHost::install(self : PluginHost, plugin : Plugin) -> Unit {
 /// Drops all registered plugin metadata and destroys the underlying
 /// `CommandBridge`.
 pub fn PluginHost::destroy(self : PluginHost) -> Unit {
+  match self.default_registry_key {
+    Some(key) => default_plugin_hosts.remove(key)
+    None => ()
+  }
+  self.webview.unregister_destroy_hook(self.destroy_hook_name)
   for _, hook in self.destroy_hooks {
     hook()
   }
@@ -151,12 +228,13 @@ pub fn PluginHost::destroy(self : PluginHost) -> Unit {
 }
 
 ///|
-/// Runs the underlying webview loop and then tears the plugin host down in the
-/// correct order so destroy hooks run before the native webview is destroyed.
+/// Runs the underlying webview loop.
+///
+/// `PluginHost` cleanup is already attached to the underlying `Webview`
+/// lifecycle, so `webview.run()` and `plugins.run()` are equivalent. Prefer
+/// `webview.run()` in normal application code.
 pub fn PluginHost::run(self : PluginHost) -> Unit {
-  let _ = webview_run(self.webview.get_handle())
-  self.destroy()
-  self.webview.destroy()
+  self.webview.run()
 }
 
 ///|
@@ -171,6 +249,9 @@ pub fn PluginContext::name(self : PluginContext) -> String {
 /// JavaScript receives these events through
 /// `window.MoonBitPlugins[plugin_name]["@@on"](...)` and
 /// `window.MoonBitPlugins[plugin_name]["@@onEvent"](...)`.
+///
+/// For the default host attached to a `Webview`, prefer
+/// `webview.emit_plugin(...)`.
 pub fn[Payload : ToJson] PluginHost::emit(
   self : PluginHost,
   plugin_name : String,
@@ -285,6 +366,14 @@ fn plugin_command_name(plugin_name : String, api_name : String) -> String {
 ///|
 fn plugin_event_command_name() -> String {
   "@@plugin:event"
+}
+
+///|
+fn plugin_host_destroy_hook_name(
+  global_name : String,
+  binding_name : String,
+) -> String {
+  "plugin-host:" + global_name + ":" + binding_name
 }
 
 ///|
