@@ -11,7 +11,7 @@
 | 07_inject_js    | ✓      |                                         |
 | 08_eval         | ✓      |                                         |
 | 09_dispatch     | ✓      |                                         |
-| 10_bind         | 💥     |                                         |
+| 10_bind         | ✓      |                                         |
 | 11_multi_window | ✓      |                                         |
 | 12_embed        | ✓      |                                         |
 | 13_todo         | ✓      |                                         |
