@@ -1,16 +1,42 @@
+///|
 struct PingPayload {
   message : String
   count : Int
 } derive(ToJson, FromJson, Eq, Show)
 
+///|
 struct PingReply {
   echoed : String
   next_count : Int
 } derive(ToJson, FromJson, Eq, Show)
 
+///|
 struct NativeEvent {
   label : String
   total : Int
+} derive(ToJson, FromJson, Eq, Show)
+
+///|
+struct MultiplyPayload {
+  left : Int
+  right : Int
+} derive(ToJson, FromJson, Eq, Show)
+
+///|
+struct MultiplyReply {
+  total : Int
+} derive(ToJson, FromJson, Eq, Show)
+
+///|
+struct PluginNotice {
+  message : String
+} derive(ToJson, FromJson, Eq, Show)
+
+///|
+struct PluginNoticeEvent {
+  plugin : String
+  name : String
+  payload : PluginNotice
 } derive(ToJson, FromJson, Eq, Show)
 
 ///|
@@ -125,8 +151,9 @@ test "Command bridge exchanges typed commands with JavaScript" {
   })
   webview.bind("reportPingResponse", fn(id, req) {
     let request_id = @ffi.from_cstr(id)
-    let response_result : Result[@webview.CommandResponse, String] =
-      decode_single_argument(req)
+    let response_result : Result[@webview.CommandResponse, String] = decode_single_argument(
+      req,
+    )
     match response_result {
       Ok(response) => {
         seen_response = Some(response)
@@ -212,17 +239,17 @@ test "Command bridge returns structured errors for unknown commands" {
   let _bridge = @webview.CommandBridge::new(webview)
   webview.bind("reportUnknownCommandError", fn(id, req) {
     let request_id = @ffi.from_cstr(id)
-    let response_result : Result[@webview.CommandResponse, String] =
-      decode_single_argument(req)
+    let response_result : Result[@webview.CommandResponse, String] = decode_single_argument(
+      req,
+    )
     match response_result {
       Ok(response) => seen_response = Some(response)
-      Err(message) => {
+      Err(message) =>
         seen_response = Some(
           @webview.CommandResponse::error(
             "Failed to decode unknown-command payload: " + message,
           ),
         )
-      }
     }
     webview.response(request_id, 0, "null")
     webview.terminate()
@@ -255,10 +282,193 @@ test "Command bridge returns structured errors for unknown commands" {
 }
 
 ///|
+test "Plugin host exposes plugin APIs into JavaScript" {
+  let expected_response = @webview.CommandResponse::ok(MultiplyReply::{
+    total: 42,
+  })
+  let expected_event = PluginNoticeEvent::{
+    plugin: "math",
+    name: "computed",
+    payload: PluginNotice::{ message: "MoonBit computed 42" },
+  }
+  let mut seen_response : @webview.CommandResponse? = None
+  let mut seen_event : PluginNoticeEvent? = None
+  let mut js_error : String? = None
+  let webview = @webview.Webview::new()
+  let plugins = @webview.PluginHost::new(webview)
+  let finish = fn() {
+    if seen_response is Some(_) && seen_event is Some(_) {
+      webview.terminate()
+    }
+  }
+  plugins.install(
+    @webview.Plugin::new("math", fn(plugin) {
+      plugin.command("multiply", fn(payload : MultiplyPayload) {
+        let reply = MultiplyReply::{ total: payload.left * payload.right }
+        plugin.emit("computed", PluginNotice::{
+          message: "MoonBit computed " + reply.total.to_string(),
+        })
+        reply
+      })
+    }),
+  )
+  webview.bind("reportPluginFailure", fn(id, req) {
+    let request_id = @ffi.from_cstr(id)
+    let message_result : Result[String, String] = decode_single_argument(req)
+    match message_result {
+      Ok(message) => js_error = Some(message)
+      Err(message) =>
+        js_error = Some("Failed to decode plugin failure payload: " + message)
+    }
+    webview.response(request_id, 0, "null")
+    webview.terminate()
+  })
+  webview.bind("reportPluginResponse", fn(id, req) {
+    let request_id = @ffi.from_cstr(id)
+    let response_result : Result[@webview.CommandResponse, String] = decode_single_argument(
+      req,
+    )
+    match response_result {
+      Ok(response) => {
+        seen_response = Some(response)
+        finish()
+      }
+      Err(message) => {
+        js_error = Some("Failed to decode plugin response payload: " + message)
+        webview.terminate()
+      }
+    }
+    webview.response(request_id, 0, "null")
+  })
+  webview.bind("reportPluginEvent", fn(id, req) {
+    let request_id = @ffi.from_cstr(id)
+    let event_result : Result[PluginNoticeEvent, String] = decode_single_argument(
+      req,
+    )
+    match event_result {
+      Ok(event) => {
+        seen_event = Some(event)
+        finish()
+      }
+      Err(message) => {
+        js_error = Some("Failed to decode plugin event payload: " + message)
+        webview.terminate()
+      }
+    }
+    webview.response(request_id, 0, "null")
+  })
+  webview.set_html(
+    (
+      #| <html>
+      #|   <body>
+      #|     <script>
+      #|       const reportFailure = (message) =>
+      #|         window.reportPluginFailure(message).catch(() => {});
+      #|       window.addEventListener("error", (event) => {
+      #|         void reportFailure("window error: " + String(event.message));
+      #|       });
+      #|       window.addEventListener("unhandledrejection", (event) => {
+      #|         void reportFailure("unhandled rejection: " + String(event.reason));
+      #|       });
+      #|       window.addEventListener("load", () => {
+      #|         const plugins = window.MoonBitPlugins;
+      #|         if (!plugins || !plugins["@@has"]("math", "multiply")) {
+      #|           void reportFailure("plugin api missing");
+      #|           return;
+      #|         }
+      #|         plugins.math["@@onEvent"]("computed", (event) => {
+      #|           void window.reportPluginEvent(event).catch(() => {});
+      #|         });
+      #|         plugins.math
+      #|           .multiply({ left: 6, right: 7 })
+      #|           .then((response) =>
+      #|             window.reportPluginResponse(response).catch(() => {}))
+      #|           .catch((error) => {
+      #|             void reportFailure("plugin transport error: " + String(error));
+      #|           });
+      #|       });
+      #|     </script>
+      #|   </body>
+      #| </html>,
+    ),
+  )
+  plugins.run()
+  assert_eq(seen_response, Some(expected_response))
+  assert_eq(seen_event, Some(expected_event))
+  assert_eq(js_error, None)
+}
+
+///|
 test "panic CommandBridge::new rejects duplicate binding names" {
   let webview = @webview.Webview::new()
   let _first = @webview.CommandBridge::new(webview)
   let _second = @webview.CommandBridge::new(webview)
+}
+
+///|
+test "panic PluginHost::install rejects duplicate plugin names" {
+  let webview = @webview.Webview::new()
+  let plugins = @webview.PluginHost::new(webview)
+  let plugin = @webview.Plugin::new("math", fn(_plugin) {  })
+  plugins.install(plugin)
+  plugins.install(plugin)
+}
+
+///|
+test "panic PluginHost::install rejects reserved plugin names" {
+  let webview = @webview.Webview::new()
+  let plugins = @webview.PluginHost::new(webview)
+  plugins.install(@webview.Plugin::new("@@internal", fn(_plugin) {  }))
+}
+
+///|
+test "Plugin lifecycle hooks run on install and destroy" {
+  let mut installed_plugin : String? = None
+  let mut destroyed_plugin : String? = None
+  let webview = @webview.Webview::new()
+  let plugins = @webview.PluginHost::new(webview)
+  plugins.install(
+    @webview.Plugin::new(
+      "math",
+      fn(_plugin) {  },
+      on_install=fn(plugin) { installed_plugin = Some(plugin.name()) },
+      on_destroy=fn(plugin) { destroyed_plugin = Some(plugin.name()) },
+    ),
+  )
+  assert_eq(installed_plugin, Some("math"))
+  assert_eq(destroyed_plugin, None)
+  plugins.destroy()
+  assert_eq(destroyed_plugin, Some("math"))
+}
+
+///|
+test "PluginHost::install allows helper-like plugin names outside the @@ namespace" {
+  let webview = @webview.Webview::new()
+  let plugins = @webview.PluginHost::new(webview)
+  plugins.install(@webview.Plugin::new("call", fn(_plugin) {  }))
+}
+
+///|
+test "panic PluginContext::command rejects reserved API names" {
+  let webview = @webview.Webview::new()
+  let plugins = @webview.PluginHost::new(webview)
+  plugins.install(
+    @webview.Plugin::new("math", fn(plugin) {
+      plugin.command("@@on", fn(payload : Json) { payload })
+    }),
+  )
+}
+
+///|
+test "panic PluginContext::command rejects duplicate APIs" {
+  let webview = @webview.Webview::new()
+  let plugins = @webview.PluginHost::new(webview)
+  plugins.install(
+    @webview.Plugin::new("math", fn(plugin) {
+      plugin.command("identity", fn(payload : Json) { payload })
+      plugin.command("identity", fn(payload : Json) { payload })
+    }),
+  )
 }
 
 ///|

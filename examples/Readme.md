@@ -16,3 +16,4 @@
 | 12_embed        | ✓      |                                         |
 | 13_todo         | ✓      |                                         |
 | 16_command      | ✓      | Structured JS <-> MoonBit bridge       |
+| 17_plugin       | ✓      | Plugin modules exposed as JS APIs      |
