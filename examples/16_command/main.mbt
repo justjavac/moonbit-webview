@@ -67,12 +67,12 @@ let html =
   #|       document.getElementById("run").addEventListener("click", () => {
   #|         window.MoonBitBridge
   #|           .send("sum", { left: 7, right: 8 })
-  #|           .then((result) => {
+  #|           .then((response) => {
   #|             output.textContent =
-  #|               "Command reply:\n" + JSON.stringify(result, null, 2);
+  #|               "Command response:\n" + JSON.stringify(response, null, 2);
   #|           })
   #|           .catch((error) => {
-  #|             output.textContent = String(error);
+  #|             output.textContent = "Transport error:\n" + String(error);
   #|           });
   #|       });
   #|     </script>

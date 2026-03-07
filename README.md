@@ -122,6 +122,21 @@ existing low-level bindings.
 - MoonBit -> JS: `bridge.send(name, payload)` and
   `window.MoonBitBridge.onCommand(listener)`
 
+Notes:
+- `window.MoonBitBridge.send(...)` is request/reply. It returns a
+  `Promise<CommandResponse>`.
+- `CommandResponse.status` is `"ok"` or `"error"`.
+- On success, `CommandResponse.payload` contains the handler result.
+- On failure, `CommandResponse.error` contains the error message.
+- Use `bridge.handle_result(...)` if a MoonBit handler should explicitly return
+  `Result[Reply, String]` instead of always succeeding.
+- `bridge.send(...)` is fire-and-forget. It pushes a `Command` event into the
+  page; it does not wait for a JavaScript reply.
+- MoonBit -> JS delivery is scheduled onto the webview event loop internally,
+  so `bridge.send(...)` is safe to call off the UI thread.
+- If you want raw JSON handling on the MoonBit side, register the handler with
+  `Json` as the payload type.
+
 ```moonbit
 struct SumPayload {
   left : Int
@@ -139,10 +154,15 @@ struct NoticePayload {
 fn main {
   let webview = @webview.Webview::new(debug=1)
   let bridge = @webview.CommandBridge::new(webview)
-  bridge.handle("sum", fn(payload : SumPayload) {
-    let reply = SumReply::{ total: payload.left + payload.right }
+  bridge.handle_result("sum", fn(payload : SumPayload) {
+    let reply =
+      if payload.right < 0 {
+        Err("right must be non-negative")
+      } else {
+        Ok(SumReply::{ total: payload.left + payload.right })
+      }
     bridge.send("notice", NoticePayload::{
-      message: "MoonBit computed " + reply.total.to_string(),
+      message: "MoonBit handled sum",
     })
     reply
   })
@@ -155,7 +175,14 @@ fn main {
     #|   });
     #|   window.MoonBitBridge
     #|     .send("sum", { left: 1, right: 2 })
-    #|     .then(console.log);
+    #|     .then((response) => {
+    #|       if (response.status === "ok") {
+    #|         console.log("MoonBit reply", response.payload);
+    #|       } else {
+    #|         console.error("MoonBit command error", response.error);
+    #|       }
+    #|     })
+    #|     .catch(console.error);
     #| </script>,
   )
   webview.run()

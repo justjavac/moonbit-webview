@@ -14,12 +14,14 @@ struct NativeEvent {
 } derive(ToJson, FromJson, Eq, Show)
 
 ///|
-fn decode_single_string_argument(raw_req : Bytes) -> Result[String, String] {
+fn[Payload : @json.FromJson] decode_single_argument(
+  raw_req : Bytes,
+) -> Result[Payload, String] {
   let request_json : Result[Json, _] = try? @json.parse(@ffi.from_cstr(raw_req))
   match request_json {
     Err(err) => Err(err.to_string())
     Ok(request_json) => {
-      let request_args : Result[Array[String], _] = try? @json.from_json(
+      let request_args : Result[Array[Payload], _] = try? @json.from_json(
         request_json,
       )
       match request_args {
@@ -28,7 +30,7 @@ fn decode_single_string_argument(raw_req : Bytes) -> Result[String, String] {
           if request_args.length() == 1 {
             Ok(request_args[0])
           } else {
-            Err("Expected exactly one string argument")
+            Err("Expected exactly one argument")
           }
       }
     }
@@ -97,21 +99,23 @@ test "Command bridge exchanges typed commands with JavaScript" {
     echoed: "hello from js / handled by MoonBit",
     next_count: 4,
   }
+  let expected_response = @webview.CommandResponse::ok(expected_reply)
   let expected_event = NativeEvent::{ label: "native-ready", total: 6 }
   let mut seen_ping : PingPayload? = None
-  let mut seen_reply : PingReply? = None
+  let mut seen_response : @webview.CommandResponse? = None
   let mut seen_event : NativeEvent? = None
   let mut js_error : String? = None
   let webview = @webview.Webview::new()
   let bridge = @webview.CommandBridge::new(webview)
   let finish = fn() {
-    if seen_reply is Some(_) && seen_event is Some(_) {
+    if seen_response is Some(_) && seen_event is Some(_) {
       webview.terminate()
     }
   }
   webview.bind("reportTestFailure", fn(id, req) {
     let request_id = @ffi.from_cstr(id)
-    match decode_single_string_argument(req) {
+    let message_result : Result[String, String] = decode_single_argument(req)
+    match message_result {
       Ok(message) => js_error = Some(message)
       Err(message) =>
         js_error = Some("Failed to decode JS failure payload: " + message)
@@ -119,14 +123,31 @@ test "Command bridge exchanges typed commands with JavaScript" {
     webview.response(request_id, 0, "null")
     webview.terminate()
   })
+  webview.bind("reportPingResponse", fn(id, req) {
+    let request_id = @ffi.from_cstr(id)
+    let response_result : Result[@webview.CommandResponse, String] =
+      decode_single_argument(req)
+    match response_result {
+      Ok(response) => {
+        seen_response = Some(response)
+        webview.response(request_id, 0, "null")
+        if response.is_ok() {
+          finish()
+        } else {
+          webview.terminate()
+        }
+      }
+      Err(message) => {
+        js_error = Some("Failed to decode command response payload: " + message)
+        webview.response(request_id, 0, "null")
+        webview.terminate()
+      }
+    }
+  })
   bridge.handle("ping", fn(payload : PingPayload) {
     seen_ping = Some(payload)
     bridge.send("nativeEvent", expected_event)
     expected_reply
-  })
-  bridge.handle("jsResult", fn(payload : PingReply) {
-    seen_reply = Some(payload)
-    finish()
   })
   bridge.handle("jsObservedNativeEvent", fn(payload : NativeEvent) {
     seen_event = Some(payload)
@@ -145,6 +166,8 @@ test "Command bridge exchanges typed commands with JavaScript" {
       #|       window.addEventListener("unhandledrejection", (event) => {
       #|         void reportFailure("unhandled rejection: " + String(event.reason));
       #|       });
+      #|       const reportPingResponse = (response) =>
+      #|         window.reportPingResponse(response).catch(() => {});
       #|       window.addEventListener("load", () => {
       #|         const bridge = window.MoonBitBridge;
       #|         bridge.onCommand((command) => {
@@ -158,9 +181,13 @@ test "Command bridge exchanges typed commands with JavaScript" {
       #|         });
       #|         bridge
       #|           .send("ping", { message: "hello from js", count: 3 })
-      #|           .then((result) => bridge.send("jsResult", result))
+      #|           .then((response) => reportPingResponse(response))
       #|           .catch((error) => {
-      #|             return reportFailure("ping error: " + String(error));
+      #|             return reportPingResponse({
+      #|               status: "transport_error",
+      #|               payload: null,
+      #|               error: String(error),
+      #|             });
       #|           });
       #|       });
       #|     </script>
@@ -170,22 +197,32 @@ test "Command bridge exchanges typed commands with JavaScript" {
   )
   webview.run()
   assert_eq(seen_ping, Some(expected_ping))
-  assert_eq(seen_reply, Some(expected_reply))
+  assert_eq(seen_response, Some(expected_response))
   assert_eq(seen_event, Some(expected_event))
   assert_eq(js_error, None)
 }
 
 ///|
-test "Command bridge rejects unknown commands with JSON string errors" {
-  let mut seen_error : String? = None
+test "Command bridge returns structured errors for unknown commands" {
+  let expected_response = @webview.CommandResponse::error(
+    "Unknown command: missing",
+  )
+  let mut seen_response : @webview.CommandResponse? = None
   let webview = @webview.Webview::new()
   let _bridge = @webview.CommandBridge::new(webview)
   webview.bind("reportUnknownCommandError", fn(id, req) {
     let request_id = @ffi.from_cstr(id)
-    match decode_single_string_argument(req) {
-      Ok(message) => seen_error = Some(message)
-      Err(message) =>
-        seen_error = Some("Failed to decode unknown-command payload: " + message)
+    let response_result : Result[@webview.CommandResponse, String] =
+      decode_single_argument(req)
+    match response_result {
+      Ok(response) => seen_response = Some(response)
+      Err(message) => {
+        seen_response = Some(
+          @webview.CommandResponse::error(
+            "Failed to decode unknown-command payload: " + message,
+          ),
+        )
+      }
     }
     webview.response(request_id, 0, "null")
     webview.terminate()
@@ -196,12 +233,17 @@ test "Command bridge rejects unknown commands with JSON string errors" {
       #|   <body>
       #|     <script>
       #|       window.addEventListener("load", () => {
-      #|         const reportResult = (message) =>
-      #|           window.reportUnknownCommandError(message).catch(() => {});
+      #|         const reportResult = (response) =>
+      #|           window.reportUnknownCommandError(response).catch(() => {});
       #|         window.MoonBitBridge
       #|           .send("missing", { ok: true })
-      #|           .then(() => reportResult("unexpected success"))
-      #|           .catch((error) => reportResult(String(error)));
+      #|           .then((response) => reportResult(response))
+      #|           .catch((error) =>
+      #|             reportResult({
+      #|               status: "transport_error",
+      #|               payload: null,
+      #|               error: String(error),
+      #|             }));
       #|       });
       #|     </script>
       #|   </body>
@@ -209,5 +251,5 @@ test "Command bridge rejects unknown commands with JSON string errors" {
     ),
   )
   webview.run()
-  assert_eq(seen_error, Some("Unknown command: missing"))
+  assert_eq(seen_response, Some(expected_response))
 }

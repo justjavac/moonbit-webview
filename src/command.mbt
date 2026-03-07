@@ -1,27 +1,86 @@
 ///|
 /// A named command exchanged between JavaScript and MoonBit.
+///
+/// `name` is the logical command identifier and `payload` is arbitrary JSON.
+/// This shape is used in both directions:
+/// - JS -> MoonBit via `window.MoonBitBridge.send(name, payload)`
+/// - MoonBit -> JS via `CommandBridge::send(name, payload)`
 pub struct Command {
   name : String
   payload : Json
 } derive(ToJson, FromJson, Show, Eq)
 
 ///|
+/// Structured response returned from JS -> MoonBit commands.
+///
+/// `status` is `"ok"` for successful handlers and `"error"` for command
+/// decode/dispatch failures or explicit handler errors.
+///
+/// When `status == "ok"`, `payload` contains the JSON-encoded reply and
+/// `error` is `None`.
+///
+/// When `status == "error"`, `error` contains the failure message and
+/// `payload` is `None`.
+pub struct CommandResponse {
+  status : String
+  payload : Json?
+  error : String?
+} derive(ToJson, FromJson, Show, Eq)
+
+///|
+/// Builds a successful command response.
+pub fn[Payload : ToJson] CommandResponse::ok(
+  payload : Payload,
+) -> CommandResponse {
+  CommandResponse::{
+    status: "ok",
+    payload: Some(ToJson::to_json(payload)),
+    error: None,
+  }
+}
+
+///|
+/// Builds a failed command response.
+pub fn CommandResponse::error(message : String) -> CommandResponse {
+  CommandResponse::{ status: "error", payload: None, error: Some(message) }
+}
+
+///|
+/// Returns `true` when the response status is `"ok"`.
+pub fn CommandResponse::is_ok(self : CommandResponse) -> Bool {
+  self.status == "ok"
+}
+
+///|
 /// High-level JSON command bridge built on top of `webview.bind()`.
 ///
 /// It injects a JS helper object into the page and routes named commands to
 /// registered MoonBit handlers.
+///
+/// The injected JS helper exposes:
+/// - `window[global_name].send(name, payload)` for JS -> MoonBit request/reply
+/// - `window[global_name].onCommand(listener)` for MoonBit -> JS events
+///
+/// JS -> MoonBit resolves to a `CommandResponse`, so command-level failures are
+/// encoded in the response object instead of rejecting the promise.
 struct CommandBridge {
   webview : Webview
   global_name : String
   event_name : String
-  handlers : Map[String, (Json) -> Result[Json, String]]
+  handlers : Map[String, (Json) -> CommandResponse]
 }
 
 ///|
 /// Creates and installs a command bridge for the given webview.
 ///
-/// On the JavaScript side this exposes `window[global_name].send(name, payload)`
-/// and `window[global_name].onCommand(listener)`.
+/// On the JavaScript side this exposes:
+/// - `window[global_name].send(name, payload)` returning `Promise<CommandResponse>`
+/// - `window[global_name].onCommand(listener)` for MoonBit -> JS events
+///
+/// Parameters:
+/// - `global_name` controls the injected `window[...]` object name
+/// - `binding_name` controls the internal JS -> MoonBit webview binding name
+/// - `event_name` controls the browser event used for MoonBit -> JS delivery
 pub fn CommandBridge::new(
   webview : Webview,
   global_name? : String = "MoonBitBridge",
@@ -54,6 +113,14 @@ pub fn CommandBridge::event_name(self : CommandBridge) -> String {
 /// Registers a typed command handler.
 ///
 /// Use `Json` as `Payload` if you want to handle raw JSON directly.
+///
+/// When JS calls `window.MoonBitBridge.send(name, payload)`, the bridge:
+/// - looks up the handler registered under `name`
+/// - decodes `payload` into `Payload`
+/// - encodes the callback result into `CommandResponse::{ status, payload, error }`
+///
+/// If payload decoding fails, no handler exists, or the request shape is
+/// invalid, the returned `CommandResponse` has `status == "error"`.
 pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle(
   self : CommandBridge,
   name : String,
@@ -62,8 +129,31 @@ pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle(
   self.handlers.set(name, fn(payload_json) {
     let payload : Result[Payload, _] = try? @json.from_json(payload_json)
     match payload {
-      Ok(payload) => Ok(ToJson::to_json(callback(payload)))
-      Err(err) => Err(err.to_string())
+      Ok(payload) => CommandResponse::ok(callback(payload))
+      Err(err) => CommandResponse::error(err.to_string())
+    }
+  })
+}
+
+///|
+/// Registers a typed command handler that can return explicit command errors.
+///
+/// Use this when the handler needs to reply with `Result[Reply, String]` rather
+/// than treating every failure as a transport/runtime exception.
+pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle_result(
+  self : CommandBridge,
+  name : String,
+  callback : (Payload) -> Result[Reply, String],
+) -> Unit {
+  self.handlers.set(name, fn(payload_json) {
+    let payload : Result[Payload, _] = try? @json.from_json(payload_json)
+    match payload {
+      Ok(payload) =>
+        match callback(payload) {
+          Ok(reply) => CommandResponse::ok(reply)
+          Err(message) => CommandResponse::error(message)
+        }
+      Err(err) => CommandResponse::error(err.to_string())
     }
   })
 }
@@ -73,6 +163,10 @@ pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle(
 ///
 /// The JS dispatch is scheduled onto the webview event loop so this remains
 /// safe to call off the UI thread.
+///
+/// This is a fire-and-forget notification API. It does not wait for a JS
+/// response. JavaScript receives the command through
+/// `window.MoonBitBridge.onCommand(listener)` as a `Command`-shaped object.
 pub fn[Payload : ToJson] CommandBridge::send(
   self : CommandBridge,
   name : String,
@@ -88,12 +182,12 @@ pub fn[Payload : ToJson] CommandBridge::send(
 }
 
 ///|
-fn CommandBridge::respond_error(
+fn CommandBridge::respond(
   self : CommandBridge,
   id : String,
-  message : String,
+  response : CommandResponse,
 ) -> Unit {
-  self.webview.response(id, 1, Json::string(message).stringify())
+  self.webview.response(id, 0, response.to_json().stringify())
 }
 
 ///|
@@ -103,22 +197,21 @@ fn CommandBridge::handle_request(
   raw_req : Bytes,
 ) -> Unit {
   let id = @ffi.from_cstr(raw_id)
-  match parse_command_request(@ffi.from_cstr(raw_req)) {
+  let response = match parse_command_request(@ffi.from_cstr(raw_req)) {
     Ok(command) =>
       match self.handlers.get(command.name) {
-        Some(handler) =>
-          match handler(command.payload) {
-            Ok(result) => self.webview.response(id, 0, result.stringify())
-            Err(message) => self.respond_error(id, message)
-          }
-        None => self.respond_error(id, "Unknown command: " + command.name)
+        Some(handler) => handler(command.payload)
+        None => CommandResponse::error("Unknown command: " + command.name)
       }
-    Err(message) => self.respond_error(id, message)
+    Err(message) => CommandResponse::error(message)
   }
+  self.respond(id, response)
 }
 
 ///|
 fn parse_command_request(raw_req : String) -> Result[Command, String] {
+  // A webview binding receives its JS arguments as a JSON array. The bridge
+  // expects exactly one argument: the `{ name, payload }` command object.
   let request_json : Result[Json, _] = try? @json.parse(raw_req)
   match request_json {
     Err(err) => Err(err.to_string())
@@ -145,6 +238,8 @@ fn make_command_bridge_script(
   binding_name : String,
   event_name : String,
 ) -> String {
+  // Install a tiny JS runtime helper for request/reply (`send`) and
+  // fire-and-forget native events (`onCommand`).
   let global_name_js = Json::string(global_name).stringify()
   let binding_name_js = Json::string(binding_name).stringify()
   let event_name_js = Json::string(event_name).stringify()
@@ -183,6 +278,8 @@ fn make_command_dispatch_script(
   event_name : String,
   command_json : String,
 ) -> String {
+  // Reuse the injected helper when it exists so both directions share the
+  // same event path. Fall back to dispatching the browser event directly.
   let global_name_js = Json::string(global_name).stringify()
   let event_name_js = Json::string(event_name).stringify()
   "(function() {" +

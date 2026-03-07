@@ -60,8 +60,22 @@ type CommandBridge
 pub fn CommandBridge::event_name(Self) -> String
 pub fn CommandBridge::global_name(Self) -> String
 pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle(Self, String, (Payload) -> Reply) -> Unit
+pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle_result(Self, String, (Payload) -> Result[Reply, String]) -> Unit
 pub fn CommandBridge::new(Webview, global_name? : String, binding_name? : String, event_name? : String) -> Self
 pub fn[Payload : ToJson] CommandBridge::send(Self, String, Payload) -> Unit
+
+pub struct CommandResponse {
+  status : String
+  payload : Json?
+  error : String?
+}
+pub fn CommandResponse::error(String) -> Self
+pub fn CommandResponse::is_ok(Self) -> Bool
+pub fn[Payload : ToJson] CommandResponse::ok(Payload) -> Self
+pub impl Eq for CommandResponse
+pub impl Show for CommandResponse
+pub impl ToJson for CommandResponse
+pub impl @json.FromJson for CommandResponse
 
 pub(all) enum NativeHandleKind {
   Window
