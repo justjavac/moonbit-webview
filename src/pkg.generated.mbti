@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "justjavac/webview"
 
+import {
+  "moonbitlang/core/json",
+}
+
 // Values
 pub fn webview_bind(Webview_t, Bytes, FuncRef[(CStr, CStr, (Bytes, Bytes) -> Unit) -> Unit], (Bytes, Bytes) -> Unit) -> BindingHandle
 
@@ -42,6 +46,22 @@ pub type BindingHandle
 
 #external
 pub type CStr
+
+pub struct Command {
+  name : String
+  payload : Json
+}
+pub impl Eq for Command
+pub impl Show for Command
+pub impl ToJson for Command
+pub impl @json.FromJson for Command
+
+type CommandBridge
+pub fn CommandBridge::event_name(Self) -> String
+pub fn CommandBridge::global_name(Self) -> String
+pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle(Self, String, (Payload) -> Reply) -> Unit
+pub fn CommandBridge::new(Webview, global_name? : String, binding_name? : String, event_name? : String) -> Self
+pub fn[Payload : ToJson] CommandBridge::send(Self, String, Payload) -> Unit
 
 pub(all) enum NativeHandleKind {
   Window

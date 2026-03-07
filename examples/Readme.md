@@ -15,3 +15,4 @@
 | 11_multi_window | ✓      |                                         |
 | 12_embed        | ✓      |                                         |
 | 13_todo         | ✓      |                                         |
+| 16_command      | ✓      | Structured JS <-> MoonBit bridge       |

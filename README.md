@@ -113,6 +113,55 @@ fn main {
 }
 ```
 
+## Command Bridge
+
+For structured JS <-> MoonBit communication, use `CommandBridge` on top of the
+existing low-level bindings.
+
+- JS -> MoonBit: `window.MoonBitBridge.send(name, payload)`
+- MoonBit -> JS: `bridge.send(name, payload)` and
+  `window.MoonBitBridge.onCommand(listener)`
+
+```moonbit
+struct SumPayload {
+  left : Int
+  right : Int
+} derive(ToJson, FromJson)
+
+struct SumReply {
+  total : Int
+} derive(ToJson, FromJson)
+
+struct NoticePayload {
+  message : String
+} derive(ToJson, FromJson)
+
+fn main {
+  let webview = @webview.Webview::new(debug=1)
+  let bridge = @webview.CommandBridge::new(webview)
+  bridge.handle("sum", fn(payload : SumPayload) {
+    let reply = SumReply::{ total: payload.left + payload.right }
+    bridge.send("notice", NoticePayload::{
+      message: "MoonBit computed " + reply.total.to_string(),
+    })
+    reply
+  })
+  webview.set_html(
+    #| <script>
+    #|   window.MoonBitBridge.onCommand((command) => {
+    #|     if (command.name === "notice") {
+    #|       console.log("MoonBit -> JS", command.payload);
+    #|     }
+    #|   });
+    #|   window.MoonBitBridge
+    #|     .send("sum", { left: 1, right: 2 })
+    #|     .then(console.log);
+    #| </script>,
+  )
+  webview.run()
+}
+```
+
 ## 📚 Examples
 
 This repository includes several examples in the `examples/` directory:
@@ -132,6 +181,7 @@ This repository includes several examples in the `examples/` directory:
 - **13_todo** - Complete todo application
 - **14_beforeunload** - Handling window close events
 - **15_close** - Window close management
+- **16_command** - Structured JS <-> MoonBit command bridge
 
 Run any example:
 

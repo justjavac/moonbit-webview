@@ -1,0 +1,96 @@
+struct SumPayload {
+  left : Int
+  right : Int
+} derive(ToJson, FromJson, Eq, Show)
+
+struct SumReply {
+  total : Int
+} derive(ToJson, FromJson, Eq, Show)
+
+struct NativeNotice {
+  message : String
+} derive(ToJson, FromJson, Eq, Show)
+
+let html =
+  #| <html>
+  #|   <head>
+  #|     <style>
+  #|       body {
+  #|         margin: 0;
+  #|         min-height: 100vh;
+  #|         display: grid;
+  #|         place-items: center;
+  #|         background: linear-gradient(135deg, #f4f0e8 0%, #dbe7f3 100%);
+  #|         color: #172028;
+  #|         font-family: "Iowan Old Style", "Palatino Linotype", serif;
+  #|       }
+  #|       main {
+  #|         width: min(32rem, calc(100vw - 3rem));
+  #|         padding: 2rem;
+  #|         border-radius: 20px;
+  #|         background: rgba(255, 255, 255, 0.84);
+  #|         box-shadow: 0 20px 60px rgba(23, 32, 40, 0.12);
+  #|       }
+  #|       button {
+  #|         border: 0;
+  #|         border-radius: 999px;
+  #|         padding: 0.85rem 1.2rem;
+  #|         background: #172028;
+  #|         color: white;
+  #|         font: inherit;
+  #|         cursor: pointer;
+  #|       }
+  #|       pre {
+  #|         margin-top: 1rem;
+  #|         padding: 1rem;
+  #|         border-radius: 14px;
+  #|         background: #eef3f8;
+  #|         white-space: pre-wrap;
+  #|       }
+  #|     </style>
+  #|   </head>
+  #|   <body>
+  #|     <main>
+  #|       <h1>Command Bridge</h1>
+  #|       <p>JavaScript sends a command to MoonBit, MoonBit responds, then emits a native event back into the page.</p>
+  #|       <button id="run">Run command</button>
+  #|       <pre id="output">Click the button.</pre>
+  #|     </main>
+  #|     <script>
+  #|       const output = document.getElementById("output");
+  #|       window.MoonBitBridge.onCommand((command) => {
+  #|         if (command.name === "notice") {
+  #|           output.textContent =
+  #|             "Native event:\n" + JSON.stringify(command.payload, null, 2);
+  #|         }
+  #|       });
+  #|       document.getElementById("run").addEventListener("click", () => {
+  #|         window.MoonBitBridge
+  #|           .send("sum", { left: 7, right: 8 })
+  #|           .then((result) => {
+  #|             output.textContent =
+  #|               "Command reply:\n" + JSON.stringify(result, null, 2);
+  #|           })
+  #|           .catch((error) => {
+  #|             output.textContent = String(error);
+  #|           });
+  #|       });
+  #|     </script>
+  #|   </body>
+  #| </html>
+
+fn main {
+  let webview = @webview.Webview::new(debug=1)
+  let bridge = @webview.CommandBridge::new(webview)
+  bridge.handle("sum", fn(payload : SumPayload) {
+    let reply = SumReply::{ total: payload.left + payload.right }
+    bridge.send("notice", NativeNotice::{
+      message: "MoonBit computed " + reply.total.to_string(),
+    })
+    reply
+  })
+  webview.set_title("MoonBit Command Bridge")
+  webview.set_size(860, 640, @webview.SizeHint::None)
+  webview.set_html(html)
+  webview.run()
+}
