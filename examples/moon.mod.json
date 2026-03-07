@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "deps": {
     "justjavac/ffi": "0.1.12",
+    "plugins": {
+      "path": "../plugins"
+    },
     "justjavac/webview": {
       "path": ".."
     }

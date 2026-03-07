@@ -47,6 +47,10 @@ pub extern "C" fn webview_dispatch(
 pub extern "C" fn webview_get_window(webview : Webview_t) -> Int64 = "webview_get_window"
 
 ///|
+/// Returns a stable integer identity for the native webview handle.
+extern "C" fn webview_identity(webview : Webview_t) -> Int64 = "moonbit_webview_identity"
+
+///|
 /// extern void *webview_get_native_handle(webview_t w, webview_native_handle_kind_t kind);
 pub extern "C" fn webview_get_native_handle(
   webview : Webview_t,

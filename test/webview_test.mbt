@@ -295,13 +295,12 @@ test "Plugin host exposes plugin APIs into JavaScript" {
   let mut seen_event : PluginNoticeEvent? = None
   let mut js_error : String? = None
   let webview = @webview.Webview::new()
-  let plugins = @webview.PluginHost::new(webview)
   let finish = fn() {
     if seen_response is Some(_) && seen_event is Some(_) {
       webview.terminate()
     }
   }
-  plugins.install(
+  webview.install_plugin(
     @webview.Plugin::new("math", fn(plugin) {
       plugin.command("multiply", fn(payload : MultiplyPayload) {
         let reply = MultiplyReply::{ total: payload.left * payload.right }
@@ -392,8 +391,94 @@ test "Plugin host exposes plugin APIs into JavaScript" {
       #| </html>,
     ),
   )
-  plugins.run()
+  webview.run()
   assert_eq(seen_response, Some(expected_response))
+  assert_eq(seen_event, Some(expected_event))
+  assert_eq(js_error, None)
+}
+
+///|
+test "Webview::emit_plugin delivers events to JavaScript listeners" {
+  let expected_event = PluginNoticeEvent::{
+    plugin: "math",
+    name: "computed",
+    payload: PluginNotice::{ message: "MoonBit emitted 42" },
+  }
+  let mut seen_event : PluginNoticeEvent? = None
+  let mut js_error : String? = None
+  let webview = @webview.Webview::new()
+  webview.install_plugin(@webview.Plugin::new("math", fn(_plugin) {  }))
+  webview.bind("reportPluginFailure", fn(id, req) {
+    let request_id = @ffi.from_cstr(id)
+    let message_result : Result[String, String] = decode_single_argument(req)
+    match message_result {
+      Ok(message) => js_error = Some(message)
+      Err(message) =>
+        js_error = Some("Failed to decode plugin failure payload: " + message)
+    }
+    webview.response(request_id, 0, "null")
+    webview.terminate()
+  })
+  webview.bind("reportPluginEvent", fn(id, req) {
+    let request_id = @ffi.from_cstr(id)
+    let event_result : Result[PluginNoticeEvent, String] = decode_single_argument(
+      req,
+    )
+    match event_result {
+      Ok(event) => seen_event = Some(event)
+      Err(message) =>
+        js_error = Some("Failed to decode plugin event payload: " + message)
+    }
+    webview.response(request_id, 0, "null")
+    webview.terminate()
+  })
+  webview.bind("requestNativePluginEvent", fn(id, _req) {
+    let request_id = @ffi.from_cstr(id)
+    webview.emit_plugin("math", "computed", PluginNotice::{
+      message: "MoonBit emitted 42",
+    })
+    webview.response(request_id, 0, "null")
+  })
+  webview.set_html(
+    (
+      #| <html>
+      #|   <body>
+      #|     <script>
+      #|       const reportFailure = (message) =>
+      #|         window.reportPluginFailure(message).catch(() => {});
+      #|       window.addEventListener("error", (event) => {
+      #|         void reportFailure("window error: " + String(event.message));
+      #|       });
+      #|       window.addEventListener("unhandledrejection", (event) => {
+      #|         void reportFailure("unhandled rejection: " + String(event.reason));
+      #|       });
+      #|       window.addEventListener("load", () => {
+      #|         const plugins = window.MoonBitPlugins;
+      #|         const timeoutId = window.setTimeout(() => {
+      #|           void reportFailure("emit_plugin listener timeout");
+      #|         }, 1000);
+      #|         if (!plugins || !plugins.math) {
+      #|           window.clearTimeout(timeoutId);
+      #|           void reportFailure("plugin missing");
+      #|           return;
+      #|         }
+      #|         plugins.math["@@onEvent"]("computed", (event) => {
+      #|           window.clearTimeout(timeoutId);
+      #|           void window.reportPluginEvent(event).catch(() => {});
+      #|         });
+      #|         window.setTimeout(() => {
+      #|           window.requestNativePluginEvent().catch((error) => {
+      #|             window.clearTimeout(timeoutId);
+      #|             void reportFailure("emit_plugin transport error: " + String(error));
+      #|           });
+      #|         }, 0);
+      #|       });
+      #|     </script>
+      #|   </body>
+      #| </html>,
+    ),
+  )
+  webview.run()
   assert_eq(seen_event, Some(expected_event))
   assert_eq(js_error, None)
 }
@@ -433,8 +518,7 @@ test "Plugin lifecycle hooks run on install and destroy" {
   let mut installed_plugin : String? = None
   let mut destroyed_plugin : String? = None
   let webview = @webview.Webview::new()
-  let plugins = @webview.PluginHost::new(webview)
-  plugins.install(
+  webview.install_plugin(
     @webview.Plugin::new(
       "math",
       fn(_plugin) {  },
@@ -444,7 +528,7 @@ test "Plugin lifecycle hooks run on install and destroy" {
   )
   assert_eq(installed_plugin, Some("math"))
   assert_eq(destroyed_plugin, None)
-  plugins.destroy()
+  webview.plugin_host().destroy()
   assert_eq(destroyed_plugin, Some("math"))
 }
 
@@ -453,6 +537,15 @@ test "PluginHost::install allows helper-like plugin names outside the @@ namespa
   let webview = @webview.Webview::new()
   let plugins = @webview.PluginHost::new(webview)
   plugins.install(@webview.Plugin::new("call", fn(_plugin) {  }))
+}
+
+///|
+test "Webview::plugin_host reuses the default host" {
+  let webview = @webview.Webview::new()
+  let first = webview.plugin_host()
+  first.install(@webview.Plugin::new("math", fn(_plugin) {  }))
+  let second = webview.plugin_host()
+  second.install(@webview.Plugin::new("stats", fn(_plugin) {  }))
 }
 
 ///|

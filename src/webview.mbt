@@ -39,6 +39,7 @@ pub(all) enum SizeHint {
 struct Webview {
   handle : Webview_t
   bindings : Map[String, BindingHandle]
+  destroy_hooks : Map[String, () -> Unit]
 }
 
 ///|
@@ -48,7 +49,11 @@ struct Webview {
 /// - `debug` - If set to 1, enables debugging mode which provides additional logging.
 pub fn Webview::new(debug? : Int = 0) -> Webview {
   let window : Int64 = 0
-  let webview = Webview::{ handle: webview_create(debug, window), bindings: {} }
+  let webview = Webview::{
+    handle: webview_create(debug, window),
+    bindings: {},
+    destroy_hooks: {},
+  }
   webview
 }
 
@@ -56,6 +61,14 @@ pub fn Webview::new(debug? : Int = 0) -> Webview {
 /// Destroys the webview and closes the window. It is safe to call this
 /// function from another background thread.
 pub fn Webview::destroy(self : Webview) -> Unit {
+  let hooks : Array[() -> Unit] = []
+  for _, hook in self.destroy_hooks {
+    hooks.push(hook)
+  }
+  self.destroy_hooks.clear()
+  for hook in hooks {
+    hook()
+  }
   for name, binding in self.bindings {
     let _ = webview_unbind(self.handle, @ffi.to_cstr(name), binding)
   }
@@ -286,4 +299,28 @@ pub fn Webview::set_size(
 pub fn Webview::run(self : Webview) -> Unit {
   let _ = webview_run(self.handle)
   self.destroy()
+}
+
+///|
+fn Webview::identity(self : Webview) -> Int64 {
+  webview_identity(self.handle)
+}
+
+///|
+fn Webview::register_destroy_hook(
+  self : Webview,
+  hook_name : String,
+  hook : () -> Unit,
+) -> Unit {
+  guard self.destroy_hooks.get(hook_name) is None else {
+    abort(
+      "Webview::register_destroy_hook: hook already registered: " + hook_name,
+    )
+  }
+  self.destroy_hooks.set(hook_name, hook)
+}
+
+///|
+fn Webview::unregister_destroy_hook(self : Webview, hook_name : String) -> Unit {
+  self.destroy_hooks.remove(hook_name)
 }

@@ -41,8 +41,8 @@ let html =
   #|   </head>
   #|   <body>
   #|     <main>
-  #|       <h1>Plugin Host</h1>
-  #|       <p>A MoonBit plugin module installs a namespaced JS API and event stream on <code>window.MoonBitPlugins</code>, and each call returns a structured <code>CommandResponse</code>.</p>
+  #|       <h1>Plugin API</h1>
+  #|       <p>A MoonBit plugin module installs a namespaced JS API and event stream on <code>window.MoonBitPlugins</code>.</p>
   #|       <button id="run">Call math.sum</button>
   #|       <pre id="output">Click the button.</pre>
   #|     </main>
@@ -58,14 +58,9 @@ let html =
   #|         window.MoonBitPlugins.math
   #|           .sum({ left: 20, right: 22 })
   #|           .then((response) => {
-  #|             if (response.status === "ok") {
-  #|               output.textContent =
-  #|                 "Plugin payload:\n" + JSON.stringify(response.payload, null, 2) +
-  #|                 "\n\nLast event:\n" + JSON.stringify(lastEvent, null, 2);
-  #|               return;
-  #|             }
   #|             output.textContent =
-  #|               "Plugin error:\n" + JSON.stringify(response, null, 2);
+  #|               "Plugin response:\n" + JSON.stringify(response, null, 2) +
+  #|               "\n\nLast event:\n" + JSON.stringify(lastEvent, null, 2);
   #|           })
   #|           .catch((error) => {
   #|             output.textContent = "Transport error:\n" + String(error);
@@ -78,10 +73,9 @@ let html =
 ///|
 fn main {
   let webview = @webview.Webview::new(debug=1)
-  let plugins = @webview.PluginHost::new(webview)
-  plugins.install(plugin())
-  webview.set_title("MoonBit Plugin Host")
+  webview.install_plugin(plugin())
+  webview.set_title("MoonBit Plugin API")
   webview.set_size(900, 640, @webview.SizeHint::None)
   webview.set_html(html)
-  plugins.run()
+  webview.run()
 }
