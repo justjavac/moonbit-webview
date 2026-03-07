@@ -202,6 +202,9 @@ MOONBIT_FFI_EXPORT moonbit_bytes_t *plugins_fs_read_dir(moonbit_bytes_t path) {
   FindClose(dir);
   dir = FindFirstFile(search_path, &find_data);
   free(search_path);
+  if (dir == INVALID_HANDLE_VALUE) {
+    return NULL;
+  }
 
   result = (moonbit_bytes_t *)moonbit_make_ref_array(count, NULL);
   if (result == NULL) {

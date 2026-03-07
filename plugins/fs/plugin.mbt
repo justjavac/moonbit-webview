@@ -423,6 +423,7 @@ fn native_read_dir(path : String) -> Result[Array[String], String] {
 ///
 /// This is useful for UIs that accept portable relative paths but still want to
 /// display or reuse the backend's canonical absolute location.
+
 ///|
 fn native_absolute_path(path : String) -> String {
   @utf8.decode_lossy(absolute_path_ffi(path_to_cstr(path))[:])
@@ -457,6 +458,10 @@ fn emit_activity(
 /// `window.MoonBitPlugins.fs` in JavaScript. Opened handles remember their
 /// resolved absolute path, and `resolvePath` is also exposed as a standalone
 /// plugin command for JS callers that need it before opening files.
+///
+/// This plugin intentionally exposes host filesystem access. Only install it in
+/// webviews that load trusted/local content; do not combine it with untrusted
+/// or remote HTML/JavaScript.
 pub fn plugin() -> @webview.Plugin {
   let handles : Map[Int, NativeFileHandle] = {}
   let paths : Map[Int, String] = {}
@@ -589,11 +594,11 @@ pub fn plugin() -> @webview.Plugin {
         Err(error) => Err(error)
         Ok(file) => {
           let path = paths.get(payload.handle)
-          handles.remove(payload.handle)
-          paths.remove(payload.handle)
           match close_native_file(file) {
             Err(error) => Err(error)
             Ok(_) => {
+              handles.remove(payload.handle)
+              paths.remove(payload.handle)
               emit_activity(plugin, "close", path~, handle=Some(payload.handle))
               Ok(CloseReply::{ closed: true })
             }

@@ -97,6 +97,9 @@ Event payload shape:
 ## Notes
 
 - This plugin currently targets the native backend.
+- This plugin exposes direct host filesystem access. Only use it with trusted,
+  local HTML/JavaScript content; do not install it in webviews that navigate to
+  untrusted or remote pages.
 - Use relative paths like `demo.txt` for portable examples across macOS, Linux,
   and Windows.
 - Resolve relative paths with `fs.resolvePath({ path })` when the UI should
