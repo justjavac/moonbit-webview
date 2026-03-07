@@ -1,10 +1,10 @@
 import {
   "moonbitlang/core/json",
-  "justjavac/ffi",
   "justjavac/webview",
 }
 
 options(
+  "is-main": true,
   link: {
     "native": {
       "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
@@ -12,5 +12,5 @@ options(
     },
   },
   "supported-targets": [ "native" ],
-  targets: { "webview_test": [ "native" ] },
+  targets: { "main.mbt": [ "native" ] },
 )

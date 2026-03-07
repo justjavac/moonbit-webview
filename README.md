@@ -113,6 +113,86 @@ fn main {
 }
 ```
 
+## Command Bridge
+
+For structured JS <-> MoonBit communication, use `CommandBridge` on top of the
+existing low-level bindings.
+
+- JS -> MoonBit: `window.MoonBitBridge.send(name, payload)`
+- MoonBit -> JS: `bridge.send(name, payload)` and
+  `window.MoonBitBridge.onCommand(listener)`
+
+Notes:
+- `window.MoonBitBridge.send(...)` is request/reply. It returns a
+  `Promise<CommandResponse>`.
+- `CommandResponse.status` is `"ok"` or `"error"`.
+- On success, `CommandResponse.payload` contains the handler result.
+- On failure, `CommandResponse.error` contains the error message.
+- Use `bridge.handle_result(...)` if a MoonBit handler should explicitly return
+  `Result[Reply, String]` instead of always succeeding.
+- `bridge.send(...)` is fire-and-forget. It pushes a `Command` event into the
+  page; it does not wait for a JavaScript reply.
+- MoonBit -> JS delivery is scheduled onto the webview event loop internally,
+  so `bridge.send(...)` is safe to call off the UI thread.
+- `binding_name` must be unique per `Webview`. `CommandBridge::new(...)`
+  aborts immediately if that internal binding name is already in use.
+- Call `bridge.destroy()` if you want to unregister the bridge binding and
+  reuse the same `binding_name` on the same `Webview`.
+- If you want raw JSON handling on the MoonBit side, register the handler with
+  `Json` as the payload type.
+
+```moonbit
+struct SumPayload {
+  left : Int
+  right : Int
+} derive(ToJson, FromJson)
+
+struct SumReply {
+  total : Int
+} derive(ToJson, FromJson)
+
+struct NoticePayload {
+  message : String
+} derive(ToJson, FromJson)
+
+fn main {
+  let webview = @webview.Webview::new(debug=1)
+  let bridge = @webview.CommandBridge::new(webview)
+  bridge.handle_result("sum", fn(payload : SumPayload) {
+    let reply =
+      if payload.right < 0 {
+        Err("right must be non-negative")
+      } else {
+        Ok(SumReply::{ total: payload.left + payload.right })
+      }
+    bridge.send("notice", NoticePayload::{
+      message: "MoonBit handled sum",
+    })
+    reply
+  })
+  webview.set_html(
+    #| <script>
+    #|   window.MoonBitBridge.onCommand((command) => {
+    #|     if (command.name === "notice") {
+    #|       console.log("MoonBit -> JS", command.payload);
+    #|     }
+    #|   });
+    #|   window.MoonBitBridge
+    #|     .send("sum", { left: 1, right: 2 })
+    #|     .then((response) => {
+    #|       if (response.status === "ok") {
+    #|         console.log("MoonBit reply", response.payload);
+    #|       } else {
+    #|         console.error("MoonBit command error", response.error);
+    #|       }
+    #|     })
+    #|     .catch(console.error);
+    #| </script>,
+  )
+  webview.run()
+}
+```
+
 ## 📚 Examples
 
 This repository includes several examples in the `examples/` directory:
@@ -132,6 +212,7 @@ This repository includes several examples in the `examples/` directory:
 - **13_todo** - Complete todo application
 - **14_beforeunload** - Handling window close events
 - **15_close** - Window close management
+- **16_command** - Structured JS <-> MoonBit command bridge
 
 Run any example:
 

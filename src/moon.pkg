@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/json",
   "justjavac/ffi",
 }
 
@@ -11,5 +12,9 @@ options(
   },
   "native-stub": [ "stub.c" ],
   "supported-targets": [ "native" ],
-  targets: { "binding.mbt": [ "native" ], "webview.mbt": [ "native" ] },
+  targets: {
+    "binding.mbt": [ "native" ],
+    "command.mbt": [ "native" ],
+    "webview.mbt": [ "native" ],
+  },
 )
