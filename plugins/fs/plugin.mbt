@@ -120,6 +120,16 @@ struct ReadDirReply {
 } derive(ToJson, FromJson, Show, Eq)
 
 ///|
+struct ResolvePathPayload {
+  path : String
+} derive(ToJson, FromJson, Show, Eq)
+
+///|
+struct ResolvePathReply {
+  path : String
+} derive(ToJson, FromJson, Show, Eq)
+
+///|
 struct FsActivity {
   operation : String
   path : String?
@@ -199,6 +209,10 @@ extern "C" fn remove_file_ffi(path : Bytes) -> Int = "plugins_fs_remove_file"
 ///|
 #borrow(path)
 extern "C" fn read_dir_ffi(path : Bytes) -> DirectoryEntriesHandle = "plugins_fs_read_dir"
+
+///|
+#borrow(path)
+extern "C" fn absolute_path_ffi(path : Bytes) -> Bytes = "plugins_fs_absolute_path"
 
 ///|
 extern "C" fn entries_handle_is_null(handle : DirectoryEntriesHandle) -> Bool = "moonbit_is_null"
@@ -405,6 +419,11 @@ fn native_read_dir(path : String) -> Result[Array[String], String] {
 }
 
 ///|
+fn native_absolute_path(path : String) -> String {
+  @utf8.decode_lossy(absolute_path_ffi(path_to_cstr(path))[:])
+}
+
+///|
 fn get_open_handle(
   handles : Map[Int, NativeFileHandle],
   handle : Int,
@@ -442,13 +461,14 @@ pub fn plugin() -> @webview.Plugin {
         Err(error) => Err(error)
         Ok(file) => {
           let handle = next_handle
+          let resolved_path = native_absolute_path(payload.path)
           next_handle += 1
           handles.set(handle, file)
-          paths.set(handle, payload.path)
+          paths.set(handle, resolved_path)
           emit_activity(
             plugin,
             "open",
-            path=Some(payload.path),
+            path=Some(resolved_path),
             handle=Some(handle),
           )
           Ok(OpenReply::{ handle, })
@@ -595,12 +615,16 @@ pub fn plugin() -> @webview.Plugin {
         }
       }
     })
+
+    plugin.command_result("resolvePath", fn(payload : ResolvePathPayload) {
+      Ok(ResolvePathReply::{ path: native_absolute_path(payload.path) })
+    })
   })
 }
 
 ///|
 test "fs plugin native helpers can round-trip a file" {
-  let path = "/tmp/moonbit-webview-fs-plugin-roundtrip.txt"
+  let path = "moonbit-webview-fs-plugin-roundtrip.txt"
   let open_result = open_native_file(path, "w+b")
   let handle = match open_result {
     Ok(handle) => handle
@@ -644,9 +668,17 @@ test "fs plugin native helpers can round-trip a file" {
 }
 
 ///|
+test "fs plugin resolves relative paths into absolute paths" {
+  let relative_path = "."
+  let absolute_path = native_absolute_path(relative_path)
+  assert_true(absolute_path != relative_path)
+  assert_true(native_path_exists(absolute_path))
+}
+
+///|
 test "fs plugin native helpers can list a directory" {
   let file_name = "moonbit-webview-fs-plugin-dir-test.txt"
-  let path = "/tmp/" + file_name
+  let path = file_name
   let handle = match open_native_file(path, "wb") {
     Ok(handle) => handle
     Err(error) => abort(error)
@@ -655,7 +687,7 @@ test "fs plugin native helpers can list a directory" {
     Ok(_) => ()
     Err(error) => abort(error)
   }
-  let entries = match native_read_dir("/tmp") {
+  let entries = match native_read_dir(".") {
     Ok(entries) => entries
     Err(error) => abort(error)
   }

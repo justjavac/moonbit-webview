@@ -224,12 +224,12 @@ let html =
   #|             <div class="form">
   #|               <label>
   #|                 File path
-  #|                 <input id="path" value="/tmp/moonbit-webview-plugin-demo.txt" />
+  #|                 <input id="path" value="moonbit-webview-plugin-demo.txt" />
   #|               </label>
   #|               <label>
   #|                 Content
   #|                 <textarea id="content">Hello from the fs plugin.
-  #| 
+  #|
   #| This demo writes text through MoonBit, reads it back, and shows plugin activity emitted from the native side.</textarea>
   #|               </label>
   #|               <div class="actions">
@@ -308,7 +308,7 @@ let html =
   #|       var lastReadAt = "-";
   #|       var lastWriteAt = "-";
   #|       var activityLog = [];
-  #| 
+  #|
   #|       function expectOk(response) {
   #|         if (response.status === "ok") {
   #|           return response.payload;
@@ -317,8 +317,20 @@ let html =
   #|       }
   #| 
   #|       function parentDir(path) {
-  #|         var separator = path.lastIndexOf("/");
-  #|         return separator <= 0 ? "/" : path.slice(0, separator);
+  #|         var normalized = String(path || "");
+  #|         var slashIndex = normalized.lastIndexOf("/");
+  #|         var backslashIndex = normalized.lastIndexOf("\\");
+  #|         var separator = Math.max(slashIndex, backslashIndex);
+  #|         if (separator < 0) {
+  #|           return ".";
+  #|         }
+  #|         if (separator === 2 && normalized.charAt(1) === ":") {
+  #|           return normalized.slice(0, 3);
+  #|         }
+  #|         if (separator === 0) {
+  #|           return normalized.slice(0, 1);
+  #|         }
+  #|         return normalized.slice(0, separator);
   #|       }
   #| 
   #|       function nowLabel() {
@@ -413,6 +425,21 @@ let html =
   #|         renderActivityLog();
   #|       }
   #| 
+  #|       function resolvePath(path) {
+  #|         return fs.resolvePath({ path: path }).then(function(response) {
+  #|           return expectOk(response).path;
+  #|         });
+  #|       }
+  #|       function resolveInputPath() {
+  #|         var path = pathInput.value.trim();
+  #|         if (!path) {
+  #|           return Promise.resolve("");
+  #|         }
+  #|         return resolvePath(path).then(function(resolvedPath) {
+  #|           pathInput.value = resolvedPath;
+  #|           return resolvedPath;
+  #|         });
+  #|       }
   #|       function withOpenFile(path, mode, callback) {
   #|         return fs.open({ path: path, mode: mode }).then(function(response) {
   #|           var opened = expectOk(response);
@@ -475,15 +502,17 @@ let html =
   #|         return fs.exists({ path: path }).then(function(response) {
   #|           var exists = expectOk(response);
   #|           if (!exists.exists) {
-  #|             return {
-  #|               path: path,
-  #|               size: 0,
-  #|               position: 0,
-  #|               eof: false,
-  #|               exists: false,
-  #|               is_file: false,
-  #|               is_dir: false,
-  #|             };
+  #|             return resolvePath(path).then(function(resolvedPath) {
+  #|               return {
+  #|                 path: resolvedPath,
+  #|                 size: 0,
+  #|                 position: 0,
+  #|                 eof: false,
+  #|                 exists: false,
+  #|                 is_file: false,
+  #|                 is_dir: false,
+  #|               };
+  #|             });
   #|           }
   #|           return withOpenFile(path, "rb", function(handle) {
   #|             return fs.fstat({ handle: handle }).then(function(response) {
@@ -514,11 +543,14 @@ let html =
   #|           return;
   #|         }
   #|         setBusy(true);
-  #|         saveFile(path, contentInput.value).then(
+  #|         resolveInputPath().then(function(path) {
+  #|           return saveFile(path, contentInput.value);
+  #|         }).then(
   #|           function(result) {
   #|             lastWriteAt = nowLabel();
   #|             renderStat(result.stat);
-  #|             setNotice("Saved " + result.written.bytes_written + " bytes to " + path + ".");
+  #|             pathInput.value = result.stat.path || pathInput.value;
+  #|             setNotice("Saved " + result.written.bytes_written + " bytes to " + (result.stat.path || pathInput.value) + ".");
   #|             setBusy(false);
   #|           },
   #|           function(error) {
@@ -535,12 +567,15 @@ let html =
   #|           return;
   #|         }
   #|         setBusy(true);
-  #|         loadFile(path).then(
+  #|         resolveInputPath().then(function(path) {
+  #|           return loadFile(path);
+  #|         }).then(
   #|           function(result) {
   #|             contentInput.value = result.read.content;
   #|             lastReadAt = nowLabel();
   #|             renderStat(result.stat);
-  #|             setNotice("Loaded " + result.read.bytes_read + " bytes from " + path + ".");
+  #|             pathInput.value = result.stat.path || pathInput.value;
+  #|             setNotice("Loaded " + result.read.bytes_read + " bytes from " + (result.stat.path || pathInput.value) + ".");
   #|             setBusy(false);
   #|           },
   #|           function(error) {
@@ -557,10 +592,18 @@ let html =
   #|           return;
   #|         }
   #|         setBusy(true);
-  #|         inspectFile(path).then(
+  #|         resolveInputPath().then(function(path) {
+  #|           return inspectFile(path);
+  #|         }).then(
   #|           function(stat) {
   #|             renderStat(stat);
-  #|             setNotice(stat.exists ? "Inspected " + path + "." : path + " does not exist yet.", stat.exists ? "ok" : "error");
+  #|             pathInput.value = stat.path || pathInput.value;
+  #|             setNotice(
+  #|               stat.exists
+  #|                 ? "Inspected " + (stat.path || pathInput.value) + "."
+  #|                 : (stat.path || pathInput.value) + " does not exist yet.",
+  #|               stat.exists ? "ok" : "error",
+  #|             );
   #|             setBusy(false);
   #|           },
   #|           function(error) {
@@ -571,13 +614,19 @@ let html =
   #|       });
   #| 
   #|       document.getElementById("listDir").addEventListener("click", function() {
-  #|         var path = pathInput.value.trim();
   #|         setBusy(true);
-  #|         fs.readDir({ path: parentDir(path) }).then(
+  #|         resolveInputPath().then(function(path) {
+  #|           var directoryPath = parentDir(path);
+  #|           return fs.readDir({ path: directoryPath }).then(function(response) {
+  #|             return {
+  #|               directoryPath: directoryPath,
+  #|               entries: expectOk(response).entries,
+  #|             };
+  #|           });
+  #|         }).then(
   #|           function(response) {
-  #|             var entries = expectOk(response);
-  #|             renderDirEntries(entries.entries);
-  #|             setNotice("Listed " + entries.entries.length + " entries in " + parentDir(path) + ".");
+  #|             renderDirEntries(response.entries);
+  #|             setNotice("Listed " + response.entries.length + " entries in " + response.directoryPath + ".");
   #|             setBusy(false);
   #|           },
   #|           function(error) {
@@ -594,11 +643,17 @@ let html =
   #|           return;
   #|         }
   #|         setBusy(true);
-  #|         fs.removeFile({ path: path }).then(
-  #|           function(response) {
-  #|             var removed = expectOk(response);
-  #|             renderStat({
+  #|         resolveInputPath().then(function(path) {
+  #|           return fs.removeFile({ path: path }).then(function(response) {
+  #|             return {
   #|               path: path,
+  #|               removed: expectOk(response),
+  #|             };
+  #|           });
+  #|         }).then(
+  #|           function(result) {
+  #|             renderStat({
+  #|               path: result.path,
   #|               size: 0,
   #|               position: 0,
   #|               eof: false,
@@ -606,9 +661,10 @@ let html =
   #|               is_file: false,
   #|               is_dir: false,
   #|             });
+  #|             pathInput.value = result.path;
   #|             setNotice(
-  #|               removed.removed ? "Deleted " + path + "." : path + " was already absent.",
-  #|               removed.removed ? "ok" : "error",
+  #|               result.removed.removed ? "Deleted " + result.path + "." : result.path + " was already absent.",
+  #|               result.removed.removed ? "ok" : "error",
   #|             );
   #|             setBusy(false);
   #|           },
@@ -621,6 +677,14 @@ let html =
   #| 
   #|       renderStat(null);
   #|       renderActivityLog();
+  #|       resolveInputPath().then(
+  #|         function() {
+  #|           renderStat(null);
+  #|         },
+  #|         function(error) {
+  #|           setNotice("Could not resolve the default path: " + String(error), "error");
+  #|         },
+  #|       );
   #|     </script>
   #|   </body>
   #| </html>

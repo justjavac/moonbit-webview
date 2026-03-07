@@ -3,7 +3,9 @@ extern "C" {
 #endif
 
 #include <errno.h>
+#include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 
@@ -11,9 +13,27 @@ extern "C" {
 #include <windows.h>
 #else
 #include <dirent.h>
+#include <unistd.h>
 #endif
 
 #include "moonbit.h"
+
+static moonbit_bytes_t plugins_fs_copy_string(const char *value) {
+  size_t len = strlen(value);
+  moonbit_bytes_t bytes = moonbit_make_bytes(len, 0);
+  memcpy(bytes, value, len);
+  return bytes;
+}
+
+static int plugins_fs_is_absolute_path(const char *path) {
+#ifdef _WIN32
+  return (strlen(path) >= 3 && path[1] == ':' &&
+          (path[2] == '\\' || path[2] == '/')) ||
+         (strlen(path) >= 2 && path[0] == '\\' && path[1] == '\\');
+#else
+  return path[0] == '/';
+#endif
+}
 
 MOONBIT_FFI_EXPORT FILE *plugins_fs_fopen(moonbit_bytes_t path,
                                           moonbit_bytes_t mode) {
@@ -93,6 +113,63 @@ MOONBIT_FFI_EXPORT int plugins_fs_is_dir(moonbit_bytes_t path) {
 
 MOONBIT_FFI_EXPORT int plugins_fs_remove_file(moonbit_bytes_t path) {
   return remove((const char *)path);
+}
+
+MOONBIT_FFI_EXPORT moonbit_bytes_t plugins_fs_absolute_path(
+    moonbit_bytes_t path) {
+  const char *input = (const char *)path;
+
+#ifdef _WIN32
+  DWORD length = GetFullPathNameA(input, 0, NULL, NULL);
+  if (length == 0) {
+    return plugins_fs_copy_string(input);
+  }
+
+  char *buffer = malloc(length);
+  if (buffer == NULL) {
+    return plugins_fs_copy_string(input);
+  }
+
+  DWORD written = GetFullPathNameA(input, length, buffer, NULL);
+  if (written == 0 || written >= length) {
+    free(buffer);
+    return plugins_fs_copy_string(input);
+  }
+
+  moonbit_bytes_t result = plugins_fs_copy_string(buffer);
+  free(buffer);
+  return result;
+#else
+  char resolved[PATH_MAX];
+  if (realpath(input, resolved) != NULL) {
+    moonbit_bytes_t result = plugins_fs_copy_string(resolved);
+    return result;
+  }
+
+  if (plugins_fs_is_absolute_path(input)) {
+    return plugins_fs_copy_string(input);
+  }
+
+  char cwd[PATH_MAX];
+  if (getcwd(cwd, sizeof(cwd)) == NULL) {
+    return plugins_fs_copy_string(input);
+  }
+
+  size_t cwd_len = strlen(cwd);
+  size_t input_len = strlen(input);
+  char *joined = malloc(cwd_len + input_len + 2);
+  if (joined == NULL) {
+    return plugins_fs_copy_string(input);
+  }
+
+  memcpy(joined, cwd, cwd_len);
+  joined[cwd_len] = '/';
+  memcpy(joined + cwd_len + 1, input, input_len + 1);
+
+  moonbit_bytes_t result = plugins_fs_copy_string(joined);
+  free(joined);
+  return result;
+#endif
 }
 
 MOONBIT_FFI_EXPORT moonbit_bytes_t *plugins_fs_read_dir(moonbit_bytes_t path) {

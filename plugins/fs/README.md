@@ -29,7 +29,7 @@ All fs commands resolve to `CommandResponse`:
 
 ```js
 const response = await window.MoonBitPlugins.fs.open({
-  path: "/tmp/demo.txt",
+  path: "demo.txt",
   mode: "w+b",
 });
 
@@ -58,6 +58,8 @@ if (response.status === "ok") {
   Closes the open handle.
 - `fs.exists({ path })`
   Returns `{ exists }`.
+- `fs.resolvePath({ path })`
+  Returns `{ path }` with the native absolute path for the given input.
 - `fs.readDir({ path })`
   Returns `{ entries }`.
 - `fs.removeFile({ path })`
@@ -87,6 +89,10 @@ Event payload shape:
 ## Notes
 
 - This plugin currently targets the native backend.
+- Use relative paths like `demo.txt` for portable examples across macOS, Linux,
+  and Windows.
+- `open` stores the resolved absolute path for each handle, so `fstat({ handle
+  })` reports an absolute `path`.
 - `read` and `write` use UTF-8 text payloads.
 - `fstat` is handle-based; if you also want path-based metadata, add a separate
   `stat` command.
