@@ -28,16 +28,13 @@ pub fn CommandBridge::new(
   binding_name? : String = "__moonbit_command",
   event_name? : String = "moonbit:command",
 ) -> CommandBridge {
-  let bridge = CommandBridge::{
-    webview,
-    global_name,
-    event_name,
-    handlers: {},
-  }
+  let bridge = CommandBridge::{ webview, global_name, event_name, handlers: {} }
   bridge.webview.bind(binding_name, fn(id, req) {
     bridge.handle_request(id, req)
   })
-  bridge.webview.init(make_command_bridge_script(global_name, binding_name, event_name))
+  bridge.webview.init(
+    make_command_bridge_script(global_name, binding_name, event_name),
+  )
   bridge
 }
 
@@ -79,13 +76,16 @@ pub fn[Payload : ToJson] CommandBridge::send(
   payload : Payload,
 ) -> Unit {
   let command = Command::{ name, payload: ToJson::to_json(payload) }
-  self.webview.eval(make_command_dispatch_script(
-    self.global_name,
-    self.event_name,
-    command.to_json().stringify(),
-  ))
+  self.webview.eval(
+    make_command_dispatch_script(
+      self.global_name,
+      self.event_name,
+      command.to_json().stringify(),
+    ),
+  )
 }
 
+///|
 fn CommandBridge::handle_request(
   self : CommandBridge,
   raw_id : Bytes,
@@ -106,12 +106,15 @@ fn CommandBridge::handle_request(
   }
 }
 
+///|
 fn parse_command_request(raw_req : String) -> Result[Command, String] {
   let request_json : Result[Json, _] = try? @json.parse(raw_req)
   match request_json {
     Err(err) => Err(err.to_string())
     Ok(request_json) => {
-      let request_args : Result[Array[Command], _] = try? @json.from_json(request_json)
+      let request_args : Result[Array[Command], _] = try? @json.from_json(
+        request_json,
+      )
       match request_args {
         Err(err) => Err(err.to_string())
         Ok(request_args) =>
@@ -125,6 +128,7 @@ fn parse_command_request(raw_req : String) -> Result[Command, String] {
   }
 }
 
+///|
 fn make_command_bridge_script(
   global_name : String,
   binding_name : String,
@@ -162,6 +166,7 @@ fn make_command_bridge_script(
   "})();"
 }
 
+///|
 fn make_command_dispatch_script(
   global_name : String,
   event_name : String,
