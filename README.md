@@ -59,15 +59,19 @@ export DYLD_LIBRARY_PATH="$(pwd)/.mooncakes/justjavac/webview/lib"
 #### Command Prompt
 
 ```bat
-set _CL_=/link /LIBPATH:.mooncakes\justjavac\webview\lib webview.lib /DEBUG
-set PATH=%PATH%;.mooncakes\justjavac\webview\lib
+set "MOONWEB_LIB=%CD%\.mooncakes\justjavac\webview\lib"
+set _CL_=/link /LIBPATH:"%MOONWEB_LIB%" webview.lib /DEBUG
+set "PATH=%PATH%;%MOONWEB_LIB%"
 ```
+
+Note: This Windows path handling mirrors the approach used in CI workflow (.github/workflows/ci.yml) to ensure library paths resolve correctly even when the working directory contains spaces.
 
 #### PowerShell
 
 ```powershell
-$env:_CL_="/link /LIBPATH:.mooncakes\justjavac\webview\lib webview.lib /DEBUG"
-$env:PATH="$env:PATH;.mooncakes\justjavac\webview\lib"
+$libPath = Join-Path -Path (Get-Location) -ChildPath ".mooncakes\justjavac\webview\lib"
+$env:_CL_ = "/link /LIBPATH:`"$libPath`" webview.lib /DEBUG"
+$env:PATH = "$env:PATH;$libPath"
 ```
 
 ### Linux
