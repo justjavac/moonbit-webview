@@ -64,7 +64,7 @@ set _CL_=/link /LIBPATH:"%MOONWEB_LIB%" webview.lib /DEBUG
 set "PATH=%PATH%;%MOONWEB_LIB%"
 ```
 
-Note: This Windows path handling mirrors the approach used in CI workflow (.github/workflows/ci.yml) to ensure library paths resolve correctly even when the working directory contains spaces.
+Note: This Windows path handling uses an absolute library path, similar to the approach used in CI workflow (.github/workflows/ci.yml) to ensure library paths resolve correctly even when the working directory contains spaces.
 
 #### PowerShell
 
