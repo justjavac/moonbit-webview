@@ -60,7 +60,7 @@ export DYLD_LIBRARY_PATH="$(pwd)/.mooncakes/justjavac/webview/lib"
 
 ```bat
 set "MOONWEB_LIB=%CD%\.mooncakes\justjavac\webview\lib"
-set "_CL_=/link /LIBPATH:\"%MOONWEB_LIB%\" webview.lib /DEBUG"
+set _CL_=/link /LIBPATH:"%MOONWEB_LIB%" webview.lib /DEBUG
 set "PATH=%PATH%;%MOONWEB_LIB%"
 ```
 
