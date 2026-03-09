@@ -1,6 +1,6 @@
 # AGENTS Guide
 
-This document provides concise guidance for agents working in this repository. It focuses on build/lint/test workflows, code style, plugin integration, and example usage. Cursor and Copilot rule sections have been removed in favor of practical guidance.
+This document provides concise guidance for agents working in this repository. It focuses on build/lint/test workflows, code style, plugin integration, and example usage.
 
 ## 1) Build / Lint / Test Commands
 - Prerequisites: Moon toolchain installed; run from repo root.
