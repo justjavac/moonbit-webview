@@ -1,0 +1,23 @@
+import {
+  "justjavac/webview",
+  "justjavac/ffi",
+}
+
+options(
+  "is-main": true,
+  link: {
+    "native": {
+      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
+      "cc-link-flags": "-L../lib -lwebview",
+    },
+  },
+  "pre-build": [
+    {
+      "command": ":embed -i $input -o $output",
+      "input": "index.html",
+      "output": "index.mbt",
+    },
+  ],
+  "supported-targets": [ "native" ],
+  targets: { "main.mbt": [ "native" ] },
+)
