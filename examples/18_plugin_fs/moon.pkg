@@ -11,7 +11,13 @@ options(
       "cc-link-flags": "-L../lib -lwebview",
     },
   },
-  // HTML embedding handled in main.mbt resource to avoid duplicate symbol conflicts
+  "pre-build": [
+    {
+      "command": ":embed -i $input -o $output",
+      "input": "hello.html",
+      "output": "hello.mbt"
+    }
+  ],
   "supported-targets": [ "native" ],
-  targets: { "main.mbt": [ "native" ], "plugin_fs.mbt": [ "native" ] },
+  targets: { "main.mbt": [ "native" ], "hello.mbt": [ "native" ] },
 )
