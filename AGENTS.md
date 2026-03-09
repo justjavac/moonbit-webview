@@ -106,7 +106,7 @@ This document provides concise guidance for agents working in this repository. I
 - Minimal Plugin Template
   - Quick-start skeleton for a tiny plugin to demonstrate host-JS binding.
   - Code snippet (Moon MBT) for a minimal plugin:
-  ```moon
+  ```moonbit
   ///|
   pub fn plugin() -> @webview.Plugin {
     @webview.Plugin::new("minimal", fn(plugin) {
