@@ -9,12 +9,28 @@ fn main {
   webview.set_size(800, 600, @webview.SizeHint::None)
   webview.bind("greet", fn(id, req) {
     let id = @ffi.from_cstr(id)
-    let req = @ffi.from_cstr(req)
-    let result = "{\"message\":\"Hello \{req}, You have been greeted from Moonbit!\", \"req\":" +
-      req +
+    let raw_req = @ffi.from_cstr(req)
+    let request_json : Result[Json, _] = try? @json.parse(raw_req)
+    let name = match request_json {
+      Err(_) => "world"
+      Ok(request_json) => {
+        let args : Result[Array[String], _] = try? @json.from_json(request_json)
+        match args {
+          Err(_) => "world"
+          Ok(args) =>
+            if args.length() > 0 {
+              args[0]
+            } else {
+              "world"
+            }
+        }
+      }
+    }
+    let result = "{\"message\":\"Hello \{name}, You have been greeted from Moonbit!\", \"req\":" +
+      raw_req +
       "}"
     println(id)
-    println(req)
+    println(raw_req)
     println(result)
     webview.response(id, 0, result)
   })
