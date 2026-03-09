@@ -110,8 +110,8 @@ This document provides concise guidance for agents working in this repository. I
   ///|
   pub fn plugin() -> @webview.Plugin {
     @webview.Plugin::new("minimal", fn(plugin) {
-      plugin.command_result("ping", fn(payload : PingPayload) {
-        Ok(PingReply{ pong: true })
+      plugin.command_result("ping", fn(_payload : PingPayload) {
+        Ok(PingReply::{ pong: true })
       })
     })
   }
