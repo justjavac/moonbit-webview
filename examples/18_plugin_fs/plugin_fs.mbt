@@ -1,11 +1,14 @@
+///|
 struct ReadPayload {
   path : String
 } derive(ToJson, FromJson, Eq, Show)
 
+///|
 struct ReadReply {
   content : String
 } derive(ToJson, FromJson, Eq, Show)
 
+///|
 pub fn plugin() -> @webview.Plugin {
   @webview.Plugin::new("fs", fn(plugin) {
     plugin.command("read", fn(payload : ReadPayload) {

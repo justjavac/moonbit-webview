@@ -14,10 +14,10 @@ options(
   "pre-build": [
     {
       "command": ":embed -i $input -o $output",
-      "input": "hello.html",
-      "output": "hello.mbt"
+      "input": "plugin.html",
+      "output": "plugin.mbt"
     }
   ],
   "supported-targets": [ "native" ],
-  targets: { "main.mbt": [ "native" ], "hello.mbt": [ "native" ] },
+  targets: { "main.mbt": [ "native" ], "plugin.mbt": [ "native" ] },
 )
