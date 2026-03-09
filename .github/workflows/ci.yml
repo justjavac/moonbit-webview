@@ -33,10 +33,9 @@ jobs:
         run: |
           moon version --all
 
-      - name: moon install
+      - name: moon update
         run: |
           moon update
-          moon install
 
       - name: moon check
         run: moon check --target native --deny-warn
@@ -133,10 +132,9 @@ jobs:
         run: |
           moon version --all
 
-      - name: moon install
+      - name: moon update
         run: |
           moon update
-          moon install
 
       - name: Setup MSVC
         if: ${{ matrix.os == 'windows-latest' }}
