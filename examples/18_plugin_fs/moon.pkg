@@ -11,13 +11,7 @@ options(
       "cc-link-flags": "-L../lib -lwebview",
     },
   },
-  "pre-build": [
-    {
-      "command": ":embed -i $input -o $output",
-      "input": "plugin.html",
-      "output": "plugin.mbt",
-    },
-  ],
+  // HTML embedding handled in main.mbt resource to avoid duplicate symbol conflicts
   "supported-targets": [ "native" ],
   targets: { "main.mbt": [ "native" ], "plugin_fs.mbt": [ "native" ] },
 )
