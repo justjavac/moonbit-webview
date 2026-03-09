@@ -11,6 +11,13 @@ options(
       "cc-link-flags": "-L../lib -lwebview",
     },
   },
+  "pre-build": [
+    {
+      "command": ":embed -i $input -o $output",
+      "input": "command.html",
+      "output": "command.mbt",
+    },
+  ],
   "supported-targets": [ "native" ],
   targets: { "main.mbt": [ "native" ] },
 )
