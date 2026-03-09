@@ -1,5 +1,5 @@
 import {
-  "moonbitlang/core/json",
+  "plugins/fs",
   "justjavac/webview",
 }
 
@@ -14,10 +14,10 @@ options(
   "pre-build": [
     {
       "command": ":embed -i $input -o $output",
-      "input": "plugin.html",
-      "output": "plugin.mbt"
+      "input": "fs.html",
+      "output": "fs.mbt"
     }
   ],
   "supported-targets": [ "native" ],
-  targets: { "main.mbt": [ "native" ], "plugin.mbt": [ "native" ] },
+  targets: { "main.mbt": [ "native" ] },
 )
