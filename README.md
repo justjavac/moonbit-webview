@@ -371,7 +371,8 @@ moon -C examples run <example_name> --target native
 3. **Install dependencies and run examples:**
    ```shell
    moon update
-   moon install
+   # Note: Installing with `moon install` without arguments is deprecated.
+   # If you need a specific tool, use `moon install <package>`.
    moon -C examples run 02_local --target native
    ```
 
