@@ -19,8 +19,7 @@ pub fn plugin() -> @webview.Plugin {
       } else {
         "File not found"
       }
-      let reply = ReadReply::{ content: content.to_string() }
-      reply
+      ReadReply::{ content }
     })
   })
 }
