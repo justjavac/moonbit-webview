@@ -357,12 +357,14 @@ moon -C examples run <example_name> --target native
    export DYLD_LIBRARY_PATH="$(pwd)/lib"
 
    # Windows (Command Prompt)
-   set _CL_=/link /LIBPATH:lib webview.lib /DEBUG
-   set PATH=%PATH%;lib
+   set "MOONWEB_LIB=%CD%\lib"
+   set _CL_=/link /LIBPATH:"%MOONWEB_LIB%" webview.lib /DEBUG
+   set "PATH=%PATH%;%MOONWEB_LIB%"
 
    # Windows (PowerShell)
-   $env:_CL_="/link /LIBPATH:lib webview.lib /DEBUG"
-   $env:PATH="$env:PATH;lib"
+   $libPath = Join-Path -Path (Get-Location) -ChildPath "lib"
+   $env:_CL_ = "/link /LIBPATH:`"$libPath`" webview.lib /DEBUG"
+   $env:PATH = "$env:PATH;$libPath"
 
    # Linux
    export LD_LIBRARY_PATH="$(pwd)/lib:$LD_LIBRARY_PATH"
