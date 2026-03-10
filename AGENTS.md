@@ -23,7 +23,7 @@ This document provides concise guidance for agents working in this repository. I
 
 - Dependency management
   - `moon update`
-  - (note: installing without arguments via `moon install` is deprecated; use `moon install <package>` when needed)
+    - Note: installing without arguments via `moon install` is deprecated; use `moon install <package>` when needed
   - `moon version --all`
 
 - Quick validation (local)
