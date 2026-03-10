@@ -1,8 +1,6 @@
 ///|
 /// MoonBit bridge example modeled after Tauri Hellworld but in MoonBit style.
 /// It exposes a host function `greet` to the frontend and renders a minimal UI.
-
-///|
 fn main {
   let webview = @webview.Webview::new(debug=1)
   webview.set_title("MoonBit Tauri-like Hello World")
@@ -17,12 +15,7 @@ fn main {
         let args : Result[Array[String], _] = try? @json.from_json(request_json)
         match args {
           Err(_) => "world"
-          Ok(args) =>
-            if args.length() > 0 {
-              args[0]
-            } else {
-              "world"
-            }
+          Ok(args) => if args.length() > 0 { args[0] } else { "world" }
         }
       }
     }
