@@ -10,6 +10,5 @@ options(
       "cc-link-flags": "-L../lib -lwebview",
     },
   },
-  "supported-targets": [ "native" ],
   targets: { "main.mbt": [ "native" ] },
 )

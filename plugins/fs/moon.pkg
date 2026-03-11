@@ -13,6 +13,5 @@ options(
     },
   },
   "native-stub": [ "fs_native.c" ],
-  "supported-targets": [ "native" ],
   targets: { "plugin.mbt": [ "native" ] },
 )

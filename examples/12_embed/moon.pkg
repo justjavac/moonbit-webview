@@ -17,6 +17,5 @@ options(
       "output": "hello.mbt",
     },
   ],
-  "supported-targets": [ "native" ],
   targets: { "main.mbt": [ "native" ] },
 )
