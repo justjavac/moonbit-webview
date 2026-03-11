@@ -14,5 +14,6 @@
   "description": "Plugins for moonbit-webview examples and applications.",
   "source": "",
   "warn-list": "",
-  "preferred-target": "native"
+  "preferred-target": "native",
+  "supported-targets": "+native"
 }
