@@ -17,6 +17,5 @@ options(
       "output": "bundle.mbt",
     },
   ],
-  "supported-targets": [ "native" ],
   targets: { "main.mbt": [ "native" ] },
 )

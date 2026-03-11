@@ -11,7 +11,7 @@ options(
     },
   },
   "native-stub": [ "stub.c" ],
-  "supported-targets": [ "native" ],
+  "supported-targets": "+native",
   targets: {
     "binding.mbt": [ "native" ],
     "command.mbt": [ "native" ],

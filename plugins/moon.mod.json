@@ -2,7 +2,7 @@
   "name": "plugins",
   "version": "0.1.0",
   "deps": {
-    "justjavac/ffi": "0.1.12",
+    "justjavac/ffi": "0.2.0",
     "justjavac/webview": {
       "path": ".."
     }
@@ -10,12 +10,10 @@
   "readme": "README.md",
   "repository": "https://github.com/justjavac/moonbit-webview/tree/main/plugins",
   "license": "MIT",
-  "keywords": [
-    "webview",
-    "plugin",
-    "filesystem"
-  ],
+  "keywords": ["webview", "plugin", "filesystem"],
   "description": "Plugins for moonbit-webview examples and applications.",
   "source": "",
-  "warn-list": ""
+  "warn-list": "",
+  "preferred-target": "native",
+  "supported-targets": "+native"
 }
