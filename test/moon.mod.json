@@ -14,5 +14,6 @@
   "description": "MoonBit bindings for webview, a tiny library for creating web-based desktop GUIs.",
   "source": "",
   "warn-list": "",
+  "supported-targets": "+native",
   "preferred-target": "native"
 }
