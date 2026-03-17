@@ -19,4 +19,5 @@ options(
     },
   ],
   targets: { "main.mbt": [ "native" ], "math_plugin.mbt": [ "native" ] },
+  "supported-targets": "+native",
 )
