@@ -18,5 +18,5 @@ options(
     },
   ],
   targets: { "main.mbt": [ "native" ] },
-  "supported-targets": "native",
+  "supported-targets": "+native",
 )
