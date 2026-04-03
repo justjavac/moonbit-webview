@@ -42,6 +42,10 @@ jobs:
         run: |
           moon update
 
+      - name: Setup MSVC
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: format check
         run: |
           moon fmt --check
@@ -66,24 +70,22 @@ jobs:
           _CL_: /utf-8
         run: moon -C runtime check --target native --deny-warn
 
-      - name: extensions test
+      - name: extensions check
         if: ${{ matrix.os != 'windows-latest' }}
-        run: moon -C extensions test --target native
+        run: moon -C extensions check --target native
 
       - name: extensions test (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         env:
           _CL_: /utf-8
+          PATH: ${{ github.workspace }}\lib;${{ env.PATH }}
         run: moon -C extensions test --target native
-
-      - name: Setup MSVC
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Run root integration tests (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         env:
           _CL_: /utf-8
+          PATH: ${{ github.workspace }}\lib;${{ env.PATH }}
         run: |
           moon -C test test --target native
 
@@ -96,6 +98,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         env:
           _CL_: /utf-8
+          PATH: ${{ github.workspace }}\lib;${{ env.PATH }}
         run: |
           moon -C notification test --target native
           moon -C tray test --target native
@@ -186,20 +189,22 @@ jobs:
           _CL_: /utf-8
         run: moon -C runtime check --target native
 
-      - name: extensions test
+      - name: extensions check
         if: ${{ matrix.os != 'windows-latest' }}
-        run: moon -C extensions test --target native
+        run: moon -C extensions check --target native
 
       - name: extensions test (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         env:
           _CL_: /utf-8
+          PATH: ${{ github.workspace }}\lib;${{ env.PATH }}
         run: moon -C extensions test --target native
 
       - name: Run root integration tests (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         env:
           _CL_: /utf-8
+          PATH: ${{ github.workspace }}\lib;${{ env.PATH }}
         run: |
           moon -C test test --target native
 
@@ -211,6 +216,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         env:
           _CL_: /utf-8
+          PATH: ${{ github.workspace }}\lib;${{ env.PATH }}
         run: |
           moon -C notification test --target native
           moon -C tray test --target native
