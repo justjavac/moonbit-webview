@@ -176,8 +176,7 @@ test "load_app_config_from_json rejects legacy permissions field" {
     Ok(_) => abort("expected legacy permissions rejection")
     Err(error) =>
       assert_eq(
-        error,
-        "app config.permissions is no longer supported; remove it",
+        error, "app config.permissions is no longer supported; remove it",
       )
   }
 }
@@ -234,21 +233,22 @@ test "load_app_config_document preserves extension option objects" {
 
 ///|
 test "app config document updates keep previous documents detached" {
-  let document = match load_app_config_document_from_json(
-    (
-      #|{
-      #|  "window": {
-      #|    "title": "Document",
-      #|    "width": 800,
-      #|    "height": 600
-      #|  },
-      #|  "entry": {
-      #|    "kind": "html",
-      #|    "value": "<html></html>"
-      #|  }
-      #|}
-    ),
-  ) {
+  let document = match
+    load_app_config_document_from_json(
+      (
+        #|{
+        #|  "window": {
+        #|    "title": "Document",
+        #|    "width": 800,
+        #|    "height": 600
+        #|  },
+        #|  "entry": {
+        #|    "kind": "html",
+        #|    "value": "<html></html>"
+        #|  }
+        #|}
+      ),
+    ) {
     Ok(document) => document
     Err(error) => abort(error)
   }
@@ -275,9 +275,10 @@ test "app config document updates keep previous documents detached" {
     Object(object) =>
       match object.get("extensions") {
         Some(Object(extension_object)) =>
-          assert_eq(extension_object.get("notification"), Some(Json::object({
-            "level": Json::string("info"),
-          })))
+          assert_eq(
+            extension_object.get("notification"),
+            Some(Json::object({ "level": Json::string("info") })),
+          )
         _ => abort("expected extensions object")
       }
     _ => abort("expected config object")
@@ -286,24 +287,25 @@ test "app config document updates keep previous documents detached" {
 
 ///|
 test "app config document remove_extension_options clears empty object" {
-  let document = match load_app_config_document_from_json(
-    (
-      #|{
-      #|  "window": {
-      #|    "title": "Document",
-      #|    "width": 800,
-      #|    "height": 600
-      #|  },
-      #|  "entry": {
-      #|    "kind": "html",
-      #|    "value": "<html></html>"
-      #|  },
-      #|  "extensions": {
-      #|    "notification": {}
-      #|  }
-      #|}
-    ),
-  ) {
+  let document = match
+    load_app_config_document_from_json(
+      (
+        #|{
+        #|  "window": {
+        #|    "title": "Document",
+        #|    "width": 800,
+        #|    "height": 600
+        #|  },
+        #|  "entry": {
+        #|    "kind": "html",
+        #|    "value": "<html></html>"
+        #|  },
+        #|  "extensions": {
+        #|    "notification": {}
+        #|  }
+        #|}
+      ),
+    ) {
     Ok(document) => document
     Err(error) => abort(error)
   }
@@ -322,21 +324,22 @@ test "app config document remove_extension_options clears empty object" {
 
 ///|
 test "app config document to_json returns a detached copy" {
-  let document = match load_app_config_document_from_json(
-    (
-      #|{
-      #|  "window": {
-      #|    "title": "Detached",
-      #|    "width": 800,
-      #|    "height": 600
-      #|  },
-      #|  "entry": {
-      #|    "kind": "html",
-      #|    "value": "<html></html>"
-      #|  }
-      #|}
-    ),
-  ) {
+  let document = match
+    load_app_config_document_from_json(
+      (
+        #|{
+        #|  "window": {
+        #|    "title": "Detached",
+        #|    "width": 800,
+        #|    "height": 600
+        #|  },
+        #|  "entry": {
+        #|    "kind": "html",
+        #|    "value": "<html></html>"
+        #|  }
+        #|}
+      ),
+    ) {
     Ok(document) => document
     Err(error) => abort(error)
   }
@@ -374,6 +377,7 @@ test "load_app_config_from_json rejects non-object extension options" {
   )
   match result {
     Ok(_) => abort("expected extension options validation failure")
-    Err(error) => assert_eq(error, "expected object for app config.extensions.fs")
+    Err(error) =>
+      assert_eq(error, "expected object for app config.extensions.fs")
   }
 }

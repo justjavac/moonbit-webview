@@ -10,7 +10,6 @@ supported_targets = "native"
 
 options(
   "is-main": true,
-
   "pre-build": [
     {
       "command": ":embed -i $input -o $output",
@@ -20,4 +19,3 @@ options(
   ],
   targets: { "main.mbt": [ "native" ] },
 )
-

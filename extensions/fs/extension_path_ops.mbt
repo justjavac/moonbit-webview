@@ -1,10 +1,9 @@
 ///|
-fn register_path_ops(
-  extension : @runtime.ExtensionContext,
-) -> Unit {
+fn register_path_ops(extension : @runtime.ExtensionContext) -> Unit {
   extension.op_result("stat", fn(payload : StatPayload) {
     with_resolved_path(payload.path, resolve_read_path, fn(resolved_path) {
-      match stat_path(resolved_path, option_bool(payload.throw_if_no_entry, true)) {
+      match
+        stat_path(resolved_path, option_bool(payload.throw_if_no_entry, true)) {
         Err(error) => Err(error)
         Ok(reply) => {
           emit_activity(
@@ -21,7 +20,8 @@ fn register_path_ops(
 
   extension.op_result("readdir", fn(payload : ReaddirPayload) {
     with_resolved_path(payload.path, resolve_read_path, fn(resolved_path) {
-      match readdir_entries(resolved_path, option_bool(payload.recursive, false)) {
+      match
+        readdir_entries(resolved_path, option_bool(payload.recursive, false)) {
         Err(error) => Err(error)
         Ok(entries) => {
           emit_activity(extension, "readdir", path=Some(resolved_path))
@@ -76,7 +76,7 @@ fn register_path_ops(
             Ok(RenameReply::{ old_path, new_path, renamed: true })
           }
         }
-      }
+      },
     )
   })
 
@@ -99,7 +99,7 @@ fn register_path_ops(
             Ok(CopyFileReply::{ src, dest, copied: true, bytes_copied })
           }
         }
-      }
+      },
     )
   })
 

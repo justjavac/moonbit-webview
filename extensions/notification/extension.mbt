@@ -23,10 +23,9 @@ fn ensure_supported() -> Result[Unit, String] {
 }
 
 ///|
-fn[Reply] with_supported(callback : () -> Result[Reply, String]) -> Result[
-  Reply,
-  String,
-] {
+fn[Reply] with_supported(
+  callback : () -> Result[Reply, String],
+) -> Result[Reply, String] {
   match ensure_supported() {
     Err(error) => Err(error)
     Ok(_) => callback()
@@ -65,10 +64,9 @@ fn emit_activity(
 }
 
 ///|
-fn show_notification(payload : NotificationPayload) -> Result[
-  NotificationReply,
-  String,
-] {
+fn show_notification(
+  payload : NotificationPayload,
+) -> Result[NotificationReply, String] {
   match ensure_body(payload.body) {
     Err(error) => Err(error)
     Ok(body) =>

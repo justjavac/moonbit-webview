@@ -1,3 +1,4 @@
+///|
 fn clone_json(json : Json) -> Json {
   match json {
     Array(items) => Json::array(items.map(item => clone_json(item)))

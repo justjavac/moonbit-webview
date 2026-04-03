@@ -8,10 +8,10 @@ supported_targets = "native"
 
 options(
   targets: {
-    "types.mbt": [ "native" ],
     "config_bridge.mbt": [ "native" ],
-    "order.mbt": [ "native" ],
-    "install.mbt": [ "native" ],
     "create.mbt": [ "native" ],
+    "install.mbt": [ "native" ],
+    "order.mbt": [ "native" ],
+    "types.mbt": [ "native" ],
   },
 )

@@ -61,7 +61,10 @@ fn create_app_from_document(
     Ok(_) => {
       let config = document.config()
       let app = @wvrt.App::new(runtime_config_from_bootstrap(config))
-      match install_declared_extensions(app, config, extensions, options_by_extension) {
+      match
+        install_declared_extensions(
+          app, config, extensions, options_by_extension,
+        ) {
         Ok(_) => Ok(app)
         Err(error) => {
           app.destroy()

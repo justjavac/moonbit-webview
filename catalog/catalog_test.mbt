@@ -1,3 +1,4 @@
+///|
 test "builtin extension info exposes import metadata for tooling" {
   let fs_info = match builtin_extension_info("fs") {
     Some(info) => info
@@ -25,7 +26,10 @@ test "builtin extension info exposes support modules for vendoring" {
 
 ///|
 test "builtin extension info uses exact ids" {
-  assert_eq(builtin_extension_info("notification"), Some(builtin_extensions()[5]))
+  assert_eq(
+    builtin_extension_info("notification"),
+    Some(builtin_extensions()[5]),
+  )
   assert_eq(builtin_extension_info(" notification "), None)
   assert_eq(builtin_extension_info("global_hotkey"), None)
   assert_eq(builtin_extension_info("custom.echo"), None)

@@ -7,7 +7,5 @@ supported_targets = "native"
 
 options(
   "is-main": true,
-
   targets: { "main.mbt": [ "native" ] },
 )
-

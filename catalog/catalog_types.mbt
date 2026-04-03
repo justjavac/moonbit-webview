@@ -1,4 +1,5 @@
-///| TODO(justjavac): 扩展相关的功能移动到独立的 extension 模块中。
+///|
+/// TODO(justjavac): 扩展相关的功能移动到独立的 extension 模块中。
 pub struct BuiltinSupportModuleInfo {
   dependency_name : String
   module_dir : String

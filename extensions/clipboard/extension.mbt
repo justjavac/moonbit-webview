@@ -28,10 +28,9 @@ fn ensure_supported() -> Result[Unit, String] {
 }
 
 ///|
-fn[Reply] with_supported(callback : () -> Result[Reply, String]) -> Result[
-  Reply,
-  String,
-] {
+fn[Reply] with_supported(
+  callback : () -> Result[Reply, String],
+) -> Result[Reply, String] {
   match ensure_supported() {
     Err(error) => Err(error)
     Ok(_) => callback()

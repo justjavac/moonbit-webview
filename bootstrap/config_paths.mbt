@@ -13,6 +13,7 @@ fn parse_size_hint(size_hint : String?) -> Result[@webview.SizeHint, String] {
   }
 }
 
+///|
 fn rebase_relative_path(path : String, base_dir : String?) -> String {
   match base_dir {
     None => path
@@ -66,6 +67,7 @@ fn prefix_string(path : String, end_exclusive : Int) -> String {
   builder.to_string()
 }
 
+///|
 fn int_or_default(value : Int?, fallback : Int) -> Int {
   match value {
     Some(value) => value

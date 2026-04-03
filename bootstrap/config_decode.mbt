@@ -22,6 +22,7 @@ fn required_int_field(
   }
 }
 
+///|
 fn required_field(
   object : Map[String, Json],
   key : String,
@@ -65,6 +66,7 @@ fn decode_optional_int(json : Json?, label : String) -> Result[Int?, String] {
   }
 }
 
+///|
 fn decode_string(json : Json, label : String) -> Result[String, String] {
   let decoded : Result[String, _] = try? @json.from_json(json)
   match decoded {
@@ -82,6 +84,7 @@ fn decode_int(json : Json, label : String) -> Result[Int, String] {
   }
 }
 
+///|
 fn expect_object(
   json : Json,
   label : String,

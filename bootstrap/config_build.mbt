@@ -40,19 +40,15 @@ fn build_app_config_from_json(
   and_then(expect_object(json, "app config"), fn(object) {
     and_then(
       required_built_field(
-        object,
-        "window",
-        "app config.window",
-        build_window_config_from_json,
+        object, "window", "app config.window", build_window_config_from_json,
       ),
       fn(window) {
         and_then(
-          required_built_field(
-            object,
-            "entry",
-            "app config.entry",
-            fn(entry_json) { build_app_entry_from_json(entry_json, base_dir) },
-          ),
+          required_built_field(object, "entry", "app config.entry", fn(
+            entry_json,
+          ) {
+            build_app_entry_from_json(entry_json, base_dir)
+          }),
           fn(entry) {
             and_then(
               build_app_windows_from_json(
@@ -81,7 +77,7 @@ fn build_app_config_from_json(
                               entry,
                               debug=int_or_default(debug, 0),
                               windows~,
-                              base_dir=base_dir,
+                              base_dir~,
                             )
                           },
                         )
@@ -105,22 +101,21 @@ fn build_window_config_from_json(
   and_then(expect_object(json, "window config"), fn(object) {
     and_then(required_string_field(object, "title", "window.title"), fn(title) {
       and_then(required_int_field(object, "width", "window.width"), fn(width) {
-        and_then(
-          required_int_field(object, "height", "window.height"),
-          fn(height) {
-            and_then(
-              decode_optional_string(
-                optional_field(object, "size_hint"),
-                "window.size_hint",
-              ),
-              fn(size_hint) {
-                map_ok(parse_size_hint(size_hint), fn(size_hint) {
-                  @wvrt.WindowConfig::new(title, width, height, size_hint~)
-                })
-              },
-            )
-          },
-        )
+        and_then(required_int_field(object, "height", "window.height"), fn(
+          height,
+        ) {
+          and_then(
+            decode_optional_string(
+              optional_field(object, "size_hint"),
+              "window.size_hint",
+            ),
+            fn(size_hint) {
+              map_ok(parse_size_hint(size_hint), fn(size_hint) {
+                @wvrt.WindowConfig::new(title, width, height, size_hint~)
+              })
+            },
+          )
+        })
       })
     })
   })
@@ -133,7 +128,9 @@ fn build_app_entry_from_json(
 ) -> Result[@wvrt.AppEntry, String] {
   and_then(expect_object(json, "app entry"), fn(object) {
     and_then(required_string_field(object, "kind", "entry.kind"), fn(kind) {
-      and_then(required_string_field(object, "value", "entry.value"), fn(value) {
+      and_then(required_string_field(object, "value", "entry.value"), fn(
+        value,
+      ) {
         let normalized_kind = normalize_keyword(kind)
         let rebased_value = match normalized_kind {
           "file" => rebase_relative_path(value, base_dir)
@@ -189,12 +186,11 @@ fn build_app_window_from_json(
         ),
         fn(window) {
           map_ok(
-            required_built_field(
-              object,
-              "entry",
-              label + ".entry",
-              fn(entry_json) { build_app_entry_from_json(entry_json, base_dir) },
-            ),
+            required_built_field(object, "entry", label + ".entry", fn(
+              entry_json,
+            ) {
+              build_app_entry_from_json(entry_json, base_dir)
+            }),
             fn(entry) { @wvrt.AppWindowConfig::new(id, window, entry) },
           )
         },
@@ -207,10 +203,7 @@ fn build_app_window_from_json(
 fn reject_unsupported_permissions(json : Json?) -> Result[Unit, String] {
   match json {
     None => Ok(())
-    Some(_) =>
-      Err(
-        "app config.permissions is no longer supported; remove it",
-      )
+    Some(_) => Err("app config.permissions is no longer supported; remove it")
   }
 }
 

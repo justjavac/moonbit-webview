@@ -1,7 +1,5 @@
 ///|
-fn register_file_text_ops(
-  extension : @runtime.ExtensionContext,
-) -> Unit {
+fn register_file_text_ops(extension : @runtime.ExtensionContext) -> Unit {
   register_read_text_op(extension, "readFile")
   register_read_text_op(extension, "readTextFile")
   register_write_text_op(extension, "writeFile")

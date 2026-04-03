@@ -17,7 +17,9 @@ fn install_declared_extensions(
     )
     match extension.build_extension(context) {
       Err(error) =>
-        return Err("failed to build app extension " + extension_name + ": " + error)
+        return Err(
+          "failed to build app extension " + extension_name + ": " + error,
+        )
       Ok(runtime_extension) => {
         guard runtime_extension.name() == extension_name else {
           return Err(

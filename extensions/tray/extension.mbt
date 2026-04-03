@@ -27,6 +27,7 @@ fn ensure_supported() -> Result[Unit, String] {
   @sys_tray.ensure_supported()
 }
 
+///|
 fn init_tray(extension : @runtime.ExtensionContext) -> @sys_tray.Tray? {
   match ensure_supported() {
     Ok(_) =>
@@ -38,6 +39,7 @@ fn init_tray(extension : @runtime.ExtensionContext) -> @sys_tray.Tray? {
   }
 }
 
+///|
 fn[Reply] with_tray_handle(
   tray_handle : @sys_tray.Tray?,
   callback : (@sys_tray.Tray) -> Result[Reply, String],
@@ -52,6 +54,7 @@ fn[Reply] with_tray_handle(
   }
 }
 
+///|
 fn destroy_tray(tray_handle : @sys_tray.Tray?) -> Unit {
   match tray_handle {
     Some(handle) => handle.destroy()
@@ -59,6 +62,7 @@ fn destroy_tray(tray_handle : @sys_tray.Tray?) -> Unit {
   }
 }
 
+///|
 fn emit_activity(
   extension : @runtime.ExtensionContext,
   operation : String,

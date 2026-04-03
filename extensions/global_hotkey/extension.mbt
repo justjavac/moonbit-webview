@@ -27,6 +27,7 @@ fn ensure_supported() -> Result[Unit, String] {
   @sys_global_hotkey.ensure_supported()
 }
 
+///|
 fn init_manager() -> @sys_global_hotkey.GlobalHotkeyManager? {
   match ensure_supported() {
     Ok(_) =>
@@ -38,6 +39,7 @@ fn init_manager() -> @sys_global_hotkey.GlobalHotkeyManager? {
   }
 }
 
+///|
 fn[Reply] with_manager(
   manager : @sys_global_hotkey.GlobalHotkeyManager?,
   callback : (@sys_global_hotkey.GlobalHotkeyManager) -> Result[Reply, String],
@@ -52,6 +54,7 @@ fn[Reply] with_manager(
   }
 }
 
+///|
 fn list_or_empty(
   manager : @sys_global_hotkey.GlobalHotkeyManager?,
   selector : (@sys_global_hotkey.GlobalHotkeyManager) -> Array[String],
@@ -62,6 +65,7 @@ fn list_or_empty(
   }
 }
 
+///|
 fn destroy_manager(manager : @sys_global_hotkey.GlobalHotkeyManager?) -> Unit {
   match manager {
     Some(handle) => handle.destroy()
@@ -69,6 +73,7 @@ fn destroy_manager(manager : @sys_global_hotkey.GlobalHotkeyManager?) -> Unit {
   }
 }
 
+///|
 fn emit_activity(
   extension : @runtime.ExtensionContext,
   operation : String,

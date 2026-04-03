@@ -6,14 +6,11 @@ fn main {
     debug=1,
   )
   let app = match
-    @app.create_app(
-      config,
-      extensions=[
-        @notification.app_extension(),
-        @tray.app_extension(),
-        @global_hotkey.app_extension(),
-      ],
-    ) {
+    @app.create_app(config, extensions=[
+      @notification.app_extension(),
+      @tray.app_extension(),
+      @global_hotkey.app_extension(),
+    ]) {
     Ok(app) => app
     Err(error) => abort(error)
   }

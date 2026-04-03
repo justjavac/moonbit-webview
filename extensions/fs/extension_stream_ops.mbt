@@ -20,14 +20,7 @@ fn register_stream_ops(
       Ok(mode) => mode
       Err(error) => return Err(error)
     }
-    open_path_handle(
-      extension,
-      "openFile",
-      handles,
-      paths,
-      payload.path,
-      mode,
-    )
+    open_path_handle(extension, "openFile", handles, paths, payload.path, mode)
   })
 
   extension.op_result("read", fn(payload : ReadPayload) {
@@ -102,12 +95,7 @@ fn register_stream_ops(
       match flush_memory_file(file) {
         Err(error) => Err(error)
         Ok(_) => {
-          emit_activity(
-            extension,
-            "flush",
-            path=paths.get(rid),
-            rid=Some(rid),
-          )
+          emit_activity(extension, "flush", path=paths.get(rid), rid=Some(rid))
           Ok(FlushReply::{ flushed: true })
         }
       }
@@ -140,24 +128,22 @@ fn open_path_handle(
   path : String,
   mode : String,
 ) -> Result[OpenReply, String] {
-  with_resolved_path(
-    path,
-    fn(path) { resolve_open_path(path, mode) },
-    fn(resolved_path) {
-      match open_memory_file(resolved_path, mode) {
-        Err(error) => Err(error)
-        Ok(file) => {
-          let rid = handles.add(file)
-          paths.set(rid, resolved_path)
-          emit_activity(
-            extension,
-            api_name,
-            path=Some(resolved_path),
-            rid=Some(rid),
-          )
-          Ok(OpenReply::{ rid, })
-        }
+  with_resolved_path(path, fn(path) { resolve_open_path(path, mode) }, fn(
+    resolved_path,
+  ) {
+    match open_memory_file(resolved_path, mode) {
+      Err(error) => Err(error)
+      Ok(file) => {
+        let rid = handles.add(file)
+        paths.set(rid, resolved_path)
+        emit_activity(
+          extension,
+          api_name,
+          path=Some(resolved_path),
+          rid=Some(rid),
+        )
+        Ok(OpenReply::{ rid, })
       }
-    },
-  )
+    }
+  })
 }

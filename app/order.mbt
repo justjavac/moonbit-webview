@@ -44,7 +44,10 @@ fn visit_extension(
 ) -> Result[Unit, String] {
   match visit_state.get(extension_name) {
     Some(2) => return Ok(())
-    Some(1) => return Err("app extension dependency cycle detected at: " + extension_name)
+    Some(1) =>
+      return Err(
+        "app extension dependency cycle detected at: " + extension_name,
+      )
     _ => ()
   }
   let extension = match by_name.get(extension_name) {
@@ -55,7 +58,10 @@ fn visit_extension(
   for dependency in extension.dependencies() {
     guard by_name.get(dependency) is Some(_) else {
       return Err(
-        "app extension " + extension_name + " requires missing dependency " + dependency,
+        "app extension " +
+        extension_name +
+        " requires missing dependency " +
+        dependency,
       )
     }
     match visit_extension(dependency, by_name, visit_state, ordered) {

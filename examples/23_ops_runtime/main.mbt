@@ -11,10 +11,10 @@ fn main {
     debug=1,
   )
   let app = match
-    @app.create_app(
-      config,
-      extensions=[@fs.app_extension(), @path.app_extension()],
-    ) {
+    @app.create_app(config, extensions=[
+      @fs.app_extension(),
+      @path.app_extension(),
+    ]) {
     Ok(app) => app
     Err(error) => abort(error)
   }

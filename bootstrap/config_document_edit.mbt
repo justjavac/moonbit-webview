@@ -1,3 +1,4 @@
+///|
 pub fn AppConfigDocument::set_extension_options(
   self : AppConfigDocument,
   name : String,
@@ -37,7 +38,10 @@ fn set_extension_option_entry(
 }
 
 ///|
-fn clear_extension_option_entry(object : Map[String, Json], name : String) -> Unit {
+fn clear_extension_option_entry(
+  object : Map[String, Json],
+  name : String,
+) -> Unit {
   match object.get("extensions") {
     Some(Object(extension_object)) => {
       extension_object.remove(name)

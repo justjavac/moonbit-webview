@@ -48,10 +48,6 @@ test "fs app extension rejects unsupported options" {
       ),
     ) {
     Ok(_) => abort("expected fs extension options rejection")
-    Err(error) =>
-      assert_eq(
-        error,
-        "fs extension options are not supported",
-      )
+    Err(error) => assert_eq(error, "fs extension options are not supported")
   }
 }

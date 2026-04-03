@@ -11,10 +11,10 @@ fn main {
     debug=1,
   )
   let app = match
-    @app.create_app(
-      config,
-      extensions=[@dialog.app_extension(), @clipboard.app_extension()],
-    ) {
+    @app.create_app(config, extensions=[
+      @dialog.app_extension(),
+      @clipboard.app_extension(),
+    ]) {
     Ok(app) => app
     Err(error) => abort(error)
   }

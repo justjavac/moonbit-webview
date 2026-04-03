@@ -17,11 +17,5 @@ pub fn BootstrapAppConfig::new(
   windows? : Array[@wvrt.AppWindowConfig] = [],
   base_dir? : String? = None,
 ) -> BootstrapAppConfig {
-  BootstrapAppConfig::{
-    window,
-    entry,
-    windows,
-    debug,
-    base_dir,
-  }
+  BootstrapAppConfig::{ window, entry, windows, debug, base_dir }
 }
