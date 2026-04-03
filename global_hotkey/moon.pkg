@@ -1,0 +1,10 @@
+import {
+  "justjavac/ffi" @ffi,
+}
+
+supported_targets = "native"
+
+options(
+  "native-stub": [ "global_hotkey_native.c" ],
+  targets: { "global_hotkey.mbt": [ "native" ] },
+)

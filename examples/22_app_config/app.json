@@ -1,0 +1,17 @@
+{
+  "window": {
+    "title": "MoonBit Config Runtime",
+    "width": 920,
+    "height": 680,
+    "size_hint": "none"
+  },
+  "entry": {
+    "kind": "file",
+    "value": "app.html"
+  },
+  "extensions": {
+    "fs": {},
+    "path": {}
+  },
+  "debug": 1
+}

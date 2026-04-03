@@ -1,0 +1,67 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "extensions/fs"
+
+import {
+  "justjavac/webview_app",
+  "justjavac/webview_runtime",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn app_extension() -> @webview_app.AppExtension
+
+pub fn extension() -> @webview_runtime.Extension
+
+// Errors
+
+// Types and methods
+type ClosePayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type CloseReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type ExistsPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type ExistsReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type FlushPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type FlushReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type FsActivity derive(Eq, Show, ToJson, @json.FromJson)
+
+type FstatPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type FstatReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type OpenPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type OpenReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type ReadDirPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type ReadDirReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type ReadPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type ReadReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type RemoveFilePayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type RemoveFileReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type ResolvePathPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type ResolvePathReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type SeekPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type SeekReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type WritePayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type WriteReply derive(Eq, Show, ToJson, @json.FromJson)
+
+// Type aliases
+
+// Traits
+

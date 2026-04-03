@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/core/json",
+}
+
+supported_targets = "native"
+
+options(
+  targets: {
+    "catalog_metadata.mbt": [ "native" ],
+    "catalog_test.mbt": [ "native" ],
+    "catalog_types.mbt": [ "native" ],
+  },
+)

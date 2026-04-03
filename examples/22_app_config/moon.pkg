@@ -1,0 +1,15 @@
+import {
+  "extensions/fs" @fs,
+  "extensions/path" @path,
+  "justjavac/webview_app" @app,
+  "justjavac/webview_runtime" @wvrt,
+}
+
+supported_targets = "native"
+
+options(
+  "is-main": true,
+
+  targets: { "main.mbt": [ "native" ] },
+)
+

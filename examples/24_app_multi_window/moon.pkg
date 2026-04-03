@@ -1,0 +1,15 @@
+import {
+  "justjavac/webview_app" @app,
+  "justjavac/webview_bootstrap" @bootstrap,
+  "justjavac/webview_runtime" @wvrt,
+  "justjavac/webview",
+}
+
+supported_targets = "native"
+
+options(
+  "is-main": true,
+
+  targets: { "main.mbt": [ "native" ] },
+)
+

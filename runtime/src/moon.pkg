@@ -1,0 +1,38 @@
+import {
+  "moonbitlang/core/json",
+  "moonbitlang/x/path",
+  "justjavac/ffi",
+  "justjavac/webview",
+}
+
+supported_targets = "+native"
+
+options(
+  "pre-build": [
+    {
+      "command": "node $mod_dir/embed_asset.mjs $input $output moonbit_core_template_resource",
+      "input": "assets/moonbit_core.js",
+      "output": "generated_moonbit_core_template.mbt",
+    },
+    {
+      "command": "node $mod_dir/embed_asset.mjs $input $output moonbit_register_op_template_resource",
+      "input": "assets/moonbit_register_op.js",
+      "output": "generated_moonbit_register_op_template.mbt",
+    },
+  ],
+  targets: {
+    "app.mbt": [ "native" ],
+    "app_extension_runtime.mbt": [ "native" ],
+    "app_window_runtime.mbt": [ "native" ],
+    "config.mbt": [ "native" ],
+    "extension.mbt": [ "native" ],
+    "extension_bridge_scripts.mbt": [ "native" ],
+    "extension_js_helpers.mbt": [ "native" ],
+    "js_runtime.mbt": [ "native" ],
+    "js_template_render.mbt": [ "native" ],
+    "op_registry.mbt": [ "native" ],
+    "op_runtime.mbt": [ "native" ],
+    "resource_table.mbt": [ "native" ],
+    "script_runtime.mbt": [ "native" ],
+  },
+)

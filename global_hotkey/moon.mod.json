@@ -1,0 +1,17 @@
+{
+  "name": "justjavac/global_hotkey",
+  "version": "0.1.0",
+  "deps": {
+    "justjavac/ffi": "0.2.0",
+    "moonbitlang/x": "0.4.41"
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/justjavac/moonbit-webview/tree/main/global_hotkey",
+  "license": "MIT",
+  "keywords": ["desktop", "shortcut", "native"],
+  "description": "Reusable native global shortcut package extracted from moonbit-webview.",
+  "source": "",
+  "warn-list": "",
+  "preferred-target": "native",
+  "supported_targets": "+native"
+}

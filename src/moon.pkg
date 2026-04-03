@@ -3,19 +3,9 @@ import {
   "justjavac/ffi",
 }
 
+supported_targets = "+native"
+
 options(
-  link: {
-    "native": {
-      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
-      "cc-link-flags": "-Llib -lwebview",
-    },
-  },
   "native-stub": [ "stub.c" ],
-  "supported-targets": "+native",
-  targets: {
-    "binding.mbt": [ "native" ],
-    "command.mbt": [ "native" ],
-    "plugin.mbt": [ "native" ],
-    "webview.mbt": [ "native" ],
-  },
+  targets: { "binding.mbt": [ "native" ], "webview.mbt": [ "native" ] },
 )

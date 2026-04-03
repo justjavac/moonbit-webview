@@ -1,0 +1,5 @@
+target=macos-universal
+webview_git_tag=cbbdee44afff22867de9fd88a9fc8350d9bdd399
+library_dir=lib
+include_dir=include
+Frameworks/libraries: -framework WebKit -ldl

@@ -1,0 +1,34 @@
+import {
+  "justjavac/ffi" @ffi,
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/core/json",
+  "moonbitlang/x/fs" @xfs,
+  "moonbitlang/x/path" @path,
+  "justjavac/webview_app" @app,
+  "justjavac/webview_runtime" @runtime,
+}
+
+supported_targets = "native"
+
+options(
+  "native-stub": [ "fs_native.c" ],
+  "pre-build": [
+    {
+      "command": "node $mod_dir/../runtime/embed_asset.mjs $input $output fs_helper_template_resource",
+      "input": "assets/node_fs_helper.js",
+      "output": "generated_fs_helper_template.mbt",
+    },
+  ],
+  targets: {
+    "extension.mbt": [ "native" ],
+    "extension_activity.mbt": [ "native" ],
+    "extension_file_ops.mbt": [ "native" ],
+    "op_helpers.mbt": [ "native" ],
+    "extension_path_ops.mbt": [ "native" ],
+    "extension_stream_ops.mbt": [ "native" ],
+    "helper_js.mbt": [ "native" ],
+    "path_api.mbt": [ "native" ],
+    "stream_api.mbt": [ "native" ],
+    "stream_checks.mbt": [ "native" ],
+  },
+)

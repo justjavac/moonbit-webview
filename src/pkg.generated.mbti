@@ -1,10 +1,6 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "justjavac/webview"
 
-import {
-  "moonbitlang/core/json",
-}
-
 // Values
 pub fn webview_bind(Webview_t, Bytes, FuncRef[(CStr, CStr, (Bytes, Bytes) -> Unit) -> Unit], (Bytes, Bytes) -> Unit) -> BindingHandle
 
@@ -47,101 +43,41 @@ pub type BindingHandle
 #external
 pub type CStr
 
-pub struct Command {
-  name : String
-  payload : Json
-}
-pub impl Eq for Command
-pub impl Show for Command
-pub impl ToJson for Command
-pub impl @json.FromJson for Command
-
-type CommandBridge
-pub fn CommandBridge::destroy(Self) -> Unit
-pub fn CommandBridge::event_name(Self) -> String
-pub fn CommandBridge::global_name(Self) -> String
-pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle(Self, String, (Payload) -> Reply) -> Unit
-pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle_result(Self, String, (Payload) -> Result[Reply, String]) -> Unit
-pub fn CommandBridge::new(Webview, global_name? : String, binding_name? : String, event_name? : String) -> Self
-pub fn[Payload : ToJson] CommandBridge::send(Self, String, Payload) -> Unit
-
-pub struct CommandResponse {
-  status : String
-  payload : Json?
-  error : String?
-}
-pub fn CommandResponse::error(String) -> Self
-pub fn CommandResponse::is_ok(Self) -> Bool
-pub fn[Payload : ToJson] CommandResponse::ok(Payload) -> Self
-pub impl Eq for CommandResponse
-pub impl Show for CommandResponse
-pub impl ToJson for CommandResponse
-pub impl @json.FromJson for CommandResponse
-
-pub struct PluginEvent {
-  plugin : String
-  name : String
-  payload : Json
-}
-pub impl Eq for PluginEvent
-pub impl Show for PluginEvent
-pub impl ToJson for PluginEvent
-pub impl @json.FromJson for PluginEvent
-
-type Plugin
-pub fn Plugin::new(String, (PluginContext) -> Unit, on_install? : (PluginContext) -> Unit, on_destroy? : (PluginContext) -> Unit) -> Self
-
-type PluginContext
-pub fn[Payload : @json.FromJson, Reply : ToJson] PluginContext::command(Self, String, (Payload) -> Reply) -> Unit
-pub fn[Payload : @json.FromJson, Reply : ToJson] PluginContext::command_result(Self, String, (Payload) -> Result[Reply, String]) -> Unit
-pub fn[Payload : ToJson] PluginContext::emit(Self, String, Payload) -> Unit
-pub fn PluginContext::name(Self) -> String
-
-type PluginHost
-pub fn PluginHost::command_bridge(Self) -> CommandBridge
-pub fn PluginHost::destroy(Self) -> Unit
-pub fn[Payload : ToJson] PluginHost::emit(Self, String, String, Payload) -> Unit
-pub fn PluginHost::global_name(Self) -> String
-pub fn PluginHost::install(Self, Plugin) -> Unit
-pub fn PluginHost::new(Webview, global_name? : String, command_global_name? : String, binding_name? : String, event_name? : String) -> Self
-pub fn PluginHost::run(Self) -> Unit
-
 pub(all) enum NativeHandleKind {
   Window
   Widget
   Browser
-}
-pub impl Show for NativeHandleKind
+} derive(Show)
 
 pub(all) enum SizeHint {
   None
   Min
   Max
   Fixed
-}
-pub impl Show for SizeHint
+} derive(Show)
 
 type Webview
 pub fn Webview::bind(Self, String, (Bytes, Bytes) -> Unit) -> Unit
 pub fn Webview::destroy(Self) -> Unit
 pub fn Webview::dispatch(Self, () -> Unit) -> Unit
-pub fn[Payload : ToJson] Webview::emit_plugin(Self, String, String, Payload) -> Unit
 pub fn Webview::eval(Self, String) -> Unit
 pub fn Webview::get_handle(Self) -> Webview_t
 pub fn Webview::get_native_handle(Self, NativeHandleKind) -> Int64
 pub fn Webview::get_window(Self) -> Int64
+pub fn Webview::has_binding(Self, String) -> Bool
 pub fn Webview::init(Self, String) -> Unit
-pub fn Webview::install_plugin(Self, Plugin) -> Unit
 pub fn Webview::navigate(Self, String) -> Unit
 pub fn Webview::new(debug? : Int) -> Self
-pub fn Webview::plugin_host(Self) -> PluginHost
+pub fn Webview::register_destroy_hook(Self, String, () -> Unit) -> Unit
 pub fn Webview::response(Self, String, Int, String) -> Unit
 pub fn Webview::run(Self) -> Unit
+pub fn Webview::runtime_handle_id(Self) -> Int64
 pub fn Webview::set_html(Self, String) -> Unit
 pub fn Webview::set_size(Self, Int, Int, SizeHint) -> Unit
 pub fn Webview::set_title(Self, String) -> Unit
 pub fn Webview::terminate(Self) -> Unit
 pub fn Webview::unbind(Self, String) -> Unit
+pub fn Webview::unregister_destroy_hook(Self, String) -> Unit
 
 #external
 pub type Webview_t
@@ -149,3 +85,4 @@ pub type Webview_t
 // Type aliases
 
 // Traits
+

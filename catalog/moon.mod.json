@@ -1,0 +1,21 @@
+{
+  "name": "justjavac/webview_catalog",
+  "version": "0.1.0",
+  "deps": {
+    "extensions": {
+      "path": "../extensions"
+    },
+    "justjavac/webview_runtime": {
+      "path": "../runtime"
+    }
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/justjavac/moonbit-webview/tree/main/catalog",
+  "license": "MIT",
+  "keywords": ["webview", "catalog", "extension", "desktop-app"],
+  "description": "Built-in extension catalog helpers for moonbit-webview.",
+  "source": "",
+  "warn-list": "",
+  "preferred-target": "native",
+  "supported_targets": "+native"
+}

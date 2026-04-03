@@ -1,0 +1,10 @@
+import {
+  "justjavac/ffi" @ffi,
+}
+
+supported_targets = "native"
+
+options(
+  "native-stub": [ "tray_native.c" ],
+  targets: { "tray.mbt": [ "native" ] },
+)

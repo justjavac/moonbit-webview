@@ -1,0 +1,10 @@
+import {
+  "justjavac/ffi" @ffi,
+}
+
+supported_targets = "native"
+
+options(
+  "native-stub": [ "notification_native.c" ],
+  targets: { "notification.mbt": [ "native" ] },
+)

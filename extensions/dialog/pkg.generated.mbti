@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "extensions/dialog"
+
+import {
+  "justjavac/webview_app",
+  "justjavac/webview_runtime",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn app_extension() -> @webview_app.AppExtension
+
+pub fn extension() -> @webview_runtime.Extension
+
+// Errors
+
+// Types and methods
+type ConfirmReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type DialogActivity derive(Eq, Show, ToJson, @json.FromJson)
+
+type FileDialogPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type FileDialogReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type MessagePayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type MessageReply derive(Eq, Show, ToJson, @json.FromJson)
+
+// Type aliases
+
+// Traits
+

@@ -5,7 +5,34 @@
 /// alert message "Hello Moonbit!" when loaded.
 let html =
   #| <html>
+  #|   <head>
+  #|     <style>
+  #|       :root {
+  #|         color-scheme: light dark;
+  #|         --bg: #f4efe7;
+  #|         --ink: #182028;
+  #|       }
+  #|       @media (prefers-color-scheme: dark) {
+  #|         :root {
+  #|           --bg: #0f151a;
+  #|           --ink: #ecf2f7;
+  #|         }
+  #|       }
+  #|       body {
+  #|         margin: 0;
+  #|         min-height: 100vh;
+  #|         display: grid;
+  #|         place-items: center;
+  #|         font-family: "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
+  #|         background:
+  #|           radial-gradient(circle at top, rgba(15, 118, 110, 0.14), transparent 32%),
+  #|           var(--bg);
+  #|         color: var(--ink);
+  #|       }
+  #|     </style>
+  #|   </head>
   #|   <body>
+  #|     <p>Alert demo is running.</p>
   #|     <script>alert("Hello Moonbit!")</script>
   #|   </body>
   #| </html>

@@ -1,0 +1,14 @@
+import {
+  "moonbitlang/core/json",
+  "justjavac/ffi",
+  "justjavac/webview_app" @app,
+  "justjavac/webview_runtime" @runtime,
+  "justjavac/webview",
+}
+
+supported_targets = "native"
+
+options(
+  "native-stub": [ "dialog_native.c" ],
+  targets: { "extension.mbt": [ "native" ] },
+)

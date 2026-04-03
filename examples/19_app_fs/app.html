@@ -1,0 +1,495 @@
+<html>
+    <head>
+        <style>
+            :root {
+                color-scheme: light dark;
+                --bg-splash: #f6d8a8;
+                --bg-start: #d9ebe4;
+                --bg-end: #f7f2e7;
+                --ink: #16313b;
+                --muted: #607881;
+                --shell: rgba(255, 255, 255, 0.9);
+                --shell-line: rgba(255, 255, 255, 0.7);
+                --panel: #eef4f6;
+                --panel-line: rgba(22, 49, 59, 0.12);
+                --field: rgba(255, 255, 255, 0.94);
+                --surface: #ffffff;
+                --code-chip: #d8efec;
+                --button: #16313b;
+                --button-alt: #0b7680;
+                --button-ghost: #ffffff;
+                --button-ghost-text: #16313b;
+                --button-warn: #a04634;
+                --notice-ok: #ddf2ef;
+                --notice-error: #f9dfdb;
+                --shadow: rgba(22, 49, 59, 0.16);
+            }
+
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --bg-splash: rgba(52, 211, 153, 0.28);
+                    --bg-start: #0f1820;
+                    --bg-end: #161d27;
+                    --ink: #edf3f8;
+                    --muted: #9eb2bd;
+                    --shell: rgba(16, 24, 31, 0.9);
+                    --shell-line: rgba(237, 243, 248, 0.08);
+                    --panel: #111b24;
+                    --panel-line: rgba(237, 243, 248, 0.1);
+                    --field: #0f1820;
+                    --surface: #0c141b;
+                    --code-chip: #12303a;
+                    --button: #34d399;
+                    --button-alt: #22c1b4;
+                    --button-ghost: #16212b;
+                    --button-ghost-text: #edf3f8;
+                    --button-warn: #f87171;
+                    --notice-ok: #0f2a29;
+                    --notice-error: #351918;
+                    --shadow: rgba(0, 0, 0, 0.42);
+                }
+            }
+
+            body {
+                margin: 0;
+                min-height: 100vh;
+                background:
+                    radial-gradient(circle at top right, var(--bg-splash) 0%, transparent 38%),
+                    linear-gradient(150deg, var(--bg-start) 0%, var(--bg-end) 100%);
+                color: var(--ink);
+                font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+            }
+            .shell {
+                width: min(70rem, calc(100vw - 2rem));
+                margin: 1rem auto;
+                padding: 1.25rem;
+                border-radius: 28px;
+                background: var(--shell);
+                border: 1px solid var(--shell-line);
+                box-shadow: 0 26px 90px var(--shadow);
+            }
+            h1,
+            h2,
+            p {
+                margin: 0;
+            }
+            .hero,
+            .panel,
+            .stack,
+            .form {
+                display: grid;
+                gap: 0.85rem;
+            }
+            .hero {
+                margin-bottom: 1rem;
+            }
+            .hero p {
+                color: var(--muted);
+                max-width: 48rem;
+            }
+            code {
+                padding: 0.16rem 0.42rem;
+                border-radius: 999px;
+                background: var(--code-chip);
+            }
+            .layout {
+                display: grid;
+                grid-template-columns: minmax(0, 1.3fr) minmax(18rem, 0.95fr);
+                gap: 1rem;
+            }
+            .panel {
+                padding: 1rem;
+                border-radius: 22px;
+                background: var(--panel);
+                border: 1px solid var(--panel-line);
+            }
+            label {
+                display: grid;
+                gap: 0.35rem;
+                font-size: 0.95rem;
+                font-weight: 600;
+            }
+            input,
+            textarea,
+            button {
+                font: inherit;
+            }
+            input,
+            textarea {
+                width: 100%;
+                box-sizing: border-box;
+                border: 1px solid var(--panel-line);
+                border-radius: 14px;
+                background: var(--field);
+                color: var(--ink);
+                padding: 0.82rem 0.95rem;
+            }
+            textarea {
+                min-height: 15rem;
+                resize: vertical;
+                line-height: 1.48;
+            }
+            .actions {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.75rem;
+            }
+            button {
+                border: 0;
+                border-radius: 999px;
+                padding: 0.82rem 1rem;
+                background: var(--button);
+                color: white;
+                font-weight: 600;
+                cursor: pointer;
+            }
+            button.alt {
+                background: var(--button-alt);
+            }
+            button.ghost {
+                background: var(--button-ghost);
+                color: var(--button-ghost-text);
+                border: 1px solid var(--panel-line);
+            }
+            button.warn {
+                background: var(--button-warn);
+            }
+            button:disabled {
+                opacity: 0.65;
+                cursor: progress;
+            }
+            .notice,
+            .meta {
+                border-radius: 16px;
+                padding: 0.82rem 0.95rem;
+                background: var(--surface);
+                border: 1px solid var(--panel-line);
+            }
+            .notice.error {
+                background: var(--notice-error);
+            }
+            .notice.ok {
+                background: var(--notice-ok);
+            }
+            .muted {
+                color: var(--muted);
+            }
+            .list {
+                display: grid;
+                gap: 0.55rem;
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                max-height: 18rem;
+                overflow: auto;
+            }
+            .list li {
+                border-radius: 14px;
+                background: var(--surface);
+                border: 1px solid var(--panel-line);
+                padding: 0.72rem 0.82rem;
+                font-family: "SF Mono", "Menlo", monospace;
+                font-size: 0.88rem;
+            }
+            .meta strong {
+                display: block;
+                margin-bottom: 0.28rem;
+                color: var(--muted);
+                font-size: 0.78rem;
+                text-transform: uppercase;
+            }
+            @media (max-width: 860px) {
+                .layout,
+                .actions {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="shell">
+            <div class="hero">
+                <h1>__MoonBit__ App Runtime + FS + Path</h1>
+                <p>
+                    This example runs through <code>App</code> and uses the
+                    runtime bridge exposed on <code>window.__MoonBit__</code>.
+                    It demonstrates the generated proxies
+                    <code>__MoonBit__.fs</code> and
+                    <code>__MoonBit__.path</code>, with the filesystem flow
+                    leaning on Node-style calls such as
+                    <code>readFile(path)</code>,
+                    <code>writeFile(path, content)</code>,
+                    <code>stat(path)</code>, and
+                    <code>readdir(path)</code>.
+                </p>
+            </div>
+            <div class="layout">
+                <div class="stack">
+                    <div class="panel">
+                        <h2>Editor</h2>
+                        <div class="form">
+                            <label>
+                                File path
+                                <input id="path" value="moonbit-app-runtime-demo.txt" />
+                            </label>
+                            <label>
+                                Content
+                                <textarea id="content">Hello from the __MoonBit__ App runtime.
+
+This page talks to the native fs extension through window.__MoonBit__.</textarea>
+                            </label>
+                            <div class="actions">
+                                <button id="resolve" class="ghost">Resolve Path</button>
+                                <button id="listDir" class="ghost">List Directory</button>
+                                <button id="save">Save File</button>
+                                <button id="load" class="alt">Load File</button>
+                                <button id="inspect" class="ghost">Inspect File</button>
+                                <button id="remove" class="warn">Delete File</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <h2>Directory</h2>
+                        <p class="muted">Entries next to the active file.</p>
+                        <ul id="dirList" class="list">
+                            <li class="muted">No directory listing yet.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="stack">
+                    <div class="panel">
+                        <h2>Status</h2>
+                        <div id="notice" class="notice ok">Runtime is ready.</div>
+                        <div id="resolved" class="meta">
+                            <strong>Resolved Path</strong>
+                            <span>-</span>
+                        </div>
+                        <div id="pathInfo" class="meta">
+                            <strong>Path View</strong>
+                            <span>-</span>
+                        </div>
+                        <div id="stat" class="meta">
+                            <strong>File State</strong>
+                            <span>-</span>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <h2>Extension Activity</h2>
+                        <p class="muted">
+                            Events are wired through <code>__MoonBit__.events.on("fs.activity")</code>.
+                        </p>
+                        <ul id="events" class="list">
+                            <li class="muted">No native events yet.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const app = window.__MoonBit__;
+            const fs = app.fs;
+            const pathApi = app.path;
+            const pathInput = document.getElementById("path");
+            const contentInput = document.getElementById("content");
+            const notice = document.getElementById("notice");
+            const resolved = document.getElementById("resolved").querySelector("span");
+            const pathInfo = document.getElementById("pathInfo").querySelector("span");
+            const stat = document.getElementById("stat").querySelector("span");
+            const dirList = document.getElementById("dirList");
+            const events = document.getElementById("events");
+            const buttons = Array.from(document.querySelectorAll("button"));
+
+            function setBusy(busy) {
+                buttons.forEach((button) => {
+                    button.disabled = busy;
+                });
+            }
+
+            function setNotice(message, kind) {
+                notice.textContent = message;
+                notice.className = "notice " + (kind || "ok");
+            }
+
+            function renderDir(entries) {
+                dirList.innerHTML = "";
+                if (!entries.length) {
+                    dirList.innerHTML = '<li class="muted">The directory is empty.</li>';
+                    return;
+                }
+                entries.forEach((entry) => {
+                    const item = document.createElement("li");
+                    item.textContent = entry;
+                    dirList.appendChild(item);
+                });
+            }
+
+            function renderEvent(event) {
+                const item = document.createElement("li");
+                const payload = event.payload || {};
+                const parts = [event.name];
+                if (payload.path) {
+                    parts.push(payload.path);
+                }
+                if (payload.rid != null) {
+                    parts.push("rid " + payload.rid);
+                }
+                if (payload.bytes != null) {
+                    parts.push(payload.bytes + " bytes");
+                }
+                item.textContent = parts.join(" | ");
+                if (events.firstElementChild && events.firstElementChild.className === "muted") {
+                    events.innerHTML = "";
+                }
+                events.prepend(item);
+                while (events.children.length > 8) {
+                    events.removeChild(events.lastElementChild);
+                }
+            }
+
+            async function refreshPathInfo(path) {
+                const [dirname, basename, extname, absolute, normalized] = await Promise.all([
+                    pathApi.dirname(path),
+                    pathApi.basename(path),
+                    pathApi.extname(path),
+                    pathApi.isAbsolute(path),
+                    pathApi.normalize(path),
+                ]);
+                pathInfo.textContent =
+                    "dir " +
+                    dirname +
+                    " | base " +
+                    basename +
+                    " | ext " +
+                    (extname || "(none)") +
+                    " | absolute " +
+                    absolute +
+                    " | normalized " +
+                    normalized;
+            }
+
+            async function resolveInputPath() {
+                const input = pathInput.value.trim();
+                if (!input) {
+                    throw new Error("Please enter a file path.");
+                }
+                const absolutePath = await pathApi.resolve(input);
+                pathInput.value = absolutePath;
+                resolved.textContent = absolutePath;
+                await refreshPathInfo(absolutePath);
+                return absolutePath;
+            }
+
+            async function inspect(path) {
+                return fs.stat(path, { throwIfNoEntry: false });
+            }
+
+            app.events.on("fs.activity", (event) => {
+                renderEvent(event);
+            });
+
+            document.getElementById("resolve").addEventListener("click", async () => {
+                setBusy(true);
+                try {
+                    await resolveInputPath();
+                    setNotice("Resolved the input path through __MoonBit__.path.resolve().");
+                } catch (error) {
+                    setNotice("Resolve failed: " + String(error), "error");
+                }
+                setBusy(false);
+            });
+
+            document.getElementById("save").addEventListener("click", async () => {
+                setBusy(true);
+                try {
+                    const path = await resolveInputPath();
+                    await fs.writeFile(path, contentInput.value, { flush: true });
+                    const summary = await inspect(path);
+                    stat.textContent = summary.exists
+                        ? "size " + summary.size + ", file " + summary.is_file + ", dir " + summary.is_dir
+                        : "missing";
+                    setNotice("Saved the file through __MoonBit__.fs.writeFile().");
+                } catch (error) {
+                    setNotice("Save failed: " + String(error), "error");
+                }
+                setBusy(false);
+            });
+
+            document.getElementById("load").addEventListener("click", async () => {
+                setBusy(true);
+                try {
+                    const path = await resolveInputPath();
+                    const loaded = {
+                        summary: await inspect(path),
+                        read: await fs.readFile(path),
+                    };
+                    contentInput.value = loaded.read.content;
+                    stat.textContent =
+                        "size " +
+                        loaded.summary.size +
+                        ", file " +
+                        loaded.summary.is_file +
+                        ", dir " +
+                        loaded.summary.is_dir;
+                    setNotice("Loaded the file through __MoonBit__.fs.readFile().");
+                } catch (error) {
+                    setNotice("Load failed: " + String(error), "error");
+                }
+                setBusy(false);
+            });
+
+            document.getElementById("inspect").addEventListener("click", async () => {
+                setBusy(true);
+                try {
+                    const path = await resolveInputPath();
+                    const summary = await inspect(path);
+                    stat.textContent = summary.exists
+                        ? "size " + summary.size + ", file " + summary.is_file + ", dir " + summary.is_dir
+                        : "missing";
+                    setNotice(
+                        summary.exists
+                            ? "Inspected the current file."
+                            : "The file does not exist yet.",
+                        summary.exists ? "ok" : "error",
+                    );
+                } catch (error) {
+                    setNotice("Inspect failed: " + String(error), "error");
+                }
+                setBusy(false);
+            });
+
+            document.getElementById("listDir").addEventListener("click", async () => {
+                setBusy(true);
+                try {
+                    const path = await resolveInputPath();
+                    const dirname = await pathApi.dirname(path);
+                    const entries = await fs.readdir(dirname);
+                    renderDir(entries.entries);
+                    setNotice("Listed the parent directory.");
+                } catch (error) {
+                    setNotice("Directory listing failed: " + String(error), "error");
+                }
+                setBusy(false);
+            });
+
+            document.getElementById("remove").addEventListener("click", async () => {
+                setBusy(true);
+                try {
+                    const path = await resolveInputPath();
+                    const removed = await fs.rm(path, { force: true });
+                    stat.textContent = removed.removed ? "removed" : "already missing";
+                    setNotice(
+                        removed.removed ? "Deleted the file." : "The file was already absent.",
+                        removed.removed ? "ok" : "error",
+                    );
+                } catch (error) {
+                    setNotice("Delete failed: " + String(error), "error");
+                }
+                setBusy(false);
+            });
+
+            resolveInputPath().catch((error) => {
+                setNotice("Initial path analysis failed: " + String(error), "error");
+            });
+        </script>
+    </body>
+</html>

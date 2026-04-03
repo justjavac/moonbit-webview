@@ -3,14 +3,11 @@ import {
   "justjavac/ffi",
 }
 
+supported_targets = "native"
+
 options(
   "is-main": true,
-  link: {
-    "native": {
-      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
-      "cc-link-flags": "-L../lib -lwebview",
-    },
-  },
+
   targets: { "main.mbt": [ "native" ] },
-  "supported-targets": "+native",
 )
+

@@ -1,0 +1,5 @@
+target=windows-x64
+webview_git_tag=cbbdee44afff22867de9fd88a9fc8350d9bdd399
+library_dir=lib
+include_dir=include
+System libraries: advapi32 ole32 shell32 shlwapi user32 version

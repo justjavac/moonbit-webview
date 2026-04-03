@@ -1,0 +1,27 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "justjavac/notification"
+
+// Values
+pub fn ensure_supported() -> Result[Unit, String]
+
+pub fn is_supported() -> Bool
+
+pub fn show(String, title? : String?, level? : NotificationLevel) -> Result[Unit, String]
+
+pub fn show_with_window(Int64, String, title? : String?, level? : NotificationLevel) -> Result[Unit, String]
+
+// Errors
+
+// Types and methods
+pub(all) enum NotificationLevel {
+  Info
+  Warning
+  Error
+}
+pub impl Eq for NotificationLevel
+pub impl Show for NotificationLevel
+
+// Type aliases
+
+// Traits
+

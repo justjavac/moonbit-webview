@@ -1,0 +1,20 @@
+{
+  "name": "justjavac/webview_runtime",
+  "version": "0.1.0",
+  "deps": {
+    "justjavac/ffi": "0.2.0",
+    "moonbitlang/x": "0.4.41",
+    "justjavac/webview": {
+      "path": ".."
+    }
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/justjavac/moonbit-webview/tree/main/runtime",
+  "license": "MIT",
+  "keywords": ["webview", "runtime", "extension", "desktop-app"],
+  "description": "Ops runtime and app framework for moonbit-webview.",
+  "source": "src",
+  "warn-list": "",
+  "preferred-target": "native",
+  "supported_targets": "+native"
+}

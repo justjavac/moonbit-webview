@@ -1,0 +1,22 @@
+{
+  "name": "justjavac/webview_app",
+  "version": "0.1.0",
+  "deps": {
+    "moonbitlang/x": "0.4.41",
+    "justjavac/webview_bootstrap": {
+      "path": "../bootstrap"
+    },
+    "justjavac/webview_runtime": {
+      "path": "../runtime"
+    }
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/justjavac/moonbit-webview/tree/main/app",
+  "license": "MIT",
+  "keywords": ["webview", "app", "extension", "desktop-app"],
+  "description": "High-level app composition layer for moonbit-webview.",
+  "source": "",
+  "warn-list": "",
+  "preferred-target": "native",
+  "supported_targets": "+native"
+}

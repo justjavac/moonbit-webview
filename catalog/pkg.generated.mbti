@@ -1,0 +1,39 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "justjavac/webview_catalog"
+
+// Values
+pub fn builtin_extension_info(String) -> BuiltinExtensionInfo?
+
+pub fn builtin_extensions() -> Array[BuiltinExtensionInfo]
+
+// Errors
+
+// Types and methods
+pub struct BuiltinExtensionInfo {
+  id : String
+  name : String
+  description : String
+  import_path : String
+  import_alias : String
+  support_modules : Array[BuiltinSupportModuleInfo]
+} derive(Eq, Show)
+pub fn BuiltinExtensionInfo::description(Self) -> String
+pub fn BuiltinExtensionInfo::id(Self) -> String
+pub fn BuiltinExtensionInfo::import_alias(Self) -> String
+pub fn BuiltinExtensionInfo::import_path(Self) -> String
+pub fn BuiltinExtensionInfo::name(Self) -> String
+pub fn BuiltinExtensionInfo::new(String, String, String, String, String, support_modules? : Array[BuiltinSupportModuleInfo]) -> Self
+pub fn BuiltinExtensionInfo::support_modules(Self) -> Array[BuiltinSupportModuleInfo]
+
+pub struct BuiltinSupportModuleInfo {
+  dependency_name : String
+  module_dir : String
+} derive(Eq, Show)
+pub fn BuiltinSupportModuleInfo::dependency_name(Self) -> String
+pub fn BuiltinSupportModuleInfo::module_dir(Self) -> String
+pub fn BuiltinSupportModuleInfo::new(String, String) -> Self
+
+// Type aliases
+
+// Traits
+

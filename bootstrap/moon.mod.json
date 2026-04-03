@@ -1,0 +1,25 @@
+{
+  "name": "justjavac/webview_bootstrap",
+  "version": "0.1.0",
+  "deps": {
+    "moonbitlang/x": "0.4.41",
+    "extensions": {
+      "path": "../extensions"
+    },
+    "justjavac/webview_runtime": {
+      "path": "../runtime"
+    },
+    "justjavac/webview": {
+      "path": ".."
+    }
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/justjavac/moonbit-webview/tree/main/bootstrap",
+  "license": "MIT",
+  "keywords": ["webview", "bootstrap", "extension", "desktop-app"],
+  "description": "Bootstrap helpers for configuring and launching moonbit-webview applications.",
+  "source": "",
+  "warn-list": "",
+  "preferred-target": "native",
+  "supported_targets": "+native"
+}

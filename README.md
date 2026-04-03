@@ -1,393 +1,127 @@
 # MoonBit WebView
 
-MoonBit bindings for [webview](https://github.com/webview/webview), a tiny
-cross-platform library for creating modern web-based desktop applications using
-HTML, CSS, and JavaScript.
+MoonBit bindings for [webview](https://github.com/webview/webview), plus a native app/runtime layer for building desktop apps with JS-facing extensions.
 
-## ✨ Features
+The repository is organized into five main layers:
 
-- 🚀 **Lightweight**: Minimal overhead with native performance
-- 🎨 **Modern UI**: Build desktop apps using web technologies
-- 🔄 **Cross-platform**: Works on Windows, macOS, and Linux
-- 📱 **Responsive**: Native window management and controls
-- 🔌 **JavaScript Bridge**: Seamless communication between MoonBit and web
-  content
-- 🛡️ **Type-safe**: Full MoonBit type safety for WebView operations
+- `justjavac/webview`: low-level native webview binding
+- `justjavac/webview_runtime`: runtime host, op bridge, `App`, `Extension`
+- `justjavac/webview_bootstrap`: `app.json` parsing and editable config documents
+- `justjavac/webview_app`: app composition and extension installation
+- `extensions/*`: built-in extensions such as `fs`, `path`, `dialog`, `clipboard`, `shell`, `notification`, `tray`, and `globalHotkey`
 
-> ⚠️ **Note**: This project is currently in active development. APIs may change
-> in future releases.
+JavaScript now uses a single global entry:
 
-![moonbit webview demo](https://dl.deno.js.cn/moonbit-webview.png)
+- `window.__MoonBit__`
 
-## 📦 Installation
+## Quick Start
 
-Add `justjavac/webview` to your project dependencies:
-
-```shell
-moon update
-moon add justjavac/webview
-```
-
-## ⚙️ Configuration
-
-Configure your `moon.pkg` file to link with the webview library:
+Low-level usage stays very small:
 
 ```moonbit
-options(
-  "is-main": true,
-  link: {
-    "native": {
-      "cc-flags": "-fwrapv -fsanitize=address -fsanitize=undefined",
-      "cc-link-flags": "-L .mooncakes/justjavac/webview/lib -lwebview",
-    },
-  },
-)
-```
-
-## 🔧 Environment Setup
-
-### macOS
-
-Set the dynamic library path:
-
-```shell
-export DYLD_LIBRARY_PATH="$(pwd)/.mooncakes/justjavac/webview/lib"
-```
-
-### Windows
-
-#### Command Prompt
-
-```bat
-set "MOONWEB_LIB=%CD%\.mooncakes\justjavac\webview\lib"
-set _CL_=/link /LIBPATH:"%MOONWEB_LIB%" webview.lib /DEBUG
-set "PATH=%PATH%;%MOONWEB_LIB%"
-```
-
-Note: This Windows path handling uses an absolute library path, similar to the approach used in CI workflow (.github/workflows/ci.yml) to ensure library paths resolve correctly even when the working directory contains spaces.
-
-#### PowerShell
-
-```powershell
-$libPath = Join-Path -Path (Get-Location) -ChildPath ".mooncakes\justjavac\webview\lib"
-$env:_CL_ = "/link /LIBPATH:`"$libPath`" webview.lib /DEBUG"
-$env:PATH = "$env:PATH;$libPath"
-```
-
-### Linux
-
-```shell
-export LD_LIBRARY_PATH="$(pwd)/.mooncakes/justjavac/webview/lib:$LD_LIBRARY_PATH"
-```
-
-## 🚀 Quick Start
-
-Here's a simple example to get you started:
-
-```moonbit
-let html =
-  #| <html>
-  #|   <head>
-  #|     <title>MoonBit WebView</title>
-  #|     <style>
-  #|       body { 
-  #|         font-family: system-ui, -apple-system, sans-serif;
-  #|         display: flex;
-  #|         justify-content: center;
-  #|         align-items: center;
-  #|         height: 100vh;
-  #|         margin: 0;
-  #|         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  #|         color: white;
-  #|       }
-  #|       h1 { text-align: center; font-size: 2.5em; }
-  #|     </style>
-  #|   </head>
-  #|   <body>
-  #|     <h1>Hello, MoonBit WebView! 🌙</h1>
-  #|   </body>
-  #| </html>
-
 fn main {
   @webview.Webview::new(debug=1)
-  ..set_title("MoonBit WebView Example")
+  ..set_title("MoonBit WebView")
   ..set_size(800, 600, @webview.SizeHint::None)
-  ..set_html(html)
+  ..set_html("<html><body><h1>Hello</h1></body></html>")
   .run()
 }
 ```
 
-## Command Bridge
-
-For structured JS <-> MoonBit communication, use `CommandBridge` on top of the
-existing low-level bindings.
-
-- JS -> MoonBit: `window.MoonBitBridge.send(name, payload)`
-- MoonBit -> JS: `bridge.send(name, payload)` and
-  `window.MoonBitBridge.onCommand(listener)`
-
-Notes:
-- `window.MoonBitBridge.send(...)` is request/reply. It returns a
-  `Promise<CommandResponse>`.
-- `CommandResponse.status` is `"ok"` or `"error"`.
-- On success, `CommandResponse.payload` contains the handler result.
-- On failure, `CommandResponse.error` contains the error message.
-- Use `bridge.handle_result(...)` if a MoonBit handler should explicitly return
-  `Result[Reply, String]` instead of always succeeding.
-- `bridge.send(...)` is fire-and-forget. It pushes a `Command` event into the
-  page; it does not wait for a JavaScript reply.
-- MoonBit -> JS delivery is scheduled onto the webview event loop internally,
-  so `bridge.send(...)` is safe to call off the UI thread.
-- `binding_name` must be unique per `Webview`. `CommandBridge::new(...)`
-  aborts immediately if that internal binding name is already in use.
-- Call `bridge.destroy()` if you want to unregister the bridge binding and
-  reuse the same `binding_name` on the same `Webview`.
-- If you want raw JSON handling on the MoonBit side, register the handler with
-  `Json` as the payload type.
+App-style startup now goes through `justjavac/webview_app`:
 
 ```moonbit
-struct SumPayload {
-  left : Int
-  right : Int
-} derive(ToJson, FromJson)
-
-struct SumReply {
-  total : Int
-} derive(ToJson, FromJson)
-
-struct NoticePayload {
-  message : String
-} derive(ToJson, FromJson)
-
-fn main {
-  let webview = @webview.Webview::new(debug=1)
-  let bridge = @webview.CommandBridge::new(webview)
-  bridge.handle_result("sum", fn(payload : SumPayload) {
-    let reply =
-      if payload.right < 0 {
-        Err("right must be non-negative")
-      } else {
-        Ok(SumReply::{ total: payload.left + payload.right })
-      }
-    bridge.send("notice", NoticePayload::{
-      message: "MoonBit handled sum",
-    })
-    reply
-  })
-  webview.set_html(
-    #| <script>
-    #|   window.MoonBitBridge.onCommand((command) => {
-    #|     if (command.name === "notice") {
-    #|       console.log("MoonBit -> JS", command.payload);
-    #|     }
-    #|   });
-    #|   window.MoonBitBridge
-    #|     .send("sum", { left: 1, right: 2 })
-    #|     .then((response) => {
-    #|       if (response.status === "ok") {
-    #|         console.log("MoonBit reply", response.payload);
-    #|       } else {
-    #|         console.error("MoonBit command error", response.error);
-    #|       }
-    #|     })
-    #|     .catch(console.error);
-    #| </script>,
-  )
-  webview.run()
-}
-```
-
-## Plugin System
-
-For module-level JS APIs, install `Plugin` modules on a `Webview`. The default
-plugin runtime is built on top of `CommandBridge` and exposed as
-`window.MoonBitPlugins`.
-
-- A MoonBit module exports a `Plugin`.
-- The main program usually installs that plugin with
-  `webview.install_plugin(...)`.
-- Plugins can define native install/destroy hooks.
-- JavaScript calls the installed API through
-  `window.MoonBitPlugins.<plugin>.<api>(payload)` or
-  `window.MoonBitPlugins["@@call"](plugin, api, payload)`.
-- Plugin JS calls resolve to the same `CommandResponse` shape returned by
-  `CommandBridge.send(...)`, with `status`, `payload`, and `error`.
-- JavaScript subscribes to plugin events through
-  `window.MoonBitPlugins.<plugin>["@@on"](listener)` or
-  `window.MoonBitPlugins.<plugin>["@@onEvent"](name, listener)`.
-
-```moonbit
-struct SumPayload {
-  left : Int
-  right : Int
-} derive(ToJson, FromJson)
-
-struct SumReply {
-  total : Int
-} derive(ToJson, FromJson)
-
-struct NoticePayload {
-  message : String
-} derive(ToJson, FromJson)
-
-pub fn math_plugin() -> @webview.Plugin {
-  @webview.Plugin::new(
-    "math",
-    fn(plugin) {
-      plugin.command("sum", fn(payload : SumPayload) {
-        let reply = SumReply::{ total: payload.left + payload.right }
-        plugin.emit("computed", NoticePayload::{
-          message: "MoonBit computed " + reply.total.to_string(),
-        })
-        reply
-      })
-    },
-    on_install=fn(plugin) {
-      // Native setup can happen here.
-      let _ = plugin.name()
-    },
-    on_destroy=fn(plugin) {
-      // Native cleanup can happen here.
-      let _ = plugin.name()
-    },
-  )
+import {
+  "extensions/fs" @fs,
+  "extensions/path" @path,
+  "justjavac/webview_app" @app,
+  "justjavac/webview_bootstrap" @bootstrap,
+  "justjavac/webview_runtime" @wvrt,
 }
 
 fn main {
-  let webview = @webview.Webview::new(debug=1)
-  webview.install_plugin(math_plugin())
-  webview.set_html(
-    #| <script>
-    #|   window.MoonBitPlugins.math["@@onEvent"]("computed", (event) => {
-    #|     console.log("plugin event", event);
-    #|   });
-    #|   window.MoonBitPlugins.math
-    #|     .sum({ left: 20, right: 22 })
-    #|     .then((response) => {
-    #|       if (response.status === "ok") {
-    #|         console.log("plugin payload", response.payload);
-    #|         return;
-    #|       }
-    #|       console.error("plugin error", response.error);
-    #|     })
-    #|     .catch(console.error);
-    #| </script>,
+  let config = @bootstrap.BootstrapAppConfig::new(
+    @wvrt.WindowConfig::new("Demo", 900, 700),
+    @wvrt.AppEntry::Html("<html></html>"),
+    debug=1,
   )
-  webview.run()
+  let runtime = match
+    @app.create_app(
+      config,
+      extensions=[@fs.app_extension(), @path.app_extension()],
+    ) {
+    Ok(app) => app
+    Err(error) => abort(error)
+  }
+  runtime.run()
 }
 ```
 
-Notes:
-- `webview.install_plugin(...)` uses a default `PluginHost` under
-  `window.MoonBitPlugins`.
-- Use `webview.emit_plugin(plugin, name, payload)` when the main program,
-  rather than a plugin context, needs to push a plugin-scoped event into
-  JavaScript.
-- `webview.plugin_host()` returns that default host if you need direct access to
-  `PluginHost` or the underlying `CommandBridge`.
-- You can still construct `PluginHost::new(...)` directly when you need custom
-  JS namespace or bridge names.
-- Reusable plugins can live in separate MoonBit modules such as
-  [plugins/fs/README.md](plugins/fs/README.md).
-- Plugin modules can add utility APIs beyond handle-based commands. For
-  example, the fs plugin exposes `fs.resolvePath({ path })` so JavaScript can
-  ask the native backend for the platform-specific absolute path.
-- Plugin cleanup is attached to the `Webview` lifecycle, so `on_destroy` hooks
-  run during normal `webview.run()` / `webview.destroy()`.
-- Install a plugin before loading content if you want the JS API to exist on the
-  first page load.
-- Plugin names and API names starting with `@@` are reserved for
-  framework/internal use.
-- Special JavaScript property names such as `__proto__`, `prototype`, and
-  `constructor` are also reserved for plugin names and API names.
-- The JS host uses reserved helper keys `@@call`, `@@has`, `@@ensurePlugin`,
-  `@@defineApi`, `@@on`, `@@onEvent`, and `@@emit`.
-- Duplicate plugin names or duplicate APIs inside the same plugin abort during
-  installation.
+Or from `app.json`:
 
-## 📚 Examples
-
-This repository includes several examples in the `examples/` directory:
-
-- **01_run** - Basic window creation
-- **02_local** - Loading local HTML files
-- **03_remote** - Loading remote web pages
-- **04_user_agent** - Custom user agent configuration
-- **05_alert** - JavaScript alerts and dialogs
-- **06_onload** - Handling page load events
-- **07_inject_js** - Injecting JavaScript code
-- **08_eval** - Evaluating JavaScript expressions
-- **09_dispatch** - Event dispatching
-- **10_bind** - Binding MoonBit functions to JavaScript
-- **11_multi_window** - Multiple window management
-- **12_embed** - Embedding resources
-- **13_todo** - Complete todo application
-- **14_beforeunload** - Handling window close events
-- **15_close** - Window close management
-- **16_command** - Structured JS <-> MoonBit command bridge
-- **17_plugin** - Generic plugin modules exposed as JavaScript APIs
-- **18_plugin_fs** - Filesystem plugin workbench with absolute-path resolution
-
-Run any example:
-
-```shell
-moon -C examples run <example_name> --target native
+```moonbit
+fn main {
+  let runtime = match
+    @app.create_app_from_file(
+      "app.json",
+      extensions=[@fs.app_extension(), @path.app_extension()],
+    ) {
+    Ok(app) => app
+    Err(error) => abort(error)
+  }
+  runtime.run()
+}
 ```
 
-## 🛠️ Development
+`app.json` only carries extension options now. Extension enabling happens in MoonBit code:
 
-### Prerequisites
-
-- [MoonBit toolchain](https://www.moonbitlang.com/)
-- CMake 3.15 or higher
-- Ninja build system
-- C/C++ compiler (GCC, Clang, or MSVC)
-
-### Build from Source
-
-1. **Clone and build dependencies:**
-   ```shell
-   cmake -G Ninja -B build -S . -D CMAKE_BUILD_TYPE=Release
-   cmake --build build
-   ```
-
-2. **Set up environment variables:**
-   ```shell
-   # macOS
-   export DYLD_LIBRARY_PATH="$(pwd)/lib"
-
-   # Windows (Command Prompt)
-   set "MOONWEB_LIB=%CD%\lib"
-   set _CL_=/link /LIBPATH:"%MOONWEB_LIB%" webview.lib /DEBUG
-   set "PATH=%PATH%;%MOONWEB_LIB%"
-
-   # Windows (PowerShell)
-   $libPath = Join-Path -Path (Get-Location) -ChildPath "lib"
-   $env:_CL_ = "/link /LIBPATH:`"$libPath`" webview.lib /DEBUG"
-   $env:PATH = "$env:PATH;$libPath"
-
-   # Linux
-   export LD_LIBRARY_PATH="$(pwd)/lib:$LD_LIBRARY_PATH"
-   ```
-
-3. **Install dependencies and run examples:**
-   ```shell
-   moon update
-   # Note: Installing with `moon install` without arguments is deprecated.
-   # If you need a specific package, use `moon install <package>`.
-   moon -C examples run 02_local --target native
-   ```
-
-### Running Tests
-
-```shell
-moon test --target native
+```json
+{
+  "window": {
+    "title": "Demo",
+    "width": 960,
+    "height": 720
+  },
+  "entry": {
+    "kind": "file",
+    "value": "app.html"
+  },
+  "extensions": {
+    "fs": {},
+    "path": {}
+  },
+  "debug": 1
+}
 ```
 
-## 📄 License
+## JavaScript Surface
 
-MIT License © [justjavac](https://github.com/justjavac)
+The runtime installs one global object:
 
-<div align="center">
-  <strong>Made with ❤️ and MoonBit</strong>
-</div>
+- `window.__MoonBit__.core.ops.*`
+- `window.__MoonBit__.events.on(...)`
+- `window.__MoonBit__.<extension>.*`
+- `window.__MoonBit__.extension("<name>")`
+
+Example:
+
+```js
+await window.__MoonBit__.fs.readFile("demo.txt");
+await window.__MoonBit__.path.resolve({ path: "." });
+window.__MoonBit__.events.on("fs.activity", console.log);
+```
+
+## Native Notes
+
+This repo targets `native` only.
+
+- Windows uses vendored static `webview.lib`
+- macOS uses system `WebKit`
+- Linux needs `pkg-config`, `libgtk-3-dev`, and `libwebkit2gtk-4.1-dev`
+- Windows users still need Microsoft WebView2 Runtime installed
+- `clipboard` comes from the published Mooncakes package `justjavac/clipboard`.
+- WIP: `dialog`, `shell`, `notification`, `tray`, and `globalHotkey` are currently Windows-native in this repository.
+
+## License
+
+MIT. See [LICENSE.md](LICENSE.md).

@@ -7,17 +7,133 @@ let resource : String =
   #|    <head>
   #|        <meta charset="UTF-8" />
   #|        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  #|        <title>Welcome to MoonBit!</title>
+  #|        <title>Welcome to __MoonBit__!</title>
+  #|        <style>
+  #|            :root {
+  #|                color-scheme: light dark;
+  #|                --bg: #f3efe6;
+  #|                --panel: rgba(255, 252, 247, 0.94);
+  #|                --panel-line: rgba(29, 31, 33, 0.1);
+  #|                --ink: #182028;
+  #|                --muted: #63707c;
+  #|                --field: #ffffff;
+  #|                --accent: #0f766e;
+  #|                --accent-hover: #115e59;
+  #|                --shadow: rgba(24, 32, 40, 0.12);
+  #|            }
+  #|
+  #|            @media (prefers-color-scheme: dark) {
+  #|                :root {
+  #|                    --bg: #0e141a;
+  #|                    --panel: rgba(18, 27, 35, 0.92);
+  #|                    --panel-line: rgba(198, 216, 231, 0.14);
+  #|                    --ink: #ecf2f7;
+  #|                    --muted: #9fb1c0;
+  #|                    --field: #101a22;
+  #|                    --accent: #34d399;
+  #|                    --accent-hover: #6ee7b7;
+  #|                    --shadow: rgba(0, 0, 0, 0.36);
+  #|                }
+  #|            }
+  #|
+  #|            * {
+  #|                box-sizing: border-box;
+  #|            }
+  #|
+  #|            body {
+  #|                margin: 0;
+  #|                min-height: 100vh;
+  #|                display: grid;
+  #|                place-items: center;
+  #|                padding: 24px;
+  #|                background:
+  #|                    radial-gradient(circle at top left, rgba(15, 118, 110, 0.14), transparent 34%),
+  #|                    radial-gradient(circle at bottom right, rgba(180, 83, 9, 0.12), transparent 36%),
+  #|                    var(--bg);
+  #|                color: var(--ink);
+  #|                font-family: "Segoe UI", system-ui, sans-serif;
+  #|            }
+  #|
+  #|            main {
+  #|                width: min(36rem, 100%);
+  #|                padding: 24px;
+  #|                border-radius: 24px;
+  #|                background: var(--panel);
+  #|                border: 1px solid var(--panel-line);
+  #|                box-shadow: 0 24px 70px var(--shadow);
+  #|            }
+  #|
+  #|            h1 {
+  #|                margin: 0 0 12px;
+  #|                font-size: clamp(2.2rem, 6vw, 3.25rem);
+  #|                line-height: 0.95;
+  #|                letter-spacing: -0.04em;
+  #|            }
+  #|
+  #|            p {
+  #|                margin: 0 0 18px;
+  #|                color: var(--muted);
+  #|                line-height: 1.6;
+  #|            }
+  #|
+  #|            form {
+  #|                display: flex;
+  #|                gap: 10px;
+  #|                flex-wrap: wrap;
+  #|            }
+  #|
+  #|            input,
+  #|            button {
+  #|                font: inherit;
+  #|            }
+  #|
+  #|            input {
+  #|                flex: 1 1 220px;
+  #|                min-width: 0;
+  #|                padding: 12px 14px;
+  #|                border-radius: 14px;
+  #|                border: 1px solid var(--panel-line);
+  #|                background: var(--field);
+  #|                color: var(--ink);
+  #|            }
+  #|
+  #|            button {
+  #|                border: 0;
+  #|                border-radius: 999px;
+  #|                padding: 12px 18px;
+  #|                background: var(--accent);
+  #|                color: #f8fffd;
+  #|                cursor: pointer;
+  #|            }
+  #|
+  #|            button:hover {
+  #|                background: var(--accent-hover);
+  #|            }
+  #|
+  #|            pre {
+  #|                margin: 18px 0 0;
+  #|                min-height: 6rem;
+  #|                padding: 14px 16px;
+  #|                border-radius: 16px;
+  #|                border: 1px solid var(--panel-line);
+  #|                background: var(--field);
+  #|                color: var(--ink);
+  #|                overflow: auto;
+  #|                line-height: 1.55;
+  #|                white-space: pre-wrap;
+  #|            }
+  #|        </style>
   #|    </head>
   #|    <body>
-  #|        <h1>Welcome to MoonBit!</h1>
-  #|
-  #|        <form id="form">
-  #|            <input id="name" placeholder="Enter a name..." />
-  #|            <button type="submit">Greet</button>
-  #|        </form>
-  #|
-  #|        <pre id="output"></pre>
+  #|        <main>
+  #|            <h1>Welcome to __MoonBit__!</h1>
+  #|            <p>This starter wires a host function onto <code>window.greet</code> and prints either a plain string or a structured payload.</p>
+  #|            <form id="form">
+  #|                <input id="name" placeholder="Enter a name..." />
+  #|                <button type="submit">Greet</button>
+  #|            </form>
+  #|            <pre id="output">Ready for a greeting.</pre>
+  #|        </main>
   #|
   #|        <script>
   #|            /** @type {HTMLFormElement} */

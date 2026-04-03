@@ -1,0 +1,31 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "extensions/tray"
+
+import {
+  "justjavac/webview_app",
+  "justjavac/webview_runtime",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn app_extension() -> @webview_app.AppExtension
+
+pub fn extension() -> @webview_runtime.Extension
+
+// Errors
+
+// Types and methods
+type EmptyPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type TrayActivity derive(Eq, Show, ToJson, @json.FromJson)
+
+type TrayReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type TrayShowPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type TrayTooltipPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+// Type aliases
+
+// Traits
+

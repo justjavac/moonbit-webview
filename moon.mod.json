@@ -3,7 +3,7 @@
   "version": "0.1.10",
   "deps": {
     "justjavac/ffi": "0.2.0",
-    "moonbitlang/x": "0.4.40"
+    "moonbitlang/x": "0.4.41"
   },
   "readme": "README.md",
   "repository": "https://github.com/justjavac/moonbit-webview",
@@ -17,7 +17,8 @@
   ],
   "description": "MoonBit bindings for webview, a tiny library for creating web-based desktop GUIs.",
   "source": "src",
+  "--moonbit-unstable-prebuild": "native_link_config.mjs",
   "warn-list": "",
   "preferred-target": "native",
-  "supported-targets": "+native"
+  "supported_targets": "+native"
 }

@@ -1,0 +1,31 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "extensions/global_hotkey"
+
+import {
+  "justjavac/webview_app",
+  "justjavac/webview_runtime",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn app_extension() -> @webview_app.AppExtension
+
+pub fn extension() -> @webview_runtime.Extension
+
+// Errors
+
+// Types and methods
+type EmptyPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type GlobalHotkeyActivity derive(Eq, Show, ToJson, @json.FromJson)
+
+type GlobalHotkeyListReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type GlobalHotkeyPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type GlobalHotkeyReply derive(Eq, Show, ToJson, @json.FromJson)
+
+// Type aliases
+
+// Traits
+

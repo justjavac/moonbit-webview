@@ -7,9 +7,8 @@ jobs:
     strategy:
       matrix:
         os:
-          # - ubuntu-latest
+          - ubuntu-latest
           - macos-latest
-          # - macos-13
           - windows-latest
       fail-fast: false
     runs-on: ${{ matrix.os }}
@@ -29,6 +28,12 @@ jobs:
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
+      - name: Install Linux native dependencies
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev
+
       - name: moon version
         run: |
           moon version --all
@@ -37,77 +42,91 @@ jobs:
         run: |
           moon update
 
-      - name: moon check
-        run: moon check --target native --deny-warn
-
       - name: format check
         run: |
           moon fmt --check
+
+      - name: moon check
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: moon check --target native --deny-warn
+
+      - name: moon check (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /utf-8
+        run: moon check --target native --deny-warn
+
+      - name: runtime check
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: moon -C runtime check --target native --deny-warn
+
+      - name: runtime check (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /utf-8
+        run: moon -C runtime check --target native --deny-warn
+
+      - name: extensions test
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: moon -C extensions test --target native
+
+      - name: extensions test (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /utf-8
+        run: moon -C extensions test --target native
 
       - name: Setup MSVC
         if: ${{ matrix.os == 'windows-latest' }}
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Run moon test (windows)
+      - name: Run root integration tests (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         env:
-          _CL_: /link /LIBPATH:${{ github.workspace }}\lib webview.lib /DEBUG
-          PATH: ${{ github.workspace }}\lib;${{ env.PATH }}
+          _CL_: /utf-8
         run: |
           moon -C test test --target native
 
-      # - name: Run moon test (non-windows)
-      #   if: ${{ matrix.os != 'windows-latest' }}
-      #   env:
-      #     DYLD_LIBRARY_PATH: lib
-      #   run: |
-      #     moon -C test test --target native
-
-      - name: moon test --doc (windows)
-        if: ${{ matrix.os == 'windows-latest' }}
-        env:
-          _CL_: /link /LIBPATH:${{ github.workspace }}\lib webview.lib /DEBUG
-          PATH: ${{ github.workspace }}\lib;${{ env.PATH }}
-        run: |
-          moon test --target native --doc
-
-      - name: moon test --doc (non-windows)
+      - name: Compile root integration package (non-windows)
         if: ${{ matrix.os != 'windows-latest' }}
-        env:
-          DYLD_LIBRARY_PATH: lib
         run: |
-          moon test --target native --doc
+          moon -C test check --target native
 
-      - name: moon build (windows)
+      - name: Run standalone Windows-native module tests
         if: ${{ matrix.os == 'windows-latest' }}
         env:
-          _CL_: /link /LIBPATH:${{ github.workspace }}\lib webview.lib /DEBUG
-          PATH: ${{ github.workspace }}\lib;${{ env.PATH }}
+          _CL_: /utf-8
+        run: |
+          moon -C notification test --target native
+          moon -C tray test --target native
+          moon -C global_hotkey test --target native
+
+      - name: examples build
+        if: ${{ matrix.os != 'windows-latest' }}
         run: |
           moon -C examples build --target native
 
-      - name: moon build (non-windows)
-        if: ${{ matrix.os != 'windows-latest' }}
+      - name: examples build (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
         env:
-          DYLD_LIBRARY_PATH: lib
+          _CL_: /utf-8
         run: |
           moon -C examples build --target native
-
-      - name: check exe size
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: find ./examples/target -name '*.exe' | xargs ls -lh
 
       - name: check core size on windows
         if: ${{ matrix.os == 'windows-latest' }}
         run: Get-ChildItem -Path ".\examples\target" -Recurse -Filter "*.exe" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
 
+      - name: check native binary size on unix
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: find ./examples/target -type f | xargs ls -lh
+
   nightly:
     strategy:
       matrix:
         os:
-          # - ubuntu-latest
+          - ubuntu-latest
           - macos-latest
-          # - macos-13
           - windows-latest
     continue-on-error: false
     runs-on: ${{ matrix.os }}
@@ -128,6 +147,12 @@ jobs:
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
           "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
+      - name: Install Linux native dependencies
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev
+
       - name: moon version
         run: |
           moon version --all
@@ -140,62 +165,77 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Run moon test (windows)
+      - name: moon check
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: moon check --target native
+
+      - name: moon check (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         env:
-          _CL_: /link /LIBPATH:${{ github.workspace }}\lib webview.lib /DEBUG
-          PATH: ${{ github.workspace }}\lib;${{ env.PATH }}
+          _CL_: /utf-8
+        run: |
+          moon check --target native
+
+      - name: runtime check
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: moon -C runtime check --target native
+
+      - name: runtime check (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /utf-8
+        run: moon -C runtime check --target native
+
+      - name: extensions test
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: moon -C extensions test --target native
+
+      - name: extensions test (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /utf-8
+        run: moon -C extensions test --target native
+
+      - name: Run root integration tests (windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          _CL_: /utf-8
         run: |
           moon -C test test --target native
 
-      # - name: Run moon test (non-windows)
-      #   if: ${{ matrix.os != 'windows-latest' }}
-      #   env:
-      #     DYLD_LIBRARY_PATH: lib
-      #   run: |
-      #     moon -C test test --target native
+      - name: Compile root integration package (non-windows)
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: moon -C test check --target native
 
-      - name: moon test --doc (windows)
+      - name: Run standalone Windows-native module tests
         if: ${{ matrix.os == 'windows-latest' }}
         env:
-          _CL_: /link /LIBPATH:${{ github.workspace }}\lib webview.lib /DEBUG
-          PATH: ${{ github.workspace }}\lib;${{ env.PATH }}
+          _CL_: /utf-8
         run: |
-          moon test --target native --doc
-
-      - name: moon test --doc (non-windows)
-        if: ${{ matrix.os != 'windows-latest' }}
-        env:
-          DYLD_LIBRARY_PATH: lib
-        run: |
-          moon test --target native --doc
-
-      - name: moon check
-        run: moon check --target native
+          moon -C notification test --target native
+          moon -C tray test --target native
+          moon -C global_hotkey test --target native
 
       - name: format check
         run: |
           moon fmt --check
 
-      - name: moon build (windows)
+      - name: examples build
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: |
+          moon -C examples build --target native
+
+      - name: examples build (windows)
         if: ${{ matrix.os == 'windows-latest' }}
         env:
-          _CL_: /link /LIBPATH:${{ github.workspace }}\lib webview.lib /DEBUG
-          PATH: ${{ github.workspace }}\lib;${{ env.PATH }}
+          _CL_: /utf-8
         run: |
           moon -C examples build --target native
-
-      - name: moon build (non-windows)
-        if: ${{ matrix.os != 'windows-latest' }}
-        env:
-          DYLD_LIBRARY_PATH: lib
-        run: |
-          moon -C examples build --target native
-
-      - name: check exe size
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: find ./examples/target -name '*.exe' | xargs ls -lh
 
       - name: check core size on windows
         if: ${{ matrix.os == 'windows-latest' }}
         run: Get-ChildItem -Path ".\examples\target" -Recurse -Filter "*.exe" | ForEach-Object { "{0} ({1} bytes)" -f $_.FullName, $_.Length }
+
+      - name: check native binary size on unix
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: find ./examples/target -type f | xargs ls -lh

@@ -1,0 +1,23 @@
+import {
+  "extensions/notification" @notification,
+  "justjavac/webview_app" @app,
+  "justjavac/webview_bootstrap" @bootstrap,
+  "justjavac/webview_runtime" @wvrt,
+  "justjavac/webview",
+}
+
+supported_targets = "native"
+
+options(
+  "is-main": true,
+
+  "pre-build": [
+    {
+      "command": ":embed -i $input -o $output",
+      "input": "app.html",
+      "output": "app.mbt",
+    },
+  ],
+  targets: { "main.mbt": [ "native" ] },
+)
+

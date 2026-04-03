@@ -1,0 +1,5 @@
+target=linux-x64
+webview_git_tag=cbbdee44afff22867de9fd88a9fc8350d9bdd399
+library_dir=lib
+include_dir=include
+pkg-config modules: gtk+-3.0 webkit2gtk-4.1; extra library: dl

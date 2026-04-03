@@ -1,0 +1,29 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "justjavac/tray"
+
+// Values
+pub fn create(Int64) -> Result[Tray, String]
+
+pub fn ensure_supported() -> Result[Unit, String]
+
+pub fn is_supported() -> Bool
+
+// Errors
+
+// Types and methods
+pub struct Tray {
+  state : TrayState
+  mut destroyed : Bool
+}
+pub fn Tray::destroy(Self) -> Unit
+pub fn Tray::hide(Self) -> Result[Bool, String]
+pub fn Tray::set_tooltip(Self, String) -> Result[Bool, String]
+pub fn Tray::show(Self, tooltip? : String?) -> Result[Bool, String]
+
+#external
+pub type TrayState
+
+// Type aliases
+
+// Traits
+

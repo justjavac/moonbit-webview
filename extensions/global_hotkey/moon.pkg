@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/core/json",
+  "justjavac/global_hotkey" @sys_global_hotkey,
+  "justjavac/webview_app" @app,
+  "justjavac/webview_runtime" @runtime,
+  "justjavac/webview",
+}
+
+supported_targets = "native"
+
+options(
+  targets: { "extension.mbt": [ "native" ] },
+)

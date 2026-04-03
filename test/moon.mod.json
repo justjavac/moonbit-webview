@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "deps": {
     "justjavac/ffi": "0.2.0",
+    "justjavac/webview_runtime": {
+      "path": "../runtime"
+    },
     "justjavac/webview": {
       "path": ".."
     }
@@ -14,6 +17,6 @@
   "description": "MoonBit bindings for webview, a tiny library for creating web-based desktop GUIs.",
   "source": "",
   "warn-list": "",
-  "supported-targets": "+native",
+  "supported_targets": "+native",
   "preferred-target": "native"
 }

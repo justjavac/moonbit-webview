@@ -1,0 +1,17 @@
+{
+  "window": {
+    "title": "Runtime Config Test",
+    "width": 960,
+    "height": 680,
+    "size_hint": "none"
+  },
+  "entry": {
+    "kind": "file",
+    "value": "app.html"
+  },
+  "extensions": {
+    "fs": {},
+    "path": {}
+  },
+  "debug": 1
+}

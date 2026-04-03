@@ -1,0 +1,31 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "extensions/clipboard"
+
+import {
+  "justjavac/webview_app",
+  "justjavac/webview_runtime",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn app_extension() -> @webview_app.AppExtension
+
+pub fn extension() -> @webview_runtime.Extension
+
+// Errors
+
+// Types and methods
+type ClipboardActivity derive(Eq, Show, ToJson, @json.FromJson)
+
+type EmptyPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type ReadTextReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type WriteTextPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type WriteTextReply derive(Eq, Show, ToJson, @json.FromJson)
+
+// Type aliases
+
+// Traits
+

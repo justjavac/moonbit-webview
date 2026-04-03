@@ -1,0 +1,40 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "justjavac/webview_app"
+
+import {
+  "justjavac/webview_bootstrap",
+  "justjavac/webview_runtime",
+}
+
+// Values
+pub fn create_app(@webview_bootstrap.BootstrapAppConfig, extensions? : Array[AppExtension]) -> Result[@webview_runtime.App, String]
+
+pub fn create_app_from_file(String, extensions? : Array[AppExtension]) -> Result[@webview_runtime.App, String]
+
+pub fn create_app_from_json(String, extensions? : Array[AppExtension]) -> Result[@webview_runtime.App, String]
+
+// Errors
+
+// Types and methods
+pub struct AppExtension {
+  name : String
+  dependencies : Array[String]
+  build : (AppExtensionContext) -> Result[@webview_runtime.Extension, String]
+}
+pub fn AppExtension::build_extension(Self, AppExtensionContext) -> Result[@webview_runtime.Extension, String]
+pub fn AppExtension::dependencies(Self) -> Array[String]
+pub fn AppExtension::name(Self) -> String
+pub fn AppExtension::new(String, (AppExtensionContext) -> Result[@webview_runtime.Extension, String], dependencies? : Array[String]) -> Self
+
+pub struct AppExtensionContext {
+  options : Json?
+  base_dir : String?
+}
+pub fn AppExtensionContext::base_dir(Self) -> String?
+pub fn AppExtensionContext::new(options? : Json?, base_dir? : String?) -> Self
+pub fn AppExtensionContext::options(Self) -> Json?
+
+// Type aliases
+
+// Traits
+

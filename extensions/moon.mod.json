@@ -1,0 +1,40 @@
+{
+  "name": "extensions",
+  "version": "0.1.0",
+  "deps": {
+    "justjavac/ffi": "0.2.0",
+    "moonbitlang/x": "0.4.41",
+    "justjavac/clipboard": "0.1.2",
+    "justjavac/notification": {
+      "path": "../notification"
+    },
+    "justjavac/tray": {
+      "path": "../tray"
+    },
+    "justjavac/global_hotkey": {
+      "path": "../global_hotkey"
+    },
+    "justjavac/webview_runtime": {
+      "path": "../runtime"
+    },
+    "justjavac/webview_app": {
+      "path": "../app"
+    },
+    "justjavac/webview": {
+      "path": ".."
+    }
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/justjavac/moonbit-webview/tree/main/extensions",
+  "license": "MIT",
+  "keywords": [
+    "webview",
+    "extension",
+    "filesystem"
+  ],
+  "description": "Extensions for moonbit-webview examples and applications.",
+  "source": ".",
+  "warn-list": "",
+  "preferred-target": "native",
+  "supported_targets": "+native"
+}

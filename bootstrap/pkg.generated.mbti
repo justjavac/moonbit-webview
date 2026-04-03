@@ -1,0 +1,41 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "justjavac/webview_bootstrap"
+
+import {
+  "justjavac/webview_runtime",
+}
+
+// Values
+pub fn load_app_config_document_from_file(String) -> Result[AppConfigDocument, String]
+
+pub fn load_app_config_document_from_json(String) -> Result[AppConfigDocument, String]
+
+pub fn load_app_config_from_file(String) -> Result[BootstrapAppConfig, String]
+
+pub fn load_app_config_from_json(String) -> Result[BootstrapAppConfig, String]
+
+// Errors
+
+// Types and methods
+type AppConfigDocument
+pub fn AppConfigDocument::config(Self) -> BootstrapAppConfig
+pub fn AppConfigDocument::extension_option_entries(Self) -> Array[(String, Json)]
+pub fn AppConfigDocument::extension_options(Self, String) -> Json?
+pub fn AppConfigDocument::remove_extension_options(Self, String) -> Result[Self, String]
+pub fn AppConfigDocument::set_extension_options(Self, String, Json) -> Result[Self, String]
+pub fn AppConfigDocument::to_json(Self) -> Json
+pub fn AppConfigDocument::to_pretty_json(Self) -> String
+
+pub struct BootstrapAppConfig {
+  window : @webview_runtime.WindowConfig
+  entry : @webview_runtime.AppEntry
+  windows : Array[@webview_runtime.AppWindowConfig]
+  debug : Int
+  base_dir : String?
+}
+pub fn BootstrapAppConfig::new(@webview_runtime.WindowConfig, @webview_runtime.AppEntry, debug? : Int, windows? : Array[@webview_runtime.AppWindowConfig], base_dir? : String?) -> Self
+
+// Type aliases
+
+// Traits
+

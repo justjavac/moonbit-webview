@@ -150,6 +150,12 @@ pub fn Webview::unbind(self : Webview, name : String) -> Unit {
 }
 
 ///|
+/// Returns whether a JavaScript binding with this name has been installed.
+pub fn Webview::has_binding(self : Webview, name : String) -> Bool {
+  self.bindings.get(name) is Some(_)
+}
+
+///|
 /// Updates the title of the native window.
 /// 
 /// Parameters:
@@ -212,6 +218,15 @@ pub fn Webview::get_native_handle(
   kind : NativeHandleKind,
 ) -> Int64 {
   webview_get_native_handle(self.handle, kind)
+}
+
+///|
+/// Returns a stable integer token for the native webview handle.
+///
+/// This is primarily intended for native runtime integrations that need to
+/// refer back to the owning webview from C stubs.
+pub fn Webview::runtime_handle_id(self : Webview) -> Int64 {
+  self.identity()
 }
 
 ///|
@@ -307,7 +322,7 @@ fn Webview::identity(self : Webview) -> Int64 {
 }
 
 ///|
-fn Webview::register_destroy_hook(
+pub fn Webview::register_destroy_hook(
   self : Webview,
   hook_name : String,
   hook : () -> Unit,
@@ -321,6 +336,9 @@ fn Webview::register_destroy_hook(
 }
 
 ///|
-fn Webview::unregister_destroy_hook(self : Webview, hook_name : String) -> Unit {
+pub fn Webview::unregister_destroy_hook(
+  self : Webview,
+  hook_name : String,
+) -> Unit {
   self.destroy_hooks.remove(hook_name)
 }

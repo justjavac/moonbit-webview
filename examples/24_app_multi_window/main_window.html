@@ -1,0 +1,118 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>__MoonBit__ Multi-Window</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f4efe6;
+        --card: rgba(255, 251, 244, 0.92);
+        --ink: #1d1b19;
+        --muted: #645c54;
+        --accent: #9d5f2f;
+        --line: rgba(29, 27, 25, 0.12);
+        --panel: rgba(255, 255, 255, 0.64);
+        --shadow: rgba(64, 45, 27, 0.12);
+        --splash: rgba(157, 95, 47, 0.18);
+        --bg-start: #efe6d6;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #14181d;
+          --card: rgba(22, 26, 31, 0.92);
+          --ink: #edf2f7;
+          --muted: #a9b2bb;
+          --accent: #f59e0b;
+          --line: rgba(237, 242, 247, 0.12);
+          --panel: rgba(15, 19, 24, 0.72);
+          --shadow: rgba(0, 0, 0, 0.4);
+          --splash: rgba(245, 158, 11, 0.24);
+          --bg-start: #1b232d;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, var(--splash), transparent 34%),
+          linear-gradient(135deg, var(--bg-start), var(--bg));
+      }
+
+      main {
+        width: min(920px, calc(100vw - 48px));
+        margin: 48px auto;
+        padding: 40px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        box-shadow: 0 28px 80px var(--shadow);
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2.4rem, 4vw, 4.4rem);
+        line-height: 0.95;
+        letter-spacing: -0.03em;
+      }
+
+      p {
+        margin: 0 0 16px;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-top: 28px;
+      }
+
+      .panel {
+        padding: 18px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+      }
+
+      .label {
+        margin-bottom: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>One runtime, two windows.</h1>
+      <p>
+        This window is the main app surface. The runtime also creates a second
+        docs window before entering the main event loop.
+      </p>
+      <div class="grid">
+        <section class="panel">
+          <div class="label">Runtime</div>
+          <p><code>AppConfig.windows</code> registers additional app windows.</p>
+        </section>
+        <section class="panel">
+          <div class="label">Loop</div>
+          <p>The main window owns the run loop; extra windows join the same startup path.</p>
+        </section>
+        <section class="panel">
+          <div class="label">Surface</div>
+          <p>Extensions and <code>__MoonBit__</code> stay available per window.</p>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

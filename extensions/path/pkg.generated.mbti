@@ -1,0 +1,43 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "extensions/path"
+
+import {
+  "justjavac/webview_app",
+  "justjavac/webview_runtime",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn app_extension() -> @webview_app.AppExtension
+
+pub fn extension() -> @webview_runtime.Extension
+
+// Errors
+
+// Types and methods
+type BasenamePayload derive(@json.FromJson)
+
+type BasenameReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type ExtnameReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type FormatPayload derive(@json.FromJson)
+
+type IsAbsoluteReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type JoinPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type ParseReply derive(ToJson)
+
+type PathPayload derive(Eq, Show, ToJson, @json.FromJson)
+
+type PathReply derive(Eq, Show, ToJson, @json.FromJson)
+
+type PathsPayload derive(@json.FromJson)
+
+type RelativePayload derive(Eq, Show, ToJson, @json.FromJson)
+
+// Type aliases
+
+// Traits
+

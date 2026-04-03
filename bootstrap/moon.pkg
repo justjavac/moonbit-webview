@@ -1,0 +1,26 @@
+import {
+  "moonbitlang/core/json",
+  "moonbitlang/x/fs" @mbfs,
+  "moonbitlang/x/path" @mbpath,
+  "justjavac/webview_runtime" @wvrt,
+  "justjavac/webview",
+}
+
+warnings = "-29"
+
+supported_targets = "native"
+
+options(
+  targets: {
+    "config.mbt": [ "native" ],
+    "config_build.mbt": [ "native" ],
+    "config_decode.mbt": [ "native" ],
+    "config_document.mbt": [ "native" ],
+    "config_document_edit.mbt": [ "native" ],
+    "config_document_json.mbt": [ "native" ],
+    "config_document_load.mbt": [ "native" ],
+    "config_paths.mbt": [ "native" ],
+    "config_test.mbt": [ "native" ],
+    "types.mbt": [ "native" ],
+  },
+)
