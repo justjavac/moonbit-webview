@@ -1,0 +1,14 @@
+import {
+  "moonbitlang/core/json",
+}
+
+supported_targets = "native"
+
+options(
+  targets: {
+    "app_manifest.mbt": [ "native" ],
+    "manifest_entry.mbt": [ "native" ],
+    "manifest_extensions.mbt": [ "native" ],
+    "manifest_window.mbt": [ "native" ],
+  },
+)
