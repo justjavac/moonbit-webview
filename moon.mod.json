@@ -1,12 +1,12 @@
 {
-  "name": "justjavac/webview",
+  "name": "justjavac/lepus",
   "version": "0.1.10",
   "deps": {
     "justjavac/ffi": "0.2.0",
     "moonbitlang/x": "0.4.41"
   },
   "readme": "README.md",
-  "repository": "https://github.com/justjavac/moonbit-webview",
+  "repository": "https://github.com/justjavac/lepus",
   "license": "MIT",
   "keywords": [
     "webview",

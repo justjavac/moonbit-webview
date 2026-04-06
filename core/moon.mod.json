@@ -1,0 +1,19 @@
+{
+  "name": "justjavac/lepus_core",
+  "version": "0.1.0",
+  "deps": {
+    "justjavac/ffi": "0.2.0",
+    "justjavac/lepus": {
+      "path": ".."
+    }
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/justjavac/lepus/tree/main/core",
+  "license": "MIT",
+  "keywords": ["webview", "runtime", "extension", "bridge"],
+  "description": "Core bridge and extension host for lepus.",
+  "source": "src",
+  "warn-list": "",
+  "preferred-target": "native",
+  "supported_targets": "+native"
+}

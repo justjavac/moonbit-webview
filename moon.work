@@ -1,0 +1,12 @@
+members = [
+  ".",
+  "./manifest",
+  "./core",
+  "./app",
+  "./bootstrap",
+  "./catalog",
+  "./tooling",
+  "./examples",
+  "./extensions",
+  "./runtime",
+]

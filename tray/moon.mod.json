@@ -6,10 +6,10 @@
     "moonbitlang/x": "0.4.41"
   },
   "readme": "README.md",
-  "repository": "https://github.com/justjavac/moonbit-webview/tree/main/tray",
+  "repository": "https://github.com/justjavac/lepus/tree/main/tray",
   "license": "MIT",
   "keywords": ["desktop", "tray", "native"],
-  "description": "Reusable native tray package extracted from moonbit-webview.",
+  "description": "Reusable native tray package extracted from lepus.",
   "source": "",
   "warn-list": "",
   "preferred-target": "native",

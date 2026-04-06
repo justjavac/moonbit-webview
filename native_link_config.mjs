@@ -58,7 +58,7 @@ function main() {
     process.stdout.write(JSON.stringify({
       link_configs: [
         {
-          package: "justjavac/webview",
+          package: "justjavac/lepus",
           link_libs: [
             webviewStaticLib,
             "advapi32",
@@ -80,7 +80,7 @@ function main() {
     process.stdout.write(JSON.stringify({
       link_configs: [
         {
-          package: "justjavac/webview",
+          package: "justjavac/lepus",
           link_search_paths: [platformLibDir],
           link_libs: ["webview", "dl"],
           link_flags: ["-framework", "WebKit"],
@@ -95,7 +95,7 @@ function main() {
   process.stdout.write(JSON.stringify({
     link_configs: [
       {
-        package: "justjavac/webview",
+        package: "justjavac/lepus",
         link_search_paths: [platformLibDir],
         link_libs: ["webview"],
         link_flags: linuxSystemLinkFlags(),

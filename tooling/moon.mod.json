@@ -1,0 +1,25 @@
+{
+  "name": "justjavac/lepus_tooling",
+  "version": "0.1.0",
+  "deps": {
+    "moonbitlang/x": "0.4.41",
+    "justjavac/lepus_bootstrap": {
+      "path": "../bootstrap"
+    },
+    "justjavac/lepus_manifest": {
+      "path": "../manifest"
+    },
+    "justjavac/lepus_catalog": {
+      "path": "../catalog"
+    }
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/justjavac/lepus/tree/main/tooling",
+  "license": "MIT",
+  "keywords": ["webview", "tooling", "extension", "metadata"],
+  "description": "AI- and developer-facing catalog query and registry code generation helpers for lepus.",
+  "source": "",
+  "warn-list": "",
+  "preferred-target": "native",
+  "supported_targets": "+native"
+}

@@ -1,26 +1,32 @@
 {
-  "name": "justjavac/webview/examples",
+  "name": "justjavac/lepus/examples",
   "version": "0.1.0",
   "deps": {
-    "justjavac/webview_bootstrap": {
+    "justjavac/lepus_bootstrap": {
       "path": "../bootstrap"
     },
-    "justjavac/webview_app": {
+    "justjavac/lepus_app": {
       "path": "../app"
+    },
+    "justjavac/lepus_core": {
+      "path": "../core"
+    },
+    "justjavac/lepus_manifest": {
+      "path": "../manifest"
     },
     "justjavac/ffi": "0.2.0",
     "extensions": {
       "path": "../extensions"
     },
-    "justjavac/webview_runtime": {
+    "justjavac/lepus_runtime": {
       "path": "../runtime"
     },
-    "justjavac/webview": {
+    "justjavac/lepus": {
       "path": ".."
     }
   },
   "readme": "README.md",
-  "repository": "https://github.com/justjavac/moonbit-webview/tree/main/examples",
+  "repository": "https://github.com/justjavac/lepus/tree/main/examples",
   "license": "MIT",
   "keywords": ["webview", "webui", "gui", "web", "desktop-app"],
   "description": "MoonBit bindings for webview, a tiny library for creating web-based desktop GUIs.",

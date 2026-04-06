@@ -1,0 +1,16 @@
+{
+  "name": "justjavac/lepus_manifest",
+  "version": "0.1.0",
+  "deps": {
+    "moonbitlang/x": "0.4.41"
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/justjavac/lepus/tree/main/manifest",
+  "license": "MIT",
+  "keywords": ["webview", "manifest", "config", "desktop-app"],
+  "description": "Declarative manifest types for lepus applications.",
+  "source": "",
+  "warn-list": "",
+  "preferred-target": "native",
+  "supported_targets": "+native"
+}

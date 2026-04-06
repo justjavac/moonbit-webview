@@ -14,25 +14,25 @@
     "justjavac/global_hotkey": {
       "path": "../global_hotkey"
     },
-    "justjavac/webview_runtime": {
-      "path": "../runtime"
+    "justjavac/lepus_catalog": {
+      "path": "../catalog"
     },
-    "justjavac/webview_app": {
-      "path": "../app"
+    "justjavac/lepus_core": {
+      "path": "../core"
     },
-    "justjavac/webview": {
+    "justjavac/lepus": {
       "path": ".."
     }
   },
   "readme": "README.md",
-  "repository": "https://github.com/justjavac/moonbit-webview/tree/main/extensions",
+  "repository": "https://github.com/justjavac/lepus/tree/main/extensions",
   "license": "MIT",
   "keywords": [
     "webview",
     "extension",
     "filesystem"
   ],
-  "description": "Extensions for moonbit-webview examples and applications.",
+  "description": "Extensions for lepus examples and applications.",
   "source": ".",
   "warn-list": "",
   "preferred-target": "native",
