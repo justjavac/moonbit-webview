@@ -1,21 +1,34 @@
 ///|
-/// Bootstrap-level app config that combines runtime core settings with
-/// runtime-core settings loaded from declarative configuration.
-pub struct BootstrapAppConfig {
-  window : @wvrt.WindowConfig
-  entry : @wvrt.AppEntry
-  windows : Array[@wvrt.AppWindowConfig]
-  debug : Int
+/// Loaded manifest plus the base directory used to resolve relative file paths.
+struct LoadedAppManifest {
+  manifest : @manifest.AppManifest
   base_dir : String?
 }
 
 ///|
-pub fn BootstrapAppConfig::new(
-  window : @wvrt.WindowConfig,
-  entry : @wvrt.AppEntry,
-  debug? : Int = 0,
-  windows? : Array[@wvrt.AppWindowConfig] = [],
+/// Creates a loaded manifest wrapper.
+/// This is primarily used by bootstrap helpers that need to carry both the
+/// typed manifest value and its optional base directory.
+pub fn LoadedAppManifest::new(
+  manifest : @manifest.AppManifest,
   base_dir? : String? = None,
-) -> BootstrapAppConfig {
-  BootstrapAppConfig::{ window, entry, windows, debug, base_dir }
+) -> LoadedAppManifest {
+  LoadedAppManifest::{ manifest, base_dir }
+}
+
+///|
+/// Returns the loaded manifest value.
+/// This is a cheap accessor over the normalized manifest captured at load time.
+pub fn LoadedAppManifest::manifest(
+  self : LoadedAppManifest,
+) -> @manifest.AppManifest {
+  self.manifest
+}
+
+///|
+/// Returns the manifest base directory, if the manifest came from disk.
+/// Relative file entries should be interpreted against this directory when it
+/// is present.
+pub fn LoadedAppManifest::base_dir(self : LoadedAppManifest) -> String? {
+  self.base_dir
 }

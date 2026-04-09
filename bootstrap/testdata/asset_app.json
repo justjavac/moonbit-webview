@@ -1,0 +1,13 @@
+{
+  "window": {
+    "title": "Asset Runtime Test",
+    "width": 960,
+    "height": 680,
+    "size_hint": "none"
+  },
+  "entry": {
+    "kind": "asset",
+    "value": "frontend/index.html"
+  },
+  "debug": 1
+}
