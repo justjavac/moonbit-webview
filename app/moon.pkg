@@ -1,7 +1,10 @@
 import {
   "moonbitlang/core/json",
-  "justjavac/webview_bootstrap" @bootstrap,
-  "justjavac/webview_runtime" @wvrt,
+  "justjavac/lepus_bootstrap" @bootstrap,
+  "justjavac/lepus_core" @core,
+  "justjavac/lepus_manifest" @manifest,
+  "justjavac/lepus" @webview,
+  "justjavac/lepus_runtime" @wvrt,
 }
 
 supported_targets = "native"
@@ -12,6 +15,7 @@ options(
     "create.mbt": [ "native" ],
     "install.mbt": [ "native" ],
     "order.mbt": [ "native" ],
+    "prepare_wbtest.mbt": [ "native" ],
     "types.mbt": [ "native" ],
   },
 )

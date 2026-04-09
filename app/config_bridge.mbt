@@ -1,24 +1,59 @@
 ///|
-fn config_document_options_map(
-  document : @bootstrap.AppConfigDocument,
-) -> Map[String, Json] {
-  let options_by_extension : Map[String, Json] = {}
-  for entry in document.extension_option_entries() {
-    let (name, options) = entry
-    options_by_extension.set(name, options)
+/// Converts one manifest size hint into the runtime size hint enum.
+fn runtime_size_hint(size_hint : @manifest.WindowSizeHint) -> @webview.SizeHint {
+  match size_hint {
+    None => @webview.SizeHint::None
+    Fixed => @webview.SizeHint::Fixed
+    Min => @webview.SizeHint::Min
+    Max => @webview.SizeHint::Max
   }
-  options_by_extension
 }
 
 ///|
-fn validate_declared_extension_options(
-  options_by_extension : Map[String, Json],
-  extensions_by_name : Map[String, AppExtension],
-) -> Result[Unit, String] {
-  for name, _ in options_by_extension {
-    guard extensions_by_name.get(name) is Some(_) else {
-      return Err("unknown extension options key: " + name)
-    }
+/// Converts one manifest window into the runtime window config shape.
+fn runtime_window_config(
+  window : @manifest.WindowManifest,
+) -> @wvrt.WindowConfig {
+  @wvrt.WindowConfig::new(
+    window.title,
+    window.width,
+    window.height,
+    size_hint=runtime_size_hint(window.size_hint),
+  )
+}
+
+///|
+/// Converts one manifest entry into the runtime entry shape.
+fn runtime_entry(entry : @manifest.AppEntry) -> @wvrt.AppEntry {
+  match entry {
+    Html(html) => @wvrt.AppEntry::Html(html)
+    Url(url) => @wvrt.AppEntry::Url(url)
+    File(path) => @wvrt.AppEntry::File(path)
+    Asset(path) => @wvrt.AppEntry::Asset(path)
   }
-  Ok(())
+}
+
+///|
+/// Converts one manifest secondary window into the runtime config shape.
+fn runtime_window_manifest(
+  window : @manifest.AppWindowManifest,
+) -> @wvrt.AppWindowConfig {
+  @wvrt.AppWindowConfig::new(
+    window.id,
+    runtime_window_config(window.window),
+    runtime_entry(window.entry),
+  )
+}
+
+///|
+/// Converts a full manifest into the lower-level runtime config shape.
+fn runtime_config_from_manifest(
+  manifest : @manifest.AppManifest,
+) -> @wvrt.AppConfig {
+  @wvrt.AppConfig::new(
+    runtime_window_config(manifest.window),
+    runtime_entry(manifest.entry),
+    debug=manifest.debug,
+    windows=manifest.windows.map(window => runtime_window_manifest(window)),
+  )
 }
