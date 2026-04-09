@@ -1,29 +1,29 @@
-# webview_runtime
+# lepus_runtime
 
-`justjavac/webview_runtime` is the low-level host layer that turns native ops
-into JavaScript-facing runtime extensions.
+`justjavac/lepus_runtime` is the lifecycle layer for app and window orchestration.
+It sits on top of `justjavac/lepus_core`, which now owns the native/JS bridge,
+ops runtime, resource tables, and low-level extension installation.
 
 Use:
 
-- `justjavac/webview` for the raw native `Webview`
-- `justjavac/webview_runtime` for `Extension`, `ExtensionHost`, `App`, ops
-  dispatch, and the `window.__MoonBit__` bridge
-- `justjavac/webview_bootstrap` for `app.json` parsing and editable config
-  documents
-- `justjavac/webview_app` for high-level app creation and extension ordering
+- `justjavac/lepus` for the raw native `Webview`
+- `justjavac/lepus_core` for `Extension`, `ExtensionSpec`, low-level install,
+  and the `window.__MoonBit__` bridge
+- `justjavac/lepus_runtime` for `App`, `AppWindow`, and multi-window lifecycle
+- `justjavac/lepus_bootstrap` for manifest loading/editing
+- `justjavac/lepus_app` for registry-driven app planning and creation
 
 This package does not decide which extensions are installed. That composition
-step now lives in `justjavac/webview_app`, while built-in extension packages
+step now lives in `justjavac/lepus_app`, while built-in extension packages
 live in the sibling [`extensions/`](../extensions) workspace.
 
 ## JavaScript Surface
 
 The runtime installs a single global object:
 
-- `window.__MoonBit__.core.ops.*`
 - `window.__MoonBit__.events.on(...)`
-- `window.__MoonBit__.extension("<name>")`
 - `window.__MoonBit__.<extension>.*`
+- `window.__MoonBit__.core.invokeOp(name, payload)` for low-level debugging
 
 Built-in and custom extensions use the same shape. For example:
 
@@ -39,33 +39,39 @@ For direct installation on a raw webview:
 
 ```moonbit
 import {
+  "justjavac/lepus_core" @core,
   "extensions/path" @path,
-  "justjavac/webview" @webview,
-  "justjavac/webview_runtime" @runtime,
+  "justjavac/lepus" @webview,
 }
 
 fn main {
   let webview = @webview.Webview::new(debug=1)
-  @runtime.install_extension(webview, @path.extension())
+  @core.install_extension(webview, @path.extension())
   webview.run()
 }
 ```
 
-For normal app-style startup, prefer `justjavac/webview_app`:
+For normal app-style startup, prefer `justjavac/lepus_app`:
 
 ```moonbit
 import {
   "extensions/fs" @fs,
   "extensions/path" @path,
-  "justjavac/webview_app" @app,
+  "justjavac/lepus_app" @app,
+  "justjavac/lepus_manifest" @manifest,
+  "justjavac/lepus_runtime" @wvrt,
 }
 
 fn main {
-  let runtime = match
-    @app.create_app_from_file(
-      "app.json",
-      extensions=[@fs.app_extension(), @path.app_extension()],
-    ) {
+  let manifest = @manifest.AppManifest::new(
+    @manifest.WindowManifest::new("Demo", 900, 700),
+    @manifest.AppEntry::Html("<html></html>"),
+    debug=1,
+  )
+  let registry = @app.ExtensionRegistry::new()
+  let _ = registry.register(@fs.spec())
+  let _ = registry.register(@path.spec())
+  let runtime : @wvrt.App = match @app.create_app(manifest, registry) {
     Ok(app) => app
     Err(error) => abort(error)
   }

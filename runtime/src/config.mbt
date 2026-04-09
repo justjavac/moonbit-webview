@@ -4,6 +4,7 @@ pub(all) enum AppEntry {
   Html(String)
   Url(String)
   File(String)
+  Asset(String)
 }
 
 ///|
@@ -13,7 +14,7 @@ pub struct WindowConfig {
   width : Int
   height : Int
   size_hint : @webview.SizeHint
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Additional window registered on an `App` before the runtime loop starts.
@@ -34,6 +35,8 @@ pub struct AppConfig {
 
 ///|
 /// Builds a window configuration.
+/// Use `size_hint` to communicate fixed, minimum, or maximum sizing behavior to
+/// the underlying native window backend.
 pub fn WindowConfig::new(
   title : String,
   width : Int,
@@ -45,6 +48,8 @@ pub fn WindowConfig::new(
 
 ///|
 /// Describes a secondary app window.
+/// The `id` must be unique within the owning app and is used for later window
+/// lookup and replacement operations.
 pub fn AppWindowConfig::new(
   id : String,
   window : WindowConfig,
@@ -55,6 +60,8 @@ pub fn AppWindowConfig::new(
 
 ///|
 /// Builds a runtime-core application configuration.
+/// Additional windows are registered up front, while their entries are only
+/// loaded once `App::run` starts the runtime loop.
 pub fn AppConfig::new(
   window : WindowConfig,
   entry : AppEntry,
