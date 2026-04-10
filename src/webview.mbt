@@ -8,7 +8,7 @@ pub(all) enum NativeHandleKind {
   /// Browser controller. `WebKitWebView` pointer (WebKitGTK), `WKWebView`
   /// pointer (Cocoa/WebKit) or `ICoreWebView2Controller` pointer (Win32/WebView2).
   Browser = 2
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Window size hints
@@ -21,7 +21,7 @@ pub(all) enum SizeHint {
   Max = 2
   /// Window size can not be changed by a user.
   Fixed = 3
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// An instance of a webview window.
@@ -151,6 +151,8 @@ pub fn Webview::unbind(self : Webview, name : String) -> Unit {
 
 ///|
 /// Returns whether a JavaScript binding with this name has been installed.
+/// Higher-level runtimes can use this to avoid rebinding helper functions under
+/// the same global JavaScript name.
 pub fn Webview::has_binding(self : Webview, name : String) -> Bool {
   self.bindings.get(name) is Some(_)
 }
@@ -311,17 +313,24 @@ pub fn Webview::set_size(
 
 ///|
 /// Runs the main loop until it's terminated.
+/// Once the loop exits, the webview destroys itself and executes registered
+/// cleanup hooks.
 pub fn Webview::run(self : Webview) -> Unit {
   let _ = webview_run(self.handle)
   self.destroy()
 }
 
 ///|
+/// Returns the stable identity token used to key runtime caches for this webview.
 fn Webview::identity(self : Webview) -> Int64 {
   webview_identity(self.handle)
 }
 
 ///|
+/// Registers a named callback that will run before the webview is destroyed.
+///
+/// Hook names must be unique within the webview so internal runtimes and
+/// extensions can safely manage their own cleanup handlers.
 pub fn Webview::register_destroy_hook(
   self : Webview,
   hook_name : String,
@@ -336,6 +345,9 @@ pub fn Webview::register_destroy_hook(
 }
 
 ///|
+/// Removes a previously registered destroy hook by name.
+/// Missing hook names are ignored so independent runtimes can unregister
+/// defensively during cleanup.
 pub fn Webview::unregister_destroy_hook(
   self : Webview,
   hook_name : String,

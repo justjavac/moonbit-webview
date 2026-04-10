@@ -3,6 +3,10 @@ import {
   "justjavac/ffi",
 }
 
+import {
+  "justjavac/ffi",
+} for "test"
+
 supported_targets = "+native"
 
 options(
