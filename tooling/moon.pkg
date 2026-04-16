@@ -1,0 +1,20 @@
+import {
+  "moonbitlang/core/json",
+  "moonbitlang/x/fs" @mbfs,
+  "justjavac/lepus_bootstrap" @bootstrap,
+  "justjavac/lepus_manifest" @manifest,
+  "justjavac/lepus_catalog" @catalog,
+}
+
+warnings = "-29"
+
+supported_targets = "native"
+
+options(
+  targets: {
+    "catalog_query.mbt": [ "native" ],
+    "manifest_query.mbt": [ "native" ],
+    "registry_codegen.mbt": [ "native" ],
+    "tooling_test.mbt": [ "native" ],
+  },
+)
