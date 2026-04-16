@@ -1,13 +1,19 @@
 import {
   "moonbitlang/core/json",
+  "moonbitlang/x/fs" @mbfs,
+  "moonbitlang/x/path" @mbpath,
 }
 
 supported_targets = "native"
 
 options(
   targets: {
-    "catalog_metadata.mbt": [ "native" ],
+    "catalog_diagnostic.mbt": [ "native" ],
     "catalog_test.mbt": [ "native" ],
-    "catalog_types.mbt": [ "native" ],
+    "extension_catalog.mbt": [ "native" ],
+    "extension_descriptor.mbt": [ "native" ],
+    "extension_link_plan.mbt": [ "native" ],
+    "extension_schema.mbt": [ "native" ],
+    "result_zip.mbt": [ "native" ],
   },
 )

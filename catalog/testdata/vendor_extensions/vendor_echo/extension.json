@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "vendor/echo",
+  "version": "1.2.3",
+  "display_name": "Vendor Echo",
+  "description": "A third-party echo extension used to validate catalog scanning.",
+  "namespace": "vendorEcho",
+  "package": "vendor/extensions/vendor_echo",
+  "spec_symbol": "spec",
+  "manifest_key": "vendor/echo",
+  "platforms": ["windows", "macos", "linux"],
+  "dependencies": ["vendor/base"],
+  "capabilities": ["vendor_echo.ping"],
+  "permissions": [],
+  "risk_level": "low",
+  "options_schema": "./options.schema.json"
+}

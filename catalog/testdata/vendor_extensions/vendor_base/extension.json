@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "vendor/base",
+  "version": "1.0.0",
+  "display_name": "Vendor Base",
+  "description": "A third-party base extension used to validate dependency-aware code generation.",
+  "namespace": "vendorBase",
+  "package": "vendor/extensions/vendor_base",
+  "spec_symbol": "spec",
+  "manifest_key": "vendor/base",
+  "platforms": ["windows", "macos", "linux"],
+  "dependencies": [],
+  "capabilities": ["vendor_base.ready"],
+  "permissions": [],
+  "risk_level": "low",
+  "options_schema": "./options.schema.json"
+}
