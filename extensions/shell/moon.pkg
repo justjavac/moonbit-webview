@@ -1,13 +1,15 @@
 import {
   "moonbitlang/core/json",
   "justjavac/ffi",
-  "justjavac/webview_app" @app,
-  "justjavac/webview_runtime" @runtime,
+  "justjavac/lepus_core" @core,
 }
 
 supported_targets = "native"
 
 options(
   "native-stub": [ "shell_native.c" ],
-  targets: { "extension.mbt": [ "native" ] },
+  targets: {
+    "extension.mbt": [ "native" ],
+    "extension_wbtest.mbt": [ "native" ],
+  },
 )

@@ -35,11 +35,13 @@ extern "C" fn tray_set_tooltip_ffi(
 ) -> Bool = "desktop_tray_set_tooltip"
 
 ///|
+/// Returns whether the tray package supports the current platform.
 pub fn is_supported() -> Bool {
   is_windows_ffi()
 }
 
 ///|
+/// Fails with a descriptive error when tray support is unavailable.
 pub fn ensure_supported() -> Result[Unit, String] {
   if is_supported() {
     Ok(())
@@ -49,6 +51,7 @@ pub fn ensure_supported() -> Result[Unit, String] {
 }
 
 ///|
+/// Encodes an optional tooltip as a UTF-16 buffer for the native tray API.
 fn to_wstr(value : String?) -> Bytes {
   match value {
     Some(value) => @ffi.to_wstr(value)
@@ -57,6 +60,7 @@ fn to_wstr(value : String?) -> Bytes {
 }
 
 ///|
+/// Returns the live native tray state or an error when the handle is unusable.
 fn Tray::resolve_state(self : Tray) -> Result[TrayState, String] {
   if self.destroyed {
     Err("tray handle has been destroyed")
@@ -68,6 +72,10 @@ fn Tray::resolve_state(self : Tray) -> Result[TrayState, String] {
 }
 
 ///|
+/// Creates a tray handle associated with a native window.
+///
+/// Parameters:
+/// - `window_handle` - The owning native window handle used by the platform tray implementation.
 pub fn create(window_handle : Int64) -> Result[Tray, String] {
   match ensure_supported() {
     Err(error) => Err(error)
@@ -83,6 +91,7 @@ pub fn create(window_handle : Int64) -> Result[Tray, String] {
 }
 
 ///|
+/// Shows the tray icon and optionally updates its tooltip text.
 pub fn Tray::show(
   self : Tray,
   tooltip? : String? = None,
@@ -99,6 +108,7 @@ pub fn Tray::show(
 }
 
 ///|
+/// Hides the tray icon while keeping the native tray handle alive.
 pub fn Tray::hide(self : Tray) -> Result[Bool, String] {
   match self.resolve_state() {
     Err(error) => Err(error)
@@ -112,6 +122,7 @@ pub fn Tray::hide(self : Tray) -> Result[Bool, String] {
 }
 
 ///|
+/// Updates the tray tooltip and returns the current visibility state.
 pub fn Tray::set_tooltip(self : Tray, tooltip : String) -> Result[Bool, String] {
   match self.resolve_state() {
     Err(error) => Err(error)
@@ -125,6 +136,7 @@ pub fn Tray::set_tooltip(self : Tray, tooltip : String) -> Result[Bool, String] 
 }
 
 ///|
+/// Destroys the native tray handle and marks this wrapper as unusable.
 pub fn Tray::destroy(self : Tray) -> Unit {
   if !self.destroyed {
     destroy_state_ffi(self.state)

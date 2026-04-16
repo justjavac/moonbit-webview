@@ -1,0 +1,21 @@
+import {
+  "moonbitlang/x/fs" @mbfs,
+  "justjavac/lepus_catalog" @catalog,
+  "justjavac/lepus_core" @core,
+  "extensions/clipboard" @clipboard,
+  "extensions/dialog" @dialog,
+  "extensions/fs" @fs,
+  "extensions/global_hotkey" @global_hotkey,
+  "extensions/notification" @notification,
+  "extensions/path" @path,
+  "extensions/shell" @shell,
+  "extensions/tray" @tray,
+}
+
+warnings = "-29"
+
+supported_targets = "native"
+
+options(
+  targets: { "metadata_check_test.mbt": [ "native" ] },
+)

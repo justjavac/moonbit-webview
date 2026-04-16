@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "justjavac/lepus-dialog",
+  "version": "0.1.10",
+  "display_name": "Dialog",
+  "description": "Native message, confirm, and file dialogs for desktop apps.",
+  "namespace": "dialog",
+  "package": "extensions/dialog",
+  "spec_symbol": "spec",
+  "manifest_key": "justjavac/lepus-dialog",
+  "platforms": ["windows"],
+  "dependencies": [],
+  "capabilities": ["dialog.message", "dialog.confirm", "dialog.open_file", "dialog.save_file"],
+  "permissions": ["dialog.message", "dialog.confirm", "dialog.file"],
+  "risk_level": "medium",
+  "options_schema": "./options.schema.json"
+}

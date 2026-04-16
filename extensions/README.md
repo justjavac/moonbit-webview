@@ -1,10 +1,10 @@
 # Extensions
 
 This workspace contains the built-in extension packages that plug into
-`justjavac/webview_runtime`.
+`justjavac/lepus_core` and `justjavac/lepus_app`.
 
-They now participate in app startup through `justjavac/webview_app`, and each
-package exposes an `app_extension()` helper for app-style installation.
+They now participate in app startup through `justjavac/lepus_app`, and each
+package exposes a `spec()` builder for registry-driven installation.
 
 ## Layout
 
@@ -41,14 +41,14 @@ Add the workspace as a local dependency:
 
 ```moonbit
 import {
+  "justjavac/lepus_core" @core,
   "extensions/path" @path,
-  "justjavac/webview" @webview,
-  "justjavac/webview_runtime" @runtime,
+  "justjavac/lepus" @webview,
 }
 
 fn main {
   let webview = @webview.Webview::new()
-  @runtime.install_extension(webview, @path.extension())
+  @core.install_extension(webview, @path.extension())
   webview.run()
 }
 ```
@@ -59,15 +59,21 @@ fn main {
 import {
   "extensions/fs" @fs,
   "extensions/path" @path,
-  "justjavac/webview_app" @app,
+  "justjavac/lepus_app" @app,
+  "justjavac/lepus_manifest" @manifest,
+  "justjavac/lepus_runtime" @wvrt,
 }
 
 fn main {
-  let runtime = match
-    @app.create_app_from_file(
-      "app.json",
-      extensions=[@fs.app_extension(), @path.app_extension()],
-    ) {
+  let manifest = @manifest.AppManifest::new(
+    @manifest.WindowManifest::new("Demo", 900, 700),
+    @manifest.AppEntry::Html("<html></html>"),
+    debug=1,
+  )
+  let registry = @app.ExtensionRegistry::new()
+  let _ = registry.register(@fs.spec())
+  let _ = registry.register(@path.spec())
+  let runtime : @wvrt.App = match @app.create_app(manifest, registry) {
     Ok(app) => app
     Err(error) => abort(error)
   }
@@ -77,9 +83,11 @@ fn main {
 
 In this model:
 
-- MoonBit code decides which extensions are installed.
-- `app.json.extensions` only carries per-extension options.
+- MoonBit code registers which extensions are available.
+- `justjavac/lepus_tooling` can generate the same explicit registry-module edits from metadata when you do not want to hand-maintain the registry.
+- `app.json.extensions` enables or disables registered extensions and can pass options.
 - JavaScript talks to one global object: `window.__MoonBit__`.
+- Each extension owns `extension.json` and `options.schema.json` for machine-readable metadata.
 
 Example config:
 
@@ -88,8 +96,8 @@ Example config:
   "window": { "title": "Demo", "width": 900, "height": 700 },
   "entry": { "kind": "file", "value": "app.html" },
   "extensions": {
-    "fs": {},
-    "path": {}
+    "justjavac/lepus-fs": true,
+    "justjavac/lepus-path": {}
   },
   "debug": 1
 }
@@ -104,9 +112,6 @@ await window.__MoonBit__.fs.readFile("demo.txt");
 await window.__MoonBit__.path.resolve({ path: "." });
 window.__MoonBit__.events.on("fs.activity", console.log);
 ```
-
-Use `window.__MoonBit__.extension("<name>")` when the extension name is only
-known dynamically.
 
 ## Notes
 

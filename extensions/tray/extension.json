@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "justjavac/lepus-tray",
+  "version": "0.1.10",
+  "display_name": "Tray",
+  "description": "Control a native system tray icon and tooltip from JavaScript.",
+  "namespace": "tray",
+  "package": "extensions/tray",
+  "spec_symbol": "spec",
+  "manifest_key": "justjavac/lepus-tray",
+  "platforms": ["windows"],
+  "dependencies": [],
+  "capabilities": ["tray.show", "tray.hide", "tray.set_tooltip", "tray.activity"],
+  "permissions": ["system.tray"],
+  "risk_level": "medium",
+  "options_schema": "./options.schema.json"
+}

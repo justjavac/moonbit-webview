@@ -1,37 +1,43 @@
 ///|
+let extension_id = "justjavac/lepus-dialog"
+
+///|
+let extension_namespace = "dialog"
+
+///|
 struct MessagePayload {
   message : String
   title : String?
   level : String?
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct MessageReply {
   acknowledged : Bool
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ConfirmReply {
   confirmed : Bool
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct FileDialogPayload {
   title : String?
   path : String?
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct FileDialogReply {
   path : String?
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct DialogActivity {
   operation : String
   path : String?
   level : String?
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 extern "C" fn is_windows_ffi() -> Bool = "extensions_dialog_is_windows"
@@ -71,6 +77,7 @@ extern "C" fn save_file_dialog_ffi(
 ) -> Bytes = "extensions_dialog_save_file"
 
 ///|
+/// Verifies that native dialog support is available on the current platform.
 fn ensure_supported() -> Result[Unit, String] {
   if is_windows_ffi() {
     Ok(())
@@ -80,6 +87,7 @@ fn ensure_supported() -> Result[Unit, String] {
 }
 
 ///|
+/// Runs a dialog operation only when native dialog support is available.
 fn[Reply] with_supported(
   callback : () -> Result[Reply, String],
 ) -> Result[Reply, String] {
@@ -90,6 +98,7 @@ fn[Reply] with_supported(
 }
 
 ///|
+/// Encodes an optional string as a UTF-16 buffer expected by the native dialog API.
 fn to_wstr(value : String?) -> Bytes {
   match value {
     Some(value) => @ffi.to_wstr(value)
@@ -98,16 +107,19 @@ fn to_wstr(value : String?) -> Bytes {
 }
 
 ///|
+/// Returns the encoded optional dialog title.
 fn message_title_bytes(payload : MessagePayload) -> Bytes {
   to_wstr(payload.title)
 }
 
 ///|
+/// Returns the encoded dialog body text.
 fn message_body_bytes(payload : MessagePayload) -> Bytes {
   @ffi.to_wstr(payload.message)
 }
 
 ///|
+/// Decodes an empty wide-string dialog path as `None`.
 fn optional_path_from_wstr(bytes : Bytes) -> String? {
   let value = @ffi.from_wstr_lossy(bytes)
   if value.is_empty() {
@@ -118,6 +130,7 @@ fn optional_path_from_wstr(bytes : Bytes) -> String? {
 }
 
 ///|
+/// Maps the public dialog level string to the native integer code.
 fn level_to_int(level : String?) -> Int {
   match level {
     Some("warning") => 1
@@ -127,11 +140,13 @@ fn level_to_int(level : String?) -> Int {
 }
 
 ///|
+/// Extracts the native dialog level code from a message payload.
 fn message_level(payload : MessagePayload) -> Int {
   level_to_int(payload.level)
 }
 
 ///|
+/// Shows a message dialog and converts the native result into a reply payload.
 fn show_message(window : Int64, payload : MessagePayload) -> MessageReply {
   ignore(
     message_dialog_ffi(
@@ -145,6 +160,7 @@ fn show_message(window : Int64, payload : MessagePayload) -> MessageReply {
 }
 
 ///|
+/// Shows a confirmation dialog and converts the native result into a reply payload.
 fn confirm_message(window : Int64, payload : MessagePayload) -> ConfirmReply {
   let confirmed = confirm_dialog_ffi(
     window,
@@ -156,6 +172,7 @@ fn confirm_message(window : Int64, payload : MessagePayload) -> ConfirmReply {
 }
 
 ///|
+/// Runs an open/save file dialog callback and normalizes its optional path result.
 fn file_dialog_path(
   window : Int64,
   payload : FileDialogPayload,
@@ -167,8 +184,9 @@ fn file_dialog_path(
 }
 
 ///|
+/// Emits a dialog activity event for JavaScript listeners.
 fn emit_activity(
-  extension : @runtime.ExtensionContext,
+  extension : @core.ExtensionContext,
   operation : String,
   path? : String? = None,
   level? : String? = None,
@@ -177,12 +195,12 @@ fn emit_activity(
 }
 
 ///|
-/// Builds the native `dialog` extension for new application code.
+/// Builds the native `dialog` extension for direct installation.
 ///
 /// Exposes `message`, `confirm`, `openFile`, and `saveFile` through
 /// `window.__MoonBit__.dialog`.
-pub fn extension() -> @runtime.Extension {
-  @runtime.Extension::new("dialog", fn(extension) {
+pub fn extension() -> @core.Extension {
+  @core.Extension::new(extension_id, extension_namespace, fn(extension) {
     let window = extension.webview().get_window()
 
     extension.op_result("message", fn(payload : MessagePayload) {
@@ -220,19 +238,11 @@ pub fn extension() -> @runtime.Extension {
 }
 
 ///|
-pub fn app_extension() -> @app.AppExtension {
-  @app.AppExtension::new("dialog", fn(_context) { Ok(extension()) })
-}
-
-///|
-test "dialog level maps to native code" {
-  assert_eq(level_to_int(None), 0)
-  assert_eq(level_to_int(Some("warning")), 1)
-  assert_eq(level_to_int(Some("error")), 2)
-}
-
-///|
-test "dialog empty wide string becomes None path" {
-  assert_eq(optional_path_from_wstr(@ffi.to_wstr("")), None)
-  assert_eq(optional_path_from_wstr(@ffi.to_wstr("demo.txt")), Some("demo.txt"))
+/// Builds the declarative `dialog` extension spec.
+/// Register this spec when dialog support should be linked declaratively instead
+/// of installed by hand on a single webview.
+pub fn spec() -> @core.ExtensionSpec {
+  @core.ExtensionSpec::new(extension_id, extension_namespace, fn(_context) {
+    Ok(extension())
+  })
 }

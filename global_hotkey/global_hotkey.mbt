@@ -3,7 +3,7 @@ struct ParsedGlobalHotkey {
   normalized : String
   modifiers : Int
   key : Int
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 #external
@@ -47,16 +47,16 @@ extern "C" fn unregister_hotkey_ffi(
 ) -> Bool = "desktop_global_shortcut_unregister"
 
 ///|
-extern "C" fn take_triggered_id_ffi(
-  state : GlobalHotkeyState,
-) -> Int = "desktop_global_shortcut_take_triggered_id"
+extern "C" fn take_triggered_id_ffi(state : GlobalHotkeyState) -> Int = "desktop_global_shortcut_take_triggered_id"
 
 ///|
+/// Returns whether the global hotkey package supports the current platform.
 pub fn is_supported() -> Bool {
   is_windows_ffi()
 }
 
 ///|
+/// Fails with a descriptive error when global hotkeys are unsupported.
 pub fn ensure_supported() -> Result[Unit, String] {
   if is_supported() {
     Ok(())
@@ -66,10 +66,10 @@ pub fn ensure_supported() -> Result[Unit, String] {
 }
 
 ///|
-fn GlobalHotkeyManager::resolve_state(self : GlobalHotkeyManager) -> Result[
-  GlobalHotkeyState,
-  String,
-] {
+/// Returns the live native manager state or an error when the manager is unusable.
+fn GlobalHotkeyManager::resolve_state(
+  self : GlobalHotkeyManager,
+) -> Result[GlobalHotkeyState, String] {
   if self.destroyed {
     Err("globalHotkey manager has been destroyed")
   } else if state_is_null(self.state) {
@@ -80,90 +80,161 @@ fn GlobalHotkeyManager::resolve_state(self : GlobalHotkeyManager) -> Result[
 }
 
 ///|
+/// Creates a native global hotkey manager.
+///
+/// The returned manager tracks registrations by normalized accelerator string
+/// and owns the native state that must later be destroyed.
 pub fn create() -> Result[GlobalHotkeyManager, String] {
-  match ensure_supported() {
-    Err(error) => Err(error)
-    Ok(_) => {
-      let state = create_state_ffi()
-      if state_is_null(state) {
-        Err("globalHotkey package failed to initialize")
-      } else {
-        Ok(
-          GlobalHotkeyManager::{
-            state,
-            registrations: {},
-            registration_names: {},
-            next_id: 1,
-            destroyed: false,
-          },
-        )
-      }
+  ensure_supported().bind(fn(_) {
+    let state = create_state_ffi()
+    if state_is_null(state) {
+      Err("globalHotkey package failed to initialize")
+    } else {
+      Ok(GlobalHotkeyManager::{
+        state,
+        registrations: {},
+        registration_names: {},
+        next_id: 1,
+        destroyed: false,
+      })
     }
+  })
+}
+
+///|
+/// Parses one accelerator after the manager state has been confirmed usable.
+fn GlobalHotkeyManager::resolve_registration_request(
+  self : GlobalHotkeyManager,
+  accelerator : String,
+) -> Result[(GlobalHotkeyState, ParsedGlobalHotkey), String] {
+  self
+  .resolve_state()
+  .bind(fn(state) {
+    parse_accelerator(accelerator).map(fn(parsed) { (state, parsed) })
+  })
+}
+
+///|
+/// Returns an existing registration id for one normalized accelerator, if present.
+fn GlobalHotkeyManager::registered_id(
+  self : GlobalHotkeyManager,
+  normalized : String,
+) -> Int? {
+  self.registrations.get(normalized)
+}
+
+///|
+/// Stores one successful native registration in the manager bookkeeping tables.
+fn GlobalHotkeyManager::store_registration(
+  self : GlobalHotkeyManager,
+  normalized : String,
+  id : Int,
+) -> Unit {
+  self.next_id += 1
+  self.registrations.set(normalized, id)
+  self.registration_names.set(id, normalized)
+}
+
+///|
+/// Removes one successful native registration from the manager bookkeeping tables.
+fn GlobalHotkeyManager::forget_registration(
+  self : GlobalHotkeyManager,
+  normalized : String,
+  id : Int,
+) -> Unit {
+  self.registrations.remove(normalized)
+  self.registration_names.remove(id)
+}
+
+///|
+/// Returns the native registration error string for one normalized accelerator.
+fn registration_error(prefix : String, normalized : String) -> String {
+  "globalHotkey." + prefix + " failed: " + normalized
+}
+
+///|
+/// Completes one native registration call and persists the registration locally.
+fn GlobalHotkeyManager::register_parsed(
+  self : GlobalHotkeyManager,
+  state : GlobalHotkeyState,
+  parsed : ParsedGlobalHotkey,
+) -> Result[Bool, String] {
+  guard self.registered_id(parsed.normalized) is None else {
+    return Err("globalHotkey already registered: " + parsed.normalized)
+  }
+  let id = self.next_id
+  if register_hotkey_ffi(
+      state,
+      id,
+      parsed.modifiers,
+      parsed.key,
+      @ffi.to_cstr(parsed.normalized),
+    ) {
+    self.store_registration(parsed.normalized, id)
+    Ok(true)
+  } else {
+    Err(registration_error("register", parsed.normalized))
   }
 }
 
 ///|
+/// Completes one native unregister call and removes the registration locally.
+fn GlobalHotkeyManager::unregister_parsed(
+  self : GlobalHotkeyManager,
+  state : GlobalHotkeyState,
+  parsed : ParsedGlobalHotkey,
+) -> Result[Bool, String] {
+  match self.registered_id(parsed.normalized) {
+    Some(id) =>
+      if unregister_hotkey_ffi(state, id) {
+        self.forget_registration(parsed.normalized, id)
+        Ok(false)
+      } else {
+        Err(registration_error("unregister", parsed.normalized))
+      }
+    None => Ok(false)
+  }
+}
+
+///|
+/// Registers a new accelerator with the native global hotkey backend.
+///
+/// Parameters:
+/// - `accelerator` - A shortcut string such as `Ctrl+Shift+K` or `Alt+F12`.
+///
+/// Returns:
+/// - `Ok(true)` when registration succeeds.
+/// - `Err(message)` when the accelerator is invalid, duplicated, or rejected by the OS.
 pub fn GlobalHotkeyManager::register(
   self : GlobalHotkeyManager,
   accelerator : String,
 ) -> Result[Bool, String] {
-  match self.resolve_state() {
-    Err(error) => Err(error)
-    Ok(state) =>
-      match parse_accelerator(accelerator) {
-        Err(error) => Err(error)
-        Ok(parsed) =>
-          match self.registrations.get(parsed.normalized) {
-            Some(_) => Err("globalHotkey already registered: " + parsed.normalized)
-            None => {
-              let id = self.next_id
-              if register_hotkey_ffi(
-                state,
-                id,
-                parsed.modifiers,
-                parsed.key,
-                @ffi.to_cstr(parsed.normalized),
-              ) {
-                self.next_id += 1
-                self.registrations.set(parsed.normalized, id)
-                self.registration_names.set(id, parsed.normalized)
-                Ok(true)
-              } else {
-                Err("globalHotkey.register failed: " + parsed.normalized)
-              }
-            }
-          }
-      }
-  }
+  self
+  .resolve_registration_request(accelerator)
+  .bind(fn(request) {
+    let (state, parsed) = request
+    self.register_parsed(state, parsed)
+  })
 }
 
 ///|
+/// Unregisters a previously registered accelerator.
+///
+/// Returns `Ok(false)` when the accelerator was not currently registered.
 pub fn GlobalHotkeyManager::unregister(
   self : GlobalHotkeyManager,
   accelerator : String,
 ) -> Result[Bool, String] {
-  match self.resolve_state() {
-    Err(error) => Err(error)
-    Ok(state) =>
-      match parse_accelerator(accelerator) {
-        Err(error) => Err(error)
-        Ok(parsed) =>
-          match self.registrations.get(parsed.normalized) {
-            Some(id) =>
-              if unregister_hotkey_ffi(state, id) {
-                self.registrations.remove(parsed.normalized)
-                self.registration_names.remove(id)
-                Ok(false)
-              } else {
-                Err("globalHotkey.unregister failed: " + parsed.normalized)
-              }
-            None => Ok(false)
-          }
-      }
-  }
+  self
+  .resolve_registration_request(accelerator)
+  .bind(fn(request) {
+    let (state, parsed) = request
+    self.unregister_parsed(state, parsed)
+  })
 }
 
 ///|
+/// Returns every currently registered accelerator in normalized form.
 pub fn GlobalHotkeyManager::list(self : GlobalHotkeyManager) -> Array[String] {
   let accelerators : Array[String] = []
   for accelerator, _ in self.registrations {
@@ -173,7 +244,10 @@ pub fn GlobalHotkeyManager::list(self : GlobalHotkeyManager) -> Array[String] {
 }
 
 ///|
-pub fn GlobalHotkeyManager::take_triggered(self : GlobalHotkeyManager) -> String? {
+/// Returns the next triggered accelerator, if one is waiting in the native queue.
+pub fn GlobalHotkeyManager::take_triggered(
+  self : GlobalHotkeyManager,
+) -> String? {
   match self.resolve_state() {
     Err(_) => None
     Ok(state) =>
@@ -185,6 +259,7 @@ pub fn GlobalHotkeyManager::take_triggered(self : GlobalHotkeyManager) -> String
 }
 
 ///|
+/// Drains all currently triggered accelerators from the native queue.
 pub fn GlobalHotkeyManager::drain_triggered(
   self : GlobalHotkeyManager,
 ) -> Array[String] {
@@ -199,6 +274,7 @@ pub fn GlobalHotkeyManager::drain_triggered(
 }
 
 ///|
+/// Destroys the native global hotkey manager and clears all tracked registrations.
 pub fn GlobalHotkeyManager::destroy(self : GlobalHotkeyManager) -> Unit {
   if !self.destroyed {
     destroy_state_ffi(self.state)
@@ -209,6 +285,7 @@ pub fn GlobalHotkeyManager::destroy(self : GlobalHotkeyManager) -> Unit {
 }
 
 ///|
+/// Parses a user-facing accelerator string into normalized native registration data.
 fn parse_accelerator(raw : String) -> Result[ParsedGlobalHotkey, String] {
   let parts = raw.split("+").to_array()
   let mut control = false
@@ -296,6 +373,7 @@ fn parse_accelerator(raw : String) -> Result[ParsedGlobalHotkey, String] {
 }
 
 ///|
+/// Encodes the modifier booleans into the bitmask expected by the native backend.
 fn modifier_mask(control : Bool, shift : Bool, alt : Bool, meta : Bool) -> Int {
   let mut mask = 0
   if alt {
@@ -314,6 +392,7 @@ fn modifier_mask(control : Bool, shift : Bool, alt : Bool, meta : Bool) -> Int {
 }
 
 ///|
+/// Normalizes an accelerator back into the canonical display string.
 fn normalize_accelerator_name(
   control : Bool,
   shift : Bool,
@@ -356,6 +435,7 @@ fn normalize_accelerator_name(
 }
 
 ///|
+/// Decodes a key token into its canonical name and native virtual-key code.
 fn decode_virtual_key(raw : String) -> Result[(String, Int), String] {
   let upper = raw.trim().to_string().to_upper()
   if upper.length() == 1 {
@@ -410,22 +490,7 @@ fn decode_virtual_key(raw : String) -> Result[(String, Int), String] {
 }
 
 ///|
+/// Trims and lowercases accelerator tokens before comparison.
 fn normalize_keyword(raw : String) -> String {
   raw.trim().to_string().to_lower()
-}
-
-///|
-test "globalHotkey parses modifier shortcuts" {
-  inspect(
-    parse_accelerator("ctrl+shift+k"),
-    content="Ok({normalized: \"Ctrl+Shift+K\", modifiers: 6, key: 75})",
-  )
-}
-
-///|
-test "globalHotkey parses function keys" {
-  inspect(
-    parse_accelerator("Alt+F12"),
-    content="Ok({normalized: \"Alt+F12\", modifiers: 1, key: 123})",
-  )
 }

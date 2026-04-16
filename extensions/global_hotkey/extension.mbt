@@ -1,33 +1,41 @@
 ///|
-struct GlobalHotkeyPayload {
-  accelerator : String
-} derive(ToJson, FromJson, Show, Eq)
+let extension_id = "justjavac/lepus-global-hotkey"
 
 ///|
-struct EmptyPayload {} derive(ToJson, FromJson, Show, Eq)
+let extension_namespace = "globalHotkey"
+
+///|
+struct GlobalHotkeyPayload {
+  accelerator : String
+} derive(ToJson, FromJson, Debug, Eq)
+
+///|
+struct EmptyPayload {} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct GlobalHotkeyReply {
   registered : Bool
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct GlobalHotkeyListReply {
   accelerators : Array[String]
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct GlobalHotkeyActivity {
   operation : String
   accelerator : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
+/// Verifies that global hotkeys are available on the current platform.
 fn ensure_supported() -> Result[Unit, String] {
   @sys_global_hotkey.ensure_supported()
 }
 
 ///|
+/// Creates the native hotkey manager when support is available.
 fn init_manager() -> @sys_global_hotkey.GlobalHotkeyManager? {
   match ensure_supported() {
     Ok(_) =>
@@ -40,21 +48,21 @@ fn init_manager() -> @sys_global_hotkey.GlobalHotkeyManager? {
 }
 
 ///|
+/// Runs a hotkey operation with the initialized manager when available.
 fn[Reply] with_manager(
   manager : @sys_global_hotkey.GlobalHotkeyManager?,
   callback : (@sys_global_hotkey.GlobalHotkeyManager) -> Result[Reply, String],
 ) -> Result[Reply, String] {
-  match ensure_supported() {
-    Err(error) => Err(error)
-    Ok(_) =>
-      match manager {
-        Some(handle) => callback(handle)
-        None => Err("globalHotkey extension failed to initialize")
-      }
-  }
+  ensure_supported().bind(fn(_) {
+    match manager {
+      Some(handle) => callback(handle)
+      None => Err("globalHotkey extension failed to initialize")
+    }
+  })
 }
 
 ///|
+/// Returns the selected accelerator list or an empty result when the manager is unavailable.
 fn list_or_empty(
   manager : @sys_global_hotkey.GlobalHotkeyManager?,
   selector : (@sys_global_hotkey.GlobalHotkeyManager) -> Array[String],
@@ -66,6 +74,7 @@ fn list_or_empty(
 }
 
 ///|
+/// Destroys the native manager when it was initialized successfully.
 fn destroy_manager(manager : @sys_global_hotkey.GlobalHotkeyManager?) -> Unit {
   match manager {
     Some(handle) => handle.destroy()
@@ -74,8 +83,9 @@ fn destroy_manager(manager : @sys_global_hotkey.GlobalHotkeyManager?) -> Unit {
 }
 
 ///|
+/// Emits a global-hotkey activity event for JavaScript listeners.
 fn emit_activity(
-  extension : @runtime.ExtensionContext,
+  extension : @core.ExtensionContext,
   operation : String,
   accelerator : String,
 ) -> Unit {
@@ -83,6 +93,7 @@ fn emit_activity(
 }
 
 ///|
+/// Returns the JavaScript poller script that forwards triggered hotkeys as extension events.
 fn trigger_poller_script() -> String {
   (
     #|(() => {
@@ -97,10 +108,7 @@ fn trigger_poller_script() -> String {
     #|    return;
     #|  }
     #|  state.globalHotkeyPoller = window.setInterval(() => {
-    #|    if (typeof moonbit.extension !== "function") {
-    #|      return;
-    #|    }
-    #|    const extension = moonbit.extension("globalHotkey");
+    #|    const extension = moonbit.globalHotkey;
     #|    if (!extension || typeof extension.drainTriggered !== "function") {
     #|      return;
     #|    }
@@ -122,43 +130,38 @@ fn trigger_poller_script() -> String {
 }
 
 ///|
-fn install_trigger_poller(extension : @runtime.ExtensionContext) -> Unit {
-  let script = trigger_poller_script()
-  let webview = extension.webview()
-  webview.init(script)
-  webview.dispatch(fn() { webview.eval(script) })
-}
 
 ///|
-/// Builds the `globalHotkey` extension for new application code.
-pub fn extension() -> @runtime.Extension {
+/// Builds the `globalHotkey` extension for direct installation.
+/// Install it manually when trusted local content needs runtime hotkey
+/// registration without going through an app registry.
+pub fn extension() -> @core.Extension {
   let mut manager : @sys_global_hotkey.GlobalHotkeyManager? = None
-  @runtime.Extension::new(
-    "globalHotkey",
+  @core.Extension::new(
+    extension_id,
+    extension_namespace,
     fn(extension) {
       manager = init_manager()
 
       extension.op_result("register", fn(payload : GlobalHotkeyPayload) {
         with_manager(manager, fn(handle) {
-          match handle.register(payload.accelerator) {
-            Err(error) => Err(error)
-            Ok(registered) => {
-              emit_activity(extension, "register", payload.accelerator)
-              Ok(GlobalHotkeyReply::{ registered, })
-            }
-          }
+          handle
+          .register(payload.accelerator)
+          .map(fn(registered) {
+            emit_activity(extension, "register", payload.accelerator)
+            GlobalHotkeyReply::{ registered, }
+          })
         })
       })
 
       extension.op_result("unregister", fn(payload : GlobalHotkeyPayload) {
         with_manager(manager, fn(handle) {
-          match handle.unregister(payload.accelerator) {
-            Err(error) => Err(error)
-            Ok(registered) => {
-              emit_activity(extension, "unregister", payload.accelerator)
-              Ok(GlobalHotkeyReply::{ registered, })
-            }
-          }
+          handle
+          .unregister(payload.accelerator)
+          .map(fn(registered) {
+            emit_activity(extension, "unregister", payload.accelerator)
+            GlobalHotkeyReply::{ registered, }
+          })
         })
       })
 
@@ -170,15 +173,20 @@ pub fn extension() -> @runtime.Extension {
         Ok(list_or_empty(manager, fn(handle) { handle.drain_triggered() }))
       })
     },
-    on_install=fn(extension) { install_trigger_poller(extension) },
     on_destroy=fn(_extension) {
       destroy_manager(manager)
       manager = None
     },
+    scripts=[trigger_poller_script()],
   )
 }
 
 ///|
-pub fn app_extension() -> @app.AppExtension {
-  @app.AppExtension::new("globalHotkey", fn(_context) { Ok(extension()) })
+/// Builds the declarative `globalHotkey` extension spec.
+/// Use this when global hotkeys should be linked through registry-based app
+/// composition.
+pub fn spec() -> @core.ExtensionSpec {
+  @core.ExtensionSpec::new(extension_id, extension_namespace, fn(_context) {
+    Ok(extension())
+  })
 }

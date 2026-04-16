@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "justjavac/lepus-global-hotkey",
+  "version": "0.1.10",
+  "display_name": "Global Hotkey",
+  "description": "Register system-wide hotkeys and receive trigger events in JavaScript.",
+  "namespace": "globalHotkey",
+  "package": "extensions/global_hotkey",
+  "spec_symbol": "spec",
+  "manifest_key": "justjavac/lepus-global-hotkey",
+  "platforms": ["windows"],
+  "dependencies": [],
+  "capabilities": ["global_hotkey.register", "global_hotkey.unregister", "global_hotkey.events"],
+  "permissions": ["system.hotkey.register"],
+  "risk_level": "high",
+  "options_schema": "./options.schema.json"
+}

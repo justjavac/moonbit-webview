@@ -1,6 +1,6 @@
 ///|
 test "fs extension native helpers can round-trip a file" {
-  let path = "moonbit-webview-fs-extension-roundtrip.txt"
+  let path = "lepus-fs-extension-roundtrip.txt"
   let open_result = open_memory_file(path, "w+b")
   let handle = match open_result {
     Ok(handle) => handle
@@ -93,7 +93,7 @@ test "fs extension resolves relative paths into absolute paths" {
 
 ///|
 test "fs extension native helpers can list a directory" {
-  let file_name = "moonbit-webview-fs-extension-dir-test.txt"
+  let file_name = "lepus-fs-extension-dir-test.txt"
   let path = file_name
   let handle = match open_memory_file(path, "wb") {
     Ok(handle) => handle
@@ -113,7 +113,7 @@ test "fs extension native helpers can list a directory" {
 
 ///|
 test "fs extension append mode writes at the end after seek" {
-  let path = "moonbit-webview-fs-extension-append.txt"
+  let path = "lepus-fs-extension-append.txt"
   let handle = match open_memory_file(path, "ab+") {
     Ok(handle) => handle
     Err(error) => abort(error)
@@ -144,8 +144,8 @@ test "fs extension append mode writes at the end after seek" {
 
 ///|
 test "fs extension flushes open handles during destroy cleanup" {
-  let path = "moonbit-webview-fs-extension-destroy.txt"
-  let handles : @runtime.ResourceTable[MemoryFileHandle] = @runtime.ResourceTable::new()
+  let path = "lepus-fs-extension-destroy.txt"
+  let handles : @core.ResourceTable[MemoryFileHandle] = @core.ResourceTable::new()
   let paths : Map[Int, String] = {}
   let handle = match open_memory_file(path, "w+b") {
     Ok(handle) => handle

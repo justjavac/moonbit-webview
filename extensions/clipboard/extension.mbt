@@ -1,43 +1,49 @@
 ///|
-struct EmptyPayload {} derive(ToJson, FromJson, Show, Eq)
+let extension_id = "justjavac/lepus-clipboard"
+
+///|
+let extension_namespace = "clipboard"
+
+///|
+struct EmptyPayload {} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ReadTextReply {
   text : String?
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct WriteTextPayload {
   text : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct WriteTextReply {
   written : Bool
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ClipboardActivity {
   operation : String
   text_length : Int?
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
+/// Verifies that the underlying clipboard package is available on this platform.
 fn ensure_supported() -> Result[Unit, String] {
   @sys_clipboard.ensure_supported()
 }
 
 ///|
+/// Runs a clipboard operation only when the platform is supported.
 fn[Reply] with_supported(
   callback : () -> Result[Reply, String],
 ) -> Result[Reply, String] {
-  match ensure_supported() {
-    Err(error) => Err(error)
-    Ok(_) => callback()
-  }
+  ensure_supported().bind(fn(_) { callback() })
 }
 
 ///|
+/// Returns the string length when clipboard text is present.
 fn text_length(text : String?) -> Int? {
   match text {
     Some(text) => Some(text.length())
@@ -46,8 +52,9 @@ fn text_length(text : String?) -> Int? {
 }
 
 ///|
+/// Emits a clipboard activity event for JavaScript listeners.
 fn emit_activity(
-  extension : @runtime.ExtensionContext,
+  extension : @core.ExtensionContext,
   operation : String,
   text_length? : Int? = None,
 ) -> Unit {
@@ -55,40 +62,41 @@ fn emit_activity(
 }
 
 ///|
-/// Builds the `clipboard` extension for new application code.
-pub fn extension() -> @runtime.Extension {
-  @runtime.Extension::new("clipboard", fn(extension) {
+/// Builds the `clipboard` extension for direct installation.
+/// Install it manually when trusted local content needs `readText` and
+/// `writeText` without going through declarative app composition.
+pub fn extension() -> @core.Extension {
+  @core.Extension::new(extension_id, extension_namespace, fn(extension) {
     extension.op_result("readText", fn(_payload : EmptyPayload) {
       with_supported(fn() {
-        match @sys_clipboard.read_text() {
-          Err(error) => Err(error)
-          Ok(text) => {
-            emit_activity(extension, "readText", text_length=text_length(text))
-            Ok(ReadTextReply::{ text, })
-          }
-        }
+        @sys_clipboard.read_text().map(fn(text) {
+          emit_activity(extension, "readText", text_length=text_length(text))
+          ReadTextReply::{ text, }
+        })
       })
     })
 
     extension.op_result("writeText", fn(payload : WriteTextPayload) {
       with_supported(fn() {
-        match @sys_clipboard.write_text(payload.text) {
-          Err(error) => Err(error)
-          Ok(_) => {
-            emit_activity(
-              extension,
-              "writeText",
-              text_length=Some(payload.text.length()),
-            )
-            Ok(WriteTextReply::{ written: true })
-          }
-        }
+        @sys_clipboard.write_text(payload.text).map(fn(_) {
+          emit_activity(
+            extension,
+            "writeText",
+            text_length=Some(payload.text.length()),
+          )
+          WriteTextReply::{ written: true }
+        })
       })
     })
   })
 }
 
 ///|
-pub fn app_extension() -> @app.AppExtension {
-  @app.AppExtension::new("clipboard", fn(_context) { Ok(extension()) })
+/// Builds the declarative `clipboard` extension spec.
+/// Use this when the extension should be registered in an app registry or
+/// selected from manifest/catalog-driven tooling.
+pub fn spec() -> @core.ExtensionSpec {
+  @core.ExtensionSpec::new(extension_id, extension_namespace, fn(_context) {
+    Ok(extension())
+  })
 }

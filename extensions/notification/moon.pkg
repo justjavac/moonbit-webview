@@ -1,12 +1,14 @@
 import {
   "moonbitlang/core/json",
   "justjavac/notification" @sys_notification,
-  "justjavac/webview_app" @app,
-  "justjavac/webview_runtime" @runtime,
+  "justjavac/lepus_core" @core,
 }
 
 supported_targets = "native"
 
 options(
-  targets: { "extension.mbt": [ "native" ] },
+  targets: {
+    "extension.mbt": [ "native" ],
+    "extension_wbtest.mbt": [ "native" ],
+  },
 )

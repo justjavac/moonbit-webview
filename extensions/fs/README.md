@@ -1,6 +1,6 @@
 # FS Extension
 
-Native filesystem extension for `justjavac/webview` applications.
+Native filesystem extension for `justjavac/lepus` applications.
 
 It exposes a Node-first API under `window.__MoonBit__.fs` and keeps a rid-based
 streaming API for streaming and binary-style workflows.
@@ -13,31 +13,36 @@ and install it without wiring command bindings manually.
 ```moonbit
 import {
   "extensions/fs" @fs,
-  "justjavac/webview" @webview,
-  "justjavac/webview_runtime" @runtime,
+  "justjavac/lepus_core" @core,
+  "justjavac/lepus" @webview,
 }
 
 fn main {
   let webview = @webview.Webview::new(debug=1)
-  @runtime.install_extension(webview, @fs.extension())
+  @core.install_extension(webview, @fs.extension())
   webview.run()
 }
 ```
 
-For app-style startup, install it through `justjavac/webview_app`:
+For app-style startup, install it through `justjavac/lepus_app`:
 
 ```moonbit
 import {
   "extensions/fs" @fs,
-  "justjavac/webview_app" @app,
+  "justjavac/lepus_app" @app,
+  "justjavac/lepus_manifest" @manifest,
+  "justjavac/lepus_runtime" @wvrt,
 }
 
 fn main {
-  let runtime = match
-    @app.create_app_from_file(
-      "app.json",
-      extensions=[@fs.app_extension()],
-    ) {
+  let manifest = @manifest.AppManifest::new(
+    @manifest.WindowManifest::new("FS Demo", 900, 700),
+    @manifest.AppEntry::Html("<html></html>"),
+    debug=1,
+  )
+  let registry = @app.ExtensionRegistry::new()
+  let _ = registry.register(@fs.spec())
+  let runtime : @wvrt.App = match @app.create_app(manifest, registry) {
     Ok(app) => app
     Err(error) => abort(error)
   }

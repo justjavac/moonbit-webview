@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "justjavac/lepus-shell",
+  "version": "0.1.10",
+  "display_name": "Shell",
+  "description": "Launch URLs and reveal files through the native desktop shell.",
+  "namespace": "shell",
+  "package": "extensions/shell",
+  "spec_symbol": "spec",
+  "manifest_key": "justjavac/lepus-shell",
+  "platforms": ["windows"],
+  "dependencies": [],
+  "capabilities": ["shell.open", "shell.reveal_item", "shell.activity"],
+  "permissions": ["shell.open_external", "shell.reveal_item"],
+  "risk_level": "medium",
+  "options_schema": "./options.schema.json"
+}

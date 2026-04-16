@@ -1,9 +1,11 @@
 ///|
+/// Wraps a string as the native path abstraction used by this package.
 fn native_path(path : String) -> @mbpath.Path {
   path
 }
 
 ///|
+/// Rewrites separators when the current platform expects backslashes.
 fn prepare_native_path(path : String) -> String {
   if @mbpath.sep != '\\' {
     return path
@@ -16,6 +18,7 @@ fn prepare_native_path(path : String) -> String {
 }
 
 ///|
+/// Returns the last path segment, optionally trimming a matching suffix.
 fn basename_path(path : String, suffix? : String? = None) -> String {
   let normalized = normalize_path(path)
   let name = native_path(normalized).basename().to_string()
@@ -33,23 +36,27 @@ fn basename_path(path : String, suffix? : String? = None) -> String {
 }
 
 ///|
+/// Returns the parent directory portion of a path.
 fn dirname_path(path : String) -> String {
   let normalized = normalize_path(path)
   native_path(normalized).dirname().to_string()
 }
 
 ///|
+/// Returns the file extension portion of a path.
 fn extname_path(path : String) -> String {
   let normalized = normalize_path(path)
   native_path(normalized).extname().to_string()
 }
 
 ///|
+/// Returns whether a path is absolute on the current platform.
 fn is_absolute_path(path : String) -> Bool {
   native_path(prepare_native_path(path)).is_absolute()
 }
 
 ///|
+/// Joins two path segments using the platform-native path rules.
 fn join_paths(left : String, right : String) -> String {
   native_path(prepare_native_path(left))
   .join(prepare_native_path(right))
@@ -57,6 +64,7 @@ fn join_paths(left : String, right : String) -> String {
 }
 
 ///|
+/// Joins many path segments while skipping empty entries.
 fn join_many_paths(paths : Array[String]) -> String {
   let mut result = ""
   let mut found = false
@@ -78,11 +86,13 @@ fn join_many_paths(paths : Array[String]) -> String {
 }
 
 ///|
+/// Normalizes redundant path separators and dot segments.
 fn normalize_path(path : String) -> String {
   native_path(prepare_native_path(path)).normalize().to_string()
 }
 
 ///|
+/// Computes the relative path from `base` to `path`.
 fn relative_path(path : String, base : String) -> String {
   native_path(prepare_native_path(path))
   .relative(base=prepare_native_path(base))
@@ -90,11 +100,13 @@ fn relative_path(path : String, base : String) -> String {
 }
 
 ///|
+/// Resolves a path against the current working directory.
 fn resolve_path(path : String) -> String {
   native_path(prepare_native_path(path)).resolve().to_string()
 }
 
 ///|
+/// Joins many path segments and resolves the result to an absolute path.
 fn resolve_many_paths(paths : Array[String]) -> String {
   if paths.length() == 0 {
     return resolve_path(".")
@@ -104,6 +116,7 @@ fn resolve_many_paths(paths : Array[String]) -> String {
 }
 
 ///|
+/// Extracts the root component of a path, including Windows drive and UNC roots.
 fn root_path(path : String) -> String {
   let normalized = normalize_path(path)
   if normalized == "." && !is_absolute_path(path) {
@@ -134,6 +147,7 @@ fn root_path(path : String) -> String {
 }
 
 ///|
+/// Splits a path into the node-style `root`, `dir`, `base`, `ext`, and `name` parts.
 fn parse_path(path : String) -> ParseReply {
   let base = basename_path(path)
   let ext = extname_path(path)
@@ -154,6 +168,7 @@ fn parse_path(path : String) -> ParseReply {
 }
 
 ///|
+/// Converts an optional string into the empty-string fallback used by `format_path`.
 fn option_string(value : String?) -> String {
   match value {
     Some(value) => value
@@ -162,6 +177,7 @@ fn option_string(value : String?) -> String {
 }
 
 ///|
+/// Reassembles a path from node-style parsed path fields.
 fn format_path(payload : FormatPayload) -> String {
   let root = option_string(payload.root)
   let dir = option_string(payload.dir)
@@ -188,51 +204,4 @@ fn format_path(payload : FormatPayload) -> String {
   } else {
     base
   }
-}
-
-///|
-test "path extension helpers expose basename dirname and extname" {
-  let path = join_paths(join_paths("extensions", "path"), "example.txt")
-  assert_eq(basename_path(path), "example.txt")
-  assert_eq(basename_path(path, suffix=Some(".txt")), "example")
-  assert_eq(extname_path(path), ".txt")
-  assert_eq(basename_path(dirname_path(path)), "path")
-}
-
-///|
-test "path extension helpers resolve absolute and relative paths" {
-  let base = resolve_path("extensions")
-  let child = join_paths(base, "path")
-  assert_true(is_absolute_path(base))
-  let relative = join_paths("extensions", "path")
-  assert_false(is_absolute_path(relative))
-  assert_eq(relative_path(child, base), "path")
-  assert_eq(resolve_many_paths(["extensions", "path"]), child)
-}
-
-///|
-test "path extension helpers normalize mixed segments" {
-  let mixed = join_paths(join_paths(".", "path"), "..")
-  let mixed = join_paths(mixed, "path")
-  let normalized = normalize_path(mixed)
-  assert_eq(basename_path(normalized), "path")
-  assert_eq(join_many_paths([".", "path", "..", "path"]), normalized)
-}
-
-///|
-test "path extension can parse and format node style path objects" {
-  let parsed = parse_path("extensions/path/example.txt")
-  assert_eq(parsed.base, "example.txt")
-  assert_eq(parsed.ext, ".txt")
-  assert_eq(parsed.name, "example")
-  assert_eq(
-    format_path(FormatPayload::{
-      root: None,
-      dir: Some(join_paths("extensions", "path")),
-      base: Some("example.txt"),
-      name: None,
-      ext: None,
-    }),
-    join_paths("extensions", "path/example.txt"),
-  )
 }

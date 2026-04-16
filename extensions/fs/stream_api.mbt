@@ -1,157 +1,5 @@
 ///|
-priv struct FileOpenMode {
-  can_read : Bool
-  can_write : Bool
-  create_if_missing : Bool
-  truncate_on_open : Bool
-  append_on_write : Bool
-}
-
-///|
-priv struct MemoryFileHandle {
-  path : String
-  mode : FileOpenMode
-  mut content : Bytes
-  mut cursor : Int
-  mut dirty : Bool
-}
-
-///|
-struct OpenPayload {
-  path : String
-  mode : String
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-priv struct OpenFilePayload {
-  path : String
-  flags : String?
-  read : Bool?
-  write : Bool?
-  append : Bool?
-  create : Bool?
-  truncate : Bool?
-  create_new : Bool?
-} derive(FromJson)
-
-///|
-struct OpenReply {
-  rid : Int
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct ReadPayload {
-  rid : Int
-  size : Int
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct ReadReply {
-  content : String
-  bytes_read : Int
-  eof : Bool
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct WritePayload {
-  rid : Int
-  content : String
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct WriteReply {
-  bytes_written : Int
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct ClosePayload {
-  rid : Int
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct CloseReply {
-  closed : Bool
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct FlushPayload {
-  rid : Int
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct FlushReply {
-  flushed : Bool
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct SeekPayload {
-  rid : Int
-  offset : Int
-  whence : String
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct SeekReply {
-  position : Int
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct FstatPayload {
-  rid : Int
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct FstatReply {
-  path : String?
-  size : Int
-  position : Int
-  eof : Bool
-  exists : Bool
-  is_file : Bool
-  is_dir : Bool
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct ExistsPayload {
-  path : String
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct ExistsReply {
-  exists : Bool
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct RemoveFilePayload {
-  path : String
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct RemoveFileReply {
-  removed : Bool
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct ReadDirPayload {
-  path : String
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct ReadDirReply {
-  entries : Array[String]
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct ResolvePathPayload {
-  path : String
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
-struct ResolvePathReply {
-  path : String
-} derive(ToJson, FromJson, Show, Eq)
-
-///|
+/// Rewrites path separators into the normalized forward-slash form used internally.
 fn normalize_native_separators(path : String) -> String {
   let builder = StringBuilder::new(size_hint=path.length())
   for _, ch in path {
@@ -161,6 +9,7 @@ fn normalize_native_separators(path : String) -> String {
 }
 
 ///|
+/// Returns whether a normalized path is absolute for the current platform.
 fn is_absolute_native_path(path : String) -> Bool {
   let normalized = normalize_native_separators(path)
   normalized.has_prefix("/") ||
@@ -168,6 +17,7 @@ fn is_absolute_native_path(path : String) -> Bool {
 }
 
 ///|
+/// Lexically normalizes separators plus `.` and `..` path segments.
 fn lexical_normalize_native_path(path : String) -> String {
   let normalized = normalize_native_separators(path)
   let (prefix, remainder) = if normalized.length() >= 3 &&
@@ -216,6 +66,7 @@ fn lexical_normalize_native_path(path : String) -> String {
 }
 
 ///|
+/// Resolves a path against the current working directory when it is not already absolute.
 fn native_absolute_path(path : String) -> String {
   if is_absolute_native_path(path) {
     lexical_normalize_native_path(path)
@@ -226,11 +77,13 @@ fn native_absolute_path(path : String) -> String {
 }
 
 ///|
+/// Returns whether a filesystem path currently exists.
 fn native_path_exists(path : String) -> Bool {
   @xfs.path_exists(path)
 }
 
 ///|
+/// Returns the smaller of two integers.
 fn int_min(left : Int, right : Int) -> Int {
   if left < right {
     left
@@ -240,6 +93,7 @@ fn int_min(left : Int, right : Int) -> Int {
 }
 
 ///|
+/// Returns the larger of two integers.
 fn int_max(left : Int, right : Int) -> Int {
   if left > right {
     left
@@ -249,21 +103,25 @@ fn int_max(left : Int, right : Int) -> Int {
 }
 
 ///|
+/// Returns an empty byte buffer.
 fn empty_bytes() -> Bytes {
   Bytes::default()
 }
 
 ///|
+/// Encodes a string as UTF-8 bytes.
 fn encode_string_bytes(content : String) -> Bytes {
   @utf8.encode(content)
 }
 
 ///|
+/// Decodes a byte slice as UTF-8 while replacing invalid sequences.
 fn decode_read_bytes(bytes : BytesView) -> String {
   @utf8.decode_lossy(bytes)
 }
 
 ///|
+/// Overwrites a byte range at `position`, extending the buffer with zeros when needed.
 fn overwrite_bytes(original : Bytes, position : Int, patch : Bytes) -> Bytes {
   let original_len = original.length()
   let prefix = if position <= original_len {
@@ -281,6 +139,7 @@ fn overwrite_bytes(original : Bytes, position : Int, patch : Bytes) -> Bytes {
 }
 
 ///|
+/// Parses the compact mode string used by `fs.open`.
 fn parse_open_mode(mode : String) -> Result[FileOpenMode, String] {
   let mut primary : Char? = None
   let mut can_read = false
@@ -334,6 +193,7 @@ fn parse_open_mode(mode : String) -> Result[FileOpenMode, String] {
 }
 
 ///|
+/// Converts the `openFile` option object into a compact native mode string.
 fn build_open_mode_from_options(
   payload : OpenFilePayload,
 ) -> Result[String, String] {
@@ -375,6 +235,7 @@ fn build_open_mode_from_options(
 }
 
 ///|
+/// Reads a file into a byte buffer.
 fn read_path_bytes(path : String) -> Result[Bytes, String] {
   let bytes : Result[Bytes, _] = try? @xfs.read_file_to_bytes(path)
   match bytes {
@@ -384,6 +245,7 @@ fn read_path_bytes(path : String) -> Result[Bytes, String] {
 }
 
 ///|
+/// Writes a byte buffer to a file, replacing any existing content.
 fn write_path_bytes(path : String, content : Bytes) -> Result[Unit, String] {
   let write_result : Result[Unit, _] = try? @xfs.write_bytes_to_file(
     path, content,
@@ -395,6 +257,7 @@ fn write_path_bytes(path : String, content : Bytes) -> Result[Unit, String] {
 }
 
 ///|
+/// Returns whether a path currently points to a file.
 fn is_path_file(path : String) -> Bool {
   let result : Result[Bool, _] = try? @xfs.is_file(path)
   match result {
@@ -404,6 +267,7 @@ fn is_path_file(path : String) -> Bool {
 }
 
 ///|
+/// Returns whether a path currently points to a directory.
 fn is_path_dir(path : String) -> Bool {
   let result : Result[Bool, _] = try? @xfs.is_dir(path)
   match result {
@@ -413,47 +277,33 @@ fn is_path_dir(path : String) -> Bool {
 }
 
 ///|
+/// Opens a file into the in-memory handle representation used by the streaming APIs.
 fn open_memory_file(
   path : String,
   mode : String,
 ) -> Result[MemoryFileHandle, String] {
-  let parsed_mode = match parse_open_mode(mode) {
-    Ok(parsed_mode) => parsed_mode
-    Err(error) => return Err(error)
-  }
-  let existed_on_open = native_path_exists(path)
-
-  let content = if parsed_mode.truncate_on_open {
-    match write_path_bytes(path, empty_bytes()) {
-      Ok(_) => empty_bytes()
-      Err(error) => return Err(error)
-    }
-  } else if existed_on_open {
-    match read_path_bytes(path) {
-      Ok(bytes) => bytes
-      Err(error) => return Err(error)
-    }
-  } else if parsed_mode.create_if_missing {
-    match write_path_bytes(path, empty_bytes()) {
-      Ok(_) => empty_bytes()
-      Err(error) => return Err(error)
-    }
-  } else {
-    return Err("Failed to open file: path does not exist")
-  }
-
-  let cursor = if parsed_mode.append_on_write { content.length() } else { 0 }
-  Ok(MemoryFileHandle::{
-    path,
-    mode: parsed_mode,
-    content,
-    cursor,
-    dirty: parsed_mode.truncate_on_open ||
-    (!existed_on_open && parsed_mode.create_if_missing),
+  parse_open_mode(mode).bind(fn(parsed_mode) {
+    let existed_on_open = native_path_exists(path)
+    load_open_file_content(path, parsed_mode, existed_on_open).map(fn(content) {
+      let cursor = if parsed_mode.append_on_write {
+        content.length()
+      } else {
+        0
+      }
+      MemoryFileHandle::{
+        path,
+        mode: parsed_mode,
+        content,
+        cursor,
+        dirty: parsed_mode.truncate_on_open ||
+        (!existed_on_open && parsed_mode.create_if_missing),
+      }
+    })
   })
 }
 
 ///|
+/// Reads bytes from an in-memory file handle and advances its cursor.
 fn read_memory_file(
   handle : MemoryFileHandle,
   size : Int,
@@ -477,6 +327,7 @@ fn read_memory_file(
 }
 
 ///|
+/// Writes bytes into an in-memory file handle and advances its cursor.
 fn write_memory_file(
   handle : MemoryFileHandle,
   content : String,
@@ -498,25 +349,25 @@ fn write_memory_file(
 }
 
 ///|
+/// Flushes dirty in-memory file content back to disk.
 fn sync_memory_file(handle : MemoryFileHandle) -> Result[Unit, String] {
   if !handle.dirty {
     return Ok(())
   }
-  match write_path_bytes(handle.path, handle.content) {
-    Ok(_) => {
-      handle.dirty = false
-      Ok(())
-    }
-    Err(error) => Err(error)
-  }
+  write_path_bytes(handle.path, handle.content).map(fn(_) {
+    handle.dirty = false
+    ()
+  })
 }
 
 ///|
+/// Flushes an in-memory file handle to disk.
 fn flush_memory_file(handle : MemoryFileHandle) -> Result[Unit, String] {
   sync_memory_file(handle)
 }
 
 ///|
+/// Computes the target cursor position for a seek request.
 fn seek_target_position(
   handle : MemoryFileHandle,
   offset : Int,
@@ -536,21 +387,44 @@ fn seek_target_position(
 }
 
 ///|
+/// Moves the in-memory file cursor according to the requested seek operation.
 fn seek_memory_file(
   handle : MemoryFileHandle,
   offset : Int,
   whence : String,
 ) -> Result[Int, String] {
-  match seek_target_position(handle, offset, whence) {
-    Ok(position) => {
-      handle.cursor = position
-      Ok(position)
-    }
-    Err(error) => Err(error)
+  seek_target_position(handle, offset, whence).map(fn(position) {
+    handle.cursor = position
+    position
+  })
+}
+
+///|
+/// Writes an empty file and returns the resulting empty content buffer.
+fn create_empty_file_content(path : String) -> Result[Bytes, String] {
+  write_path_bytes(path, empty_bytes()).map(fn(_) { empty_bytes() })
+}
+
+///|
+/// Loads the initial in-memory content for one newly opened file handle.
+fn load_open_file_content(
+  path : String,
+  parsed_mode : FileOpenMode,
+  existed_on_open : Bool,
+) -> Result[Bytes, String] {
+  if parsed_mode.truncate_on_open {
+    create_empty_file_content(path)
+  } else if existed_on_open {
+    read_path_bytes(path)
+  } else if parsed_mode.create_if_missing {
+    create_empty_file_content(path)
+  } else {
+    Err("Failed to open file: path does not exist")
   }
 }
 
 ///|
+/// Returns `exists`, `is_file`, and `is_dir` flags for an optional path.
 fn stat_path_flags(path : String?) -> (Bool, Bool, Bool) {
   match path {
     None => (false, false, false)
@@ -562,6 +436,7 @@ fn stat_path_flags(path : String?) -> (Bool, Bool, Bool) {
 }
 
 ///|
+/// Builds the `fstat` reply for an in-memory file handle.
 fn stat_memory_file(handle : MemoryFileHandle, path : String?) -> FstatReply {
   let (exists, is_file, is_dir) = stat_path_flags(path)
   let size = handle.content.length()
@@ -577,11 +452,13 @@ fn stat_memory_file(handle : MemoryFileHandle, path : String?) -> FstatReply {
 }
 
 ///|
+/// Flushes and closes an in-memory file handle.
 fn close_memory_file(handle : MemoryFileHandle) -> Result[Unit, String] {
   sync_memory_file(handle)
 }
 
 ///|
+/// Removes a file if it exists.
 fn native_remove_file(path : String) -> Result[Bool, String] {
   if !native_path_exists(path) {
     return Ok(false)
@@ -594,6 +471,7 @@ fn native_remove_file(path : String) -> Result[Bool, String] {
 }
 
 ///|
+/// Reads the direct entries of a directory.
 fn native_read_dir(path : String) -> Result[Array[String], String] {
   let entries : Result[Array[String], _] = try? @xfs.read_dir(path)
   match entries {
@@ -603,8 +481,9 @@ fn native_read_dir(path : String) -> Result[Array[String], String] {
 }
 
 ///|
+/// Returns an open file handle by resource id.
 fn get_open_handle(
-  handles : @runtime.ResourceTable[MemoryFileHandle],
+  handles : @core.ResourceTable[MemoryFileHandle],
   rid : Int,
 ) -> Result[MemoryFileHandle, String] {
   match handles.get(rid) {
@@ -614,8 +493,9 @@ fn get_open_handle(
 }
 
 ///|
+/// Flushes and forgets every tracked open file handle.
 fn close_all_open_files(
-  handles : @runtime.ResourceTable[MemoryFileHandle],
+  handles : @core.ResourceTable[MemoryFileHandle],
   paths : Map[Int, String],
 ) -> Unit {
   for rid in handles.rids() {
@@ -631,21 +511,25 @@ fn close_all_open_files(
 }
 
 ///|
+/// Resolves a path for a read-only filesystem operation.
 fn resolve_read_path(path : String) -> Result[String, String] {
   Ok(native_absolute_path(path))
 }
 
 ///|
+/// Resolves a path for a write filesystem operation.
 fn resolve_write_path(path : String) -> Result[String, String] {
   Ok(native_absolute_path(path))
 }
 
 ///|
+/// Resolves a path for a remove filesystem operation.
 fn resolve_remove_path(path : String) -> Result[String, String] {
   Ok(native_absolute_path(path))
 }
 
 ///|
+/// Resolves a path for an open filesystem operation.
 fn resolve_open_path(path : String, _mode : String) -> Result[String, String] {
   Ok(native_absolute_path(path))
 }

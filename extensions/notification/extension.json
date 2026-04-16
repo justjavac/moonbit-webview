@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "justjavac/lepus-notification",
+  "version": "0.1.10",
+  "display_name": "Notification",
+  "description": "Show native desktop notifications and emit activity events.",
+  "namespace": "notification",
+  "package": "extensions/notification",
+  "spec_symbol": "spec",
+  "manifest_key": "justjavac/lepus-notification",
+  "platforms": ["windows"],
+  "dependencies": [],
+  "capabilities": ["notification.show", "notification.activity"],
+  "permissions": ["notification.show"],
+  "risk_level": "low",
+  "options_schema": "./options.schema.json"
+}

@@ -4,11 +4,12 @@ struct FsActivity {
   path : String?
   rid : Int?
   bytes : Int?
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
+/// Emits a filesystem activity event for JavaScript listeners.
 fn emit_activity(
-  extension : @runtime.ExtensionContext,
+  extension : @core.ExtensionContext,
   operation : String,
   path? : String? = None,
   rid? : Int? = None,

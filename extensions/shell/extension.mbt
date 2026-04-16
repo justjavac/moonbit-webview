@@ -1,23 +1,29 @@
 ///|
+let extension_id = "justjavac/lepus-shell"
+
+///|
+let extension_namespace = "shell"
+
+///|
 struct ShellPayload {
   target : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct RevealItemPayload {
   path : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ShellReply {
   launched : Bool
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ShellActivity {
   operation : String
   target : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 extern "C" fn is_windows_ffi() -> Bool = "extensions_shell_is_windows"
@@ -31,6 +37,7 @@ extern "C" fn open_shell_ffi(target : Bytes) -> Bool = "extensions_shell_open"
 extern "C" fn reveal_item_ffi(path : Bytes) -> Bool = "extensions_shell_reveal_item"
 
 ///|
+/// Verifies that the shell extension is available on the current platform.
 fn ensure_supported() -> Result[Unit, String] {
   if is_windows_ffi() {
     Ok(())
@@ -40,6 +47,7 @@ fn ensure_supported() -> Result[Unit, String] {
 }
 
 ///|
+/// Runs a shell operation only when native support is available.
 fn[Reply] with_supported(
   callback : () -> Result[Reply, String],
 ) -> Result[Reply, String] {
@@ -50,6 +58,7 @@ fn[Reply] with_supported(
 }
 
 ///|
+/// Rejects empty shell targets before calling native launchers.
 fn validate_target(value : String, label : String) -> Result[String, String] {
   if value.is_empty() {
     Err(label + " must not be empty")
@@ -59,8 +68,9 @@ fn validate_target(value : String, label : String) -> Result[String, String] {
 }
 
 ///|
+/// Emits a shell activity event for JavaScript listeners.
 fn emit_activity(
-  extension : @runtime.ExtensionContext,
+  extension : @core.ExtensionContext,
   operation : String,
   target : String,
 ) -> Unit {
@@ -68,8 +78,9 @@ fn emit_activity(
 }
 
 ///|
+/// Runs one native shell action and converts its result into the common reply type.
 fn perform_shell_action(
-  extension : @runtime.ExtensionContext,
+  extension : @core.ExtensionContext,
   operation : String,
   target : String,
   label : String,
@@ -88,9 +99,11 @@ fn perform_shell_action(
 }
 
 ///|
-/// Builds the `shell` extension for new application code.
-pub fn extension() -> @runtime.Extension {
-  @runtime.Extension::new("shell", fn(extension) {
+/// Builds the `shell` extension for direct installation.
+/// Install it manually when trusted local content needs shell launching helpers
+/// on one webview.
+pub fn extension() -> @core.Extension {
+  @core.Extension::new(extension_id, extension_namespace, fn(extension) {
     extension.op_result("open", fn(payload : ShellPayload) {
       with_supported(fn() {
         perform_shell_action(
@@ -118,18 +131,11 @@ pub fn extension() -> @runtime.Extension {
 }
 
 ///|
-pub fn app_extension() -> @app.AppExtension {
-  @app.AppExtension::new("shell", fn(_context) { Ok(extension()) })
-}
-
-///|
-test "shell target validation rejects empty strings" {
-  assert_eq(
-    validate_target("", "shell.open target"),
-    Err("shell.open target must not be empty"),
-  )
-  assert_eq(
-    validate_target("https://example.com", "shell.open target"),
-    Ok("https://example.com"),
-  )
+/// Builds the declarative `shell` extension spec.
+/// Use this when shell integration should be linked through registry-based app
+/// composition.
+pub fn spec() -> @core.ExtensionSpec {
+  @core.ExtensionSpec::new(extension_id, extension_namespace, fn(_context) {
+    Ok(extension())
+  })
 }

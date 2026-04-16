@@ -4,8 +4,7 @@ import {
   "moonbitlang/core/json",
   "moonbitlang/x/fs" @xfs,
   "moonbitlang/x/path" @path,
-  "justjavac/webview_app" @app,
-  "justjavac/webview_runtime" @runtime,
+  "justjavac/lepus_core" @core,
 }
 
 supported_targets = "native"
@@ -14,7 +13,7 @@ options(
   "native-stub": [ "fs_native.c" ],
   "pre-build": [
     {
-      "command": "node $mod_dir/../runtime/embed_asset.mjs $input $output fs_helper_template_resource",
+      "command": "node $mod_dir/../scripts/embed_asset.mjs $input $output fs_helper_template_resource",
       "input": "assets/node_fs_helper.js",
       "output": "generated_fs_helper_template.mbt",
     },
@@ -25,10 +24,12 @@ options(
     "extension_file_ops.mbt": [ "native" ],
     "extension_path_ops.mbt": [ "native" ],
     "extension_stream_ops.mbt": [ "native" ],
+    "fs_wbtest.mbt": [ "native" ],
     "helper_js.mbt": [ "native" ],
     "op_helpers.mbt": [ "native" ],
     "path_api.mbt": [ "native" ],
     "stream_api.mbt": [ "native" ],
     "stream_checks.mbt": [ "native" ],
+    "stream_types.mbt": [ "native" ],
   },
 )

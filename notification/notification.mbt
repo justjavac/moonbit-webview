@@ -3,7 +3,7 @@ pub(all) enum NotificationLevel {
   Info
   Warning
   Error
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 extern "C" fn is_windows_ffi() -> Bool = "desktop_notification_is_windows"
@@ -18,11 +18,13 @@ extern "C" fn show_notification_ffi(
 ) -> Bool = "desktop_notification_show"
 
 ///|
+/// Returns whether the notification package supports the current platform.
 pub fn is_supported() -> Bool {
   is_windows_ffi()
 }
 
 ///|
+/// Fails with a descriptive error when notifications are unsupported on this platform.
 pub fn ensure_supported() -> Result[Unit, String] {
   if is_supported() {
     Ok(())
@@ -32,6 +34,7 @@ pub fn ensure_supported() -> Result[Unit, String] {
 }
 
 ///|
+/// Rejects empty notification bodies before calling the native API.
 fn ensure_body(body : String) -> Result[String, String] {
   if body.is_empty() {
     Err("notification body must not be empty")
@@ -41,6 +44,7 @@ fn ensure_body(body : String) -> Result[String, String] {
 }
 
 ///|
+/// Maps the public notification level enum to the native integer code.
 fn level_to_int(level : NotificationLevel) -> Int {
   match level {
     Info => 0
@@ -50,6 +54,7 @@ fn level_to_int(level : NotificationLevel) -> Int {
 }
 
 ///|
+/// Encodes an optional string as a UTF-16 buffer for the native API.
 fn to_wstr(value : String?) -> Bytes {
   match value {
     Some(value) => @ffi.to_wstr(value)
@@ -58,15 +63,28 @@ fn to_wstr(value : String?) -> Bytes {
 }
 
 ///|
+/// Shows a notification without binding it to a specific window handle.
+///
+/// Parameters:
+/// - `body` - The required notification body text.
+/// - `title` - Optional title displayed by the platform notification center.
+/// - `level` - Visual importance level used by the native notification backend.
 pub fn show(
   body : String,
   title? : String? = None,
   level? : NotificationLevel = Info,
 ) -> Result[Unit, String] {
-  show_with_window(0, body, title=title, level=level)
+  show_with_window(0, body, title~, level~)
 }
 
 ///|
+/// Shows a notification associated with a specific native window handle.
+///
+/// Parameters:
+/// - `window_handle` - The native parent window handle or `0` when no parent is needed.
+/// - `body` - The required notification body text.
+/// - `title` - Optional title displayed by the platform notification center.
+/// - `level` - Visual importance level used by the native notification backend.
 pub fn show_with_window(
   window_handle : Int64,
   body : String,
@@ -80,28 +98,15 @@ pub fn show_with_window(
         Err(error) => Err(error)
         Ok(body) =>
           if show_notification_ffi(
-            window_handle,
-            to_wstr(title),
-            @ffi.to_wstr(body),
-            level_to_int(level),
-          ) {
+              window_handle,
+              to_wstr(title),
+              @ffi.to_wstr(body),
+              level_to_int(level),
+            ) {
             Ok(())
           } else {
             Err("notification.show failed")
           }
       }
   }
-}
-
-///|
-test "notification requires a body" {
-  assert_eq(ensure_body(""), Err("notification body must not be empty"))
-  assert_eq(ensure_body("ready"), Ok("ready"))
-}
-
-///|
-test "notification level maps to native code" {
-  assert_eq(level_to_int(Info), 0)
-  assert_eq(level_to_int(Warning), 1)
-  assert_eq(level_to_int(Error), 2)
 }

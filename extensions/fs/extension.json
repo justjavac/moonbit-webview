@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "justjavac/lepus-fs",
+  "version": "0.1.10",
+  "display_name": "Filesystem",
+  "description": "Host filesystem access with text, directory, and stream helpers.",
+  "namespace": "fs",
+  "package": "extensions/fs",
+  "spec_symbol": "spec",
+  "manifest_key": "justjavac/lepus-fs",
+  "platforms": ["windows", "macos", "linux"],
+  "dependencies": [],
+  "capabilities": ["fs.read_file", "fs.write_file", "fs.readdir", "fs.stream"],
+  "permissions": ["filesystem.read", "filesystem.write"],
+  "risk_level": "high",
+  "options_schema": "./options.schema.json"
+}

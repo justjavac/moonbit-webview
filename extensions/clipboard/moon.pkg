@@ -1,8 +1,7 @@
 import {
   "moonbitlang/core/json",
   "justjavac/clipboard" @sys_clipboard,
-  "justjavac/webview_app" @app,
-  "justjavac/webview_runtime" @runtime,
+  "justjavac/lepus_core" @core,
 }
 
 supported_targets = "native"

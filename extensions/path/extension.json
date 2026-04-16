@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "justjavac/lepus-path",
+  "version": "0.1.10",
+  "display_name": "Path",
+  "description": "Portable path helpers exposed through a JavaScript-friendly namespace.",
+  "namespace": "path",
+  "package": "extensions/path",
+  "spec_symbol": "spec",
+  "manifest_key": "justjavac/lepus-path",
+  "platforms": ["windows", "macos", "linux"],
+  "dependencies": [],
+  "capabilities": ["path.resolve", "path.join", "path.parse", "path.relative"],
+  "permissions": [],
+  "risk_level": "low",
+  "options_schema": "./options.schema.json"
+}
