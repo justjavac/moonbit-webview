@@ -10,8 +10,8 @@
     "value": "app.html"
   },
   "extensions": {
-    "fs": {},
-    "path": {}
+    "justjavac/lepus-fs": {},
+    "justjavac/lepus-path": {}
   },
   "debug": 1
 }

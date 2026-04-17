@@ -293,7 +293,7 @@ let resource : String =
   #|                                File path
   #|                                <input
   #|                                    id="path"
-  #|                                    value="moonbit-webview-extension-demo.txt"
+  #|                                    value="lepus-extension-demo.txt"
   #|                                />
   #|                            </label>
   #|                            <label>

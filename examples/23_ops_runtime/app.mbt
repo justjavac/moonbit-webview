@@ -128,7 +128,7 @@ let resource : String =
   #|                <h1>__MoonBit__ Ops Runtime</h1>
   #|                <p>
   #|                    This example shows the new Deno-style ops flow through
-  #|                    <code>__MoonBit__.core.ops</code>, plus the higher-level
+  #|                    <code>__MoonBit__.core.invokeOp(...)</code>, plus the higher-level
   #|                    <code>__MoonBit__.path</code>, <code>__MoonBit__.fs</code>, and
   #|                    <code>__MoonBit__</code> extension proxies.
   #|                </p>
@@ -168,16 +168,17 @@ let resource : String =
   #|
   #|            document.getElementById("run").addEventListener("click", async () => {
   #|                try {
-  #|                    const resolved = await window.__MoonBit__.core.ops.op_path_resolve({
-  #|                        path: "23_ops_runtime",
-  #|                    });
+  #|                    const resolved = await window.__MoonBit__.core.invokeOp(
+  #|                        "ext:path/resolve",
+  #|                        { path: "23_ops_runtime" },
+  #|                    );
   #|                    const listed = await window.__MoonBit__.fs.readdir(resolved.path);
   #|                    const dirname = await window.__MoonBit__.path.dirname(resolved.path);
   #|                    const appListed = await window.__MoonBit__.fs.readdir(resolved.path);
   #|
   #|                    direct.textContent = JSON.stringify(
   #|                        {
-  #|                            op_path_resolve: resolved,
+  #|                            "ext:path/resolve": resolved,
   #|                        },
   #|                        null,
   #|                        2,

@@ -1,8 +1,8 @@
 import {
   "extensions/fs" @fs,
   "extensions/path" @path,
-  "justjavac/webview_app" @app,
-  "justjavac/webview_runtime" @wvrt,
+  "justjavac/lepus_app" @app,
+  "justjavac/lepus_runtime" @wvrt,
 }
 
 supported_targets = "native"

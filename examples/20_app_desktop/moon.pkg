@@ -1,10 +1,9 @@
 import {
   "extensions/clipboard" @clipboard,
   "extensions/dialog" @dialog,
-  "justjavac/webview_app" @app,
-  "justjavac/webview_bootstrap" @bootstrap,
-  "justjavac/webview_runtime" @wvrt,
-  "justjavac/webview",
+  "justjavac/lepus_app" @app,
+  "justjavac/lepus_manifest" @manifest,
+  "justjavac/lepus_runtime" @wvrt,
 }
 
 supported_targets = "native"

@@ -5,12 +5,12 @@
 /// The webview window is configured with:
 ///
 /// * Debug mode enabled
-/// * Custom title "Moonbit Webview Example"
+/// * Custom title "MoonBit Lepus Example"
 /// * Window size of 800x600 pixels
 /// * Centered text content with custom styling
 fn main {
   @webview.Webview::new(debug=1)
-  ..set_title("Moonbit Webview Example")
+  ..set_title("MoonBit Lepus Example")
   ..set_size(800, 600, @webview.SizeHint::None)
   ..set_html(resource)
   .run()

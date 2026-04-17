@@ -59,7 +59,7 @@ let html =
 /// When the button is pressed, the webview will close.
 fn main {
   @webview.Webview::new(debug=1)
-  ..set_title("Moonbit Webview Example")
+  ..set_title("MoonBit Lepus Example")
   ..set_size(800, 600, @webview.SizeHint::None)
   ..set_html(html)
   .run()

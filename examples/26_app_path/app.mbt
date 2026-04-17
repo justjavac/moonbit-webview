@@ -169,7 +169,7 @@ let resource : String =
   #|      <h1>Path ops as a focused runtime demo.</h1>
   #|      <p class="lead">
   #|        This example isolates the <code>path</code> extension. It compares
-  #|        direct <code>__MoonBit__.core.ops</code> calls with the higher-level
+  #|        direct <code>__MoonBit__.core.invokeOp(...)</code> calls with the higher-level
   #|        <code>__MoonBit__.path</code> and <code>__MoonBit__.path</code> helpers in a
   #|        Node-style API shape.
   #|      </p>
@@ -236,7 +236,9 @@ let resource : String =
   #|      document.getElementById("run-ops").addEventListener("click", async () => {
   #|        try {
   #|          const direct = {
-  #|            resolve: await window.__MoonBit__.core.ops.op_path_resolve({ path: pathA.value }),
+  #|            resolve: await window.__MoonBit__.core.invokeOp("ext:path/resolve", {
+  #|              path: pathA.value,
+  #|            }),
   #|            basename: await window.__MoonBit__.path.basename(pathA.value, ".html"),
   #|            dirname: await window.__MoonBit__.path.dirname(pathA.value),
   #|            extname: await window.__MoonBit__.path.extname(pathA.value),

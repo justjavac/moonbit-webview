@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Asset Bundle Example</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Lepus Asset Origin</p>
+        <h1>HTML, JavaScript, and CSS from one secure local bundle.</h1>
+        <p class="lede">
+          This page is served from local files through
+          <code>https://app.localhost/</code>, without starting a loopback HTTP
+          server or occupying a port.
+        </p>
+      </section>
+
+      <section class="card" id="status-card">
+        <div class="status-line">
+          <span class="pulse" aria-hidden="true"></span>
+          <strong id="status-text">Waiting for JavaScript probe...</strong>
+        </div>
+        <dl class="facts">
+          <dt>href</dt>
+          <dd id="href">-</dd>
+          <dt>origin</dt>
+          <dd id="origin">-</dd>
+          <dt>script loaded</dt>
+          <dd id="script-loaded">-</dd>
+          <dt>stylesheet loaded</dt>
+          <dd id="stylesheet-loaded">-</dd>
+          <dt>secure context</dt>
+          <dd id="secure-context">-</dd>
+          <dt>crossOriginIsolated</dt>
+          <dd id="cross-origin-isolated">-</dd>
+          <dt>SharedArrayBuffer</dt>
+          <dd id="shared-array-buffer">-</dd>
+        </dl>
+        <pre id="payload">{}</pre>
+      </section>
+    </main>
+  </body>
+</html>

@@ -85,7 +85,7 @@ let html =
 fn main {
   let mut counter = 0
   let webview = @webview.Webview::new(debug=1)
-  webview.set_title("Moonbit Webview Example")
+  webview.set_title("MoonBit Lepus Example")
   webview.set_size(800, 600, @webview.SizeHint::None)
   webview.bind("press", fn(id, req) {
     counter += 1

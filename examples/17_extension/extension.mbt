@@ -85,13 +85,13 @@ let resource : String =
   #|      });
   #|      document.getElementById("run").addEventListener("click", () => {
   #|        Promise.all([
-  #|          window.__MoonBit__.core.ops.op_math_sum({ left: 20, right: 22 }),
+  #|          window.__MoonBit__.core.invokeOp("ext:math/sum", { left: 20, right: 22 }),
   #|          window.__MoonBit__.math.sum({ left: 20, right: 22 }),
   #|        ])
   #|          .then(([direct, extension]) => {
   #|            output.textContent =
   #|              "Direct op response:\n" + JSON.stringify(direct, null, 2) +
-  #|              "\n\nExtension helper response:\n" + JSON.stringify(extensionReply, null, 2) +
+  #|              "\n\nExtension helper response:\n" + JSON.stringify(extension, null, 2) +
   #|              "\n\nLast event:\n" + JSON.stringify(lastEvent, null, 2);
   #|          })
   #|          .catch((error) => {

@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Asset Origin Probe</title>
+    <style>
+      :root {
+        color: #172019;
+        background: #f3efe2;
+        font-family:
+          "Aptos Display", "Segoe UI", "Helvetica Neue", sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 14% 12%, #d7f0b8 0, transparent 28rem),
+          radial-gradient(circle at 86% 18%, #f2ca91 0, transparent 24rem),
+          linear-gradient(135deg, #f7f1df 0%, #dce8d5 100%);
+      }
+
+      main {
+        box-sizing: border-box;
+        display: grid;
+        gap: 1rem;
+        margin: 0 auto;
+        max-width: 860px;
+        padding: 4rem 2rem;
+      }
+
+      h1 {
+        font-size: clamp(2.4rem, 7vw, 5.5rem);
+        letter-spacing: -0.06em;
+        line-height: 0.92;
+        margin: 0;
+      }
+
+      .lede {
+        color: #4d5a4c;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin: 0;
+        max-width: 42rem;
+      }
+
+      .panel {
+        backdrop-filter: blur(16px);
+        background: rgb(255 255 255 / 0.62);
+        border: 1px solid rgb(23 32 25 / 0.12);
+        border-radius: 28px;
+        box-shadow: 0 24px 80px rgb(46 67 42 / 0.16);
+        padding: 1.25rem;
+      }
+
+      .status {
+        align-items: center;
+        display: flex;
+        gap: 0.75rem;
+        font-weight: 700;
+      }
+
+      .dot {
+        background: #c47b28;
+        border-radius: 999px;
+        box-shadow: 0 0 0 0.45rem rgb(196 123 40 / 0.14);
+        height: 0.7rem;
+        width: 0.7rem;
+      }
+
+      .ready .dot {
+        background: #2e7d4f;
+        box-shadow: 0 0 0 0.45rem rgb(46 125 79 / 0.14);
+      }
+
+      .failed .dot {
+        background: #b42318;
+        box-shadow: 0 0 0 0.45rem rgb(180 35 24 / 0.14);
+      }
+
+      dl {
+        display: grid;
+        gap: 0.65rem 1rem;
+        grid-template-columns: minmax(10rem, max-content) 1fr;
+        margin: 1.2rem 0 0;
+      }
+
+      dt {
+        color: #637061;
+      }
+
+      dd {
+        font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+
+      pre {
+        background: #172019;
+        border-radius: 20px;
+        color: #eaf4df;
+        line-height: 1.55;
+        margin: 1rem 0 0;
+        overflow: auto;
+        padding: 1rem;
+      }
+    </style>
+    <script type="module" src="./probe.js"></script>
+  </head>
+  <body>
+    <main>
+      <h1>Asset origin probe</h1>
+      <p class="lede">
+        This page is served from local files through the in-process
+        https://app.localhost origin. The probe checks whether the WebView is
+        secure and cross-origin isolated enough for SharedArrayBuffer.
+      </p>
+      <section class="panel" id="probe-panel">
+        <div class="status" id="status">
+          <span class="dot"></span>
+          <span id="status-text">Waiting for probe...</span>
+        </div>
+        <dl>
+          <dt>href</dt>
+          <dd id="href">-</dd>
+          <dt>origin</dt>
+          <dd id="origin">-</dd>
+          <dt>secure context</dt>
+          <dd id="secure-context">-</dd>
+          <dt>crossOriginIsolated</dt>
+          <dd id="cross-origin-isolated">-</dd>
+          <dt>SharedArrayBuffer</dt>
+          <dd id="shared-array-buffer">-</dd>
+        </dl>
+        <pre id="payload">Waiting for native bridge report...</pre>
+      </section>
+    </main>
+  </body>
+</html>

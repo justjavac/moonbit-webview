@@ -1,6 +1,6 @@
 import {
   "moonbitlang/core/json",
-  "justjavac/webview",
+  "justjavac/lepus" @webview,
   "justjavac/ffi",
 }
 

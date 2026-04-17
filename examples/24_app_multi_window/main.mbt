@@ -1,23 +1,24 @@
 ///|
 fn main {
-  let config = @bootstrap.BootstrapAppConfig::new(
-    @wvrt.WindowConfig::new("MoonBit Multi-Window", 980, 680),
-    @wvrt.AppEntry::File("24_app_multi_window/main_window.html"),
+  let manifest = @manifest.AppManifest::new(
+    @manifest.WindowManifest::new("MoonBit Multi-Window", 980, 680),
+    @manifest.AppEntry::File("24_app_multi_window/main_window.html"),
     windows=[
-      @wvrt.AppWindowConfig::new(
+      @manifest.AppWindowManifest::new(
         "docs",
-        @wvrt.WindowConfig::new(
+        @manifest.WindowManifest::new(
           "MoonBit Multi-Window Docs",
           720,
           560,
-          size_hint=@webview.SizeHint::None,
+          size_hint=@manifest.WindowSizeHint::None,
         ),
-        @wvrt.AppEntry::File("24_app_multi_window/docs_window.html"),
+        @manifest.AppEntry::File("24_app_multi_window/docs_window.html"),
       ),
     ],
     debug=1,
   )
-  let app = match @app.create_app(config) {
+  let app : @wvrt.App = match
+    @app.create_app(manifest, @app.ExtensionRegistry::new()) {
     Ok(app) => app
     Err(error) => abort(error)
   }
