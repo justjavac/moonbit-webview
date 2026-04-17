@@ -2,64 +2,64 @@
 package "extensions/fs"
 
 import {
-  "justjavac/webview_app",
-  "justjavac/webview_runtime",
+  "justjavac/lepus_core",
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
 
 // Values
-pub fn app_extension() -> @webview_app.AppExtension
+pub fn extension() -> @lepus_core.Extension
 
-pub fn extension() -> @webview_runtime.Extension
+pub fn spec() -> @lepus_core.ExtensionSpec
 
 // Errors
 
 // Types and methods
-type ClosePayload derive(Eq, Show, ToJson, @json.FromJson)
+type ClosePayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type CloseReply derive(Eq, Show, ToJson, @json.FromJson)
+type CloseReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type ExistsPayload derive(Eq, Show, ToJson, @json.FromJson)
+type ExistsPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type ExistsReply derive(Eq, Show, ToJson, @json.FromJson)
+type ExistsReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type FlushPayload derive(Eq, Show, ToJson, @json.FromJson)
+type FlushPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type FlushReply derive(Eq, Show, ToJson, @json.FromJson)
+type FlushReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type FsActivity derive(Eq, Show, ToJson, @json.FromJson)
+type FsActivity derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type FstatPayload derive(Eq, Show, ToJson, @json.FromJson)
+type FstatPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type FstatReply derive(Eq, Show, ToJson, @json.FromJson)
+type FstatReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type OpenPayload derive(Eq, Show, ToJson, @json.FromJson)
+type OpenPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type OpenReply derive(Eq, Show, ToJson, @json.FromJson)
+type OpenReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type ReadDirPayload derive(Eq, Show, ToJson, @json.FromJson)
+type ReadDirPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type ReadDirReply derive(Eq, Show, ToJson, @json.FromJson)
+type ReadDirReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type ReadPayload derive(Eq, Show, ToJson, @json.FromJson)
+type ReadPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type ReadReply derive(Eq, Show, ToJson, @json.FromJson)
+type ReadReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type RemoveFilePayload derive(Eq, Show, ToJson, @json.FromJson)
+type RemoveFilePayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type RemoveFileReply derive(Eq, Show, ToJson, @json.FromJson)
+type RemoveFileReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type ResolvePathPayload derive(Eq, Show, ToJson, @json.FromJson)
+type ResolvePathPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type ResolvePathReply derive(Eq, Show, ToJson, @json.FromJson)
+type ResolvePathReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type SeekPayload derive(Eq, Show, ToJson, @json.FromJson)
+type SeekPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type SeekReply derive(Eq, Show, ToJson, @json.FromJson)
+type SeekReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type WritePayload derive(Eq, Show, ToJson, @json.FromJson)
+type WritePayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type WriteReply derive(Eq, Show, ToJson, @json.FromJson)
+type WriteReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 // Type aliases
 

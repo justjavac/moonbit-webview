@@ -1,37 +1,113 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "justjavac/webview_catalog"
+package "justjavac/lepus_catalog"
+
+import {
+  "moonbitlang/core/debug",
+}
 
 // Values
-pub fn builtin_extension_info(String) -> BuiltinExtensionInfo?
+pub fn build_extension_link_plan(ExtensionCatalog, Array[String]) -> Result[ExtensionLinkPlan, String]
 
-pub fn builtin_extensions() -> Array[BuiltinExtensionInfo]
+pub fn discover_extension_descriptor_files(Array[String]) -> Result[Array[String], String]
+
+pub fn load_extension_catalog_from_descriptor_files(Array[String]) -> Result[ExtensionCatalog, String]
+
+pub fn load_extension_catalog_from_search_roots(Array[String]) -> Result[ExtensionCatalog, String]
+
+pub fn load_extension_descriptor_from_file(String) -> Result[ExtensionDescriptor, String]
+
+pub fn load_extension_schema(ExtensionDescriptor) -> Result[ExtensionSchema, String]
 
 // Errors
 
 // Types and methods
-pub struct BuiltinExtensionInfo {
-  id : String
-  name : String
-  description : String
-  import_path : String
-  import_alias : String
-  support_modules : Array[BuiltinSupportModuleInfo]
-} derive(Eq, Show)
-pub fn BuiltinExtensionInfo::description(Self) -> String
-pub fn BuiltinExtensionInfo::id(Self) -> String
-pub fn BuiltinExtensionInfo::import_alias(Self) -> String
-pub fn BuiltinExtensionInfo::import_path(Self) -> String
-pub fn BuiltinExtensionInfo::name(Self) -> String
-pub fn BuiltinExtensionInfo::new(String, String, String, String, String, support_modules? : Array[BuiltinSupportModuleInfo]) -> Self
-pub fn BuiltinExtensionInfo::support_modules(Self) -> Array[BuiltinSupportModuleInfo]
+pub struct CatalogDiagnostic {
+  kind : CatalogDiagnosticKind
+  path : String
+  message : String
+} derive(Eq, @debug.Debug)
+pub fn CatalogDiagnostic::new(CatalogDiagnosticKind, String, String) -> Self
+pub fn CatalogDiagnostic::to_error_string(Self) -> String
 
-pub struct BuiltinSupportModuleInfo {
-  dependency_name : String
-  module_dir : String
-} derive(Eq, Show)
-pub fn BuiltinSupportModuleInfo::dependency_name(Self) -> String
-pub fn BuiltinSupportModuleInfo::module_dir(Self) -> String
-pub fn BuiltinSupportModuleInfo::new(String, String) -> Self
+pub(all) enum CatalogDiagnosticKind {
+  MissingFile
+  InvalidSearchRoot
+  DirectoryReadFailed
+  InvalidJson
+  InvalidMetadata
+  DuplicateExtensionId
+  UnknownExtensionId
+  DependencyCycle
+} derive(Eq, @debug.Debug)
+
+pub struct ExtensionCatalog {
+  descriptors : Map[String, ExtensionDescriptor]
+  discovery_order : Array[String]
+}
+pub fn ExtensionCatalog::descriptor_ids(Self) -> Array[String]
+pub fn ExtensionCatalog::descriptors(Self) -> Array[ExtensionDescriptor]
+pub fn ExtensionCatalog::from_descriptors(Array[ExtensionDescriptor]) -> Result[Self, String]
+pub fn ExtensionCatalog::get(Self, String) -> ExtensionDescriptor?
+pub fn ExtensionCatalog::load_schema(Self, String) -> Result[ExtensionSchema, String]
+pub fn ExtensionCatalog::new() -> Self
+pub fn ExtensionCatalog::require(Self, String) -> Result[ExtensionDescriptor, String]
+
+pub struct ExtensionDescriptor {
+  schema_version : Int
+  id : String
+  version : String
+  display_name : String
+  description : String
+  js_namespace : String
+  manifest_key : String
+  package_path : String
+  spec_symbol : String
+  platforms : Array[String]
+  dependencies : Array[String]
+  capabilities : Array[String]
+  options_schema_path : String
+  root_dir : String
+} derive(Eq, @debug.Debug)
+pub fn ExtensionDescriptor::capabilities(Self) -> Array[String]
+pub fn ExtensionDescriptor::dependencies(Self) -> Array[String]
+pub fn ExtensionDescriptor::description(Self) -> String
+pub fn ExtensionDescriptor::display_name(Self) -> String
+pub fn ExtensionDescriptor::id(Self) -> String
+pub fn ExtensionDescriptor::js_namespace(Self) -> String
+pub fn ExtensionDescriptor::manifest_key(Self) -> String
+pub fn ExtensionDescriptor::metadata_path(Self) -> String
+pub fn ExtensionDescriptor::new(Int, String, String, String, String, String, String, String, String, Array[String], Array[String], Array[String], String, String) -> Self
+pub fn ExtensionDescriptor::options_schema_file(Self) -> String
+pub fn ExtensionDescriptor::package_path(Self) -> String
+pub fn ExtensionDescriptor::platforms(Self) -> Array[String]
+pub fn ExtensionDescriptor::root_dir(Self) -> String
+pub fn ExtensionDescriptor::schema_version(Self) -> Int
+pub fn ExtensionDescriptor::spec_symbol(Self) -> String
+pub fn ExtensionDescriptor::version(Self) -> String
+
+pub struct ExtensionLinkInput {
+  id : String
+  package_path : String
+  spec_symbol : String
+} derive(Eq, @debug.Debug)
+pub fn ExtensionLinkInput::id(Self) -> String
+pub fn ExtensionLinkInput::package_path(Self) -> String
+pub fn ExtensionLinkInput::spec_symbol(Self) -> String
+
+pub struct ExtensionLinkPlan {
+  ordered_inputs : Array[ExtensionLinkInput]
+} derive(Eq, @debug.Debug)
+pub fn ExtensionLinkPlan::extension_ids(Self) -> Array[String]
+pub fn ExtensionLinkPlan::inputs(Self) -> Array[ExtensionLinkInput]
+
+pub struct ExtensionSchema {
+  descriptor_id : String
+  path : String
+  json : Json
+}
+pub fn ExtensionSchema::descriptor_id(Self) -> String
+pub fn ExtensionSchema::json(Self) -> Json
+pub fn ExtensionSchema::path(Self) -> String
 
 // Type aliases
 

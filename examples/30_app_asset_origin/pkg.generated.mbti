@@ -1,0 +1,18 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "justjavac/lepus/examples/30_app_asset_origin"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+type AssetOriginReport derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+// Type aliases
+
+// Traits

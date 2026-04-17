@@ -1,0 +1,64 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "justjavac/lepus_tooling"
+
+import {
+  "justjavac/lepus_bootstrap",
+  "justjavac/lepus_catalog",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn build_generated_registry_module(@lepus_catalog.ExtensionLinkPlan, function_name? : String) -> Result[GeneratedRegistryModule, String]
+
+pub fn declared_extension_ids(@lepus_bootstrap.AppManifestDocument, enabled_only? : Bool) -> Array[String]
+
+pub fn generate_registry_module_from_catalog(@lepus_catalog.ExtensionCatalog, Array[String], function_name? : String) -> Result[GeneratedRegistryModule, String]
+
+pub fn generate_registry_module_from_document(@lepus_bootstrap.AppManifestDocument, Array[String], enabled_only? : Bool, function_name? : String) -> Result[GeneratedRegistryModule, String]
+
+pub fn generate_registry_module_from_search_roots(Array[String], Array[String], function_name? : String) -> Result[GeneratedRegistryModule, String]
+
+pub fn query_extension_catalog(Array[String]) -> Result[Array[ExtensionCatalogSummary], String]
+
+pub fn query_extension_catalog_json(Array[String]) -> Result[Json, String]
+
+// Errors
+
+// Types and methods
+pub struct ExtensionCatalogSummary {
+  id : String
+  version : String
+  display_name : String
+  description : String
+  js_namespace : String
+  package_path : String
+  spec_symbol : String
+  platforms : Array[String]
+  dependencies : Array[String]
+  capabilities : Array[String]
+} derive(Eq, ToJson, @debug.Debug)
+
+pub struct GeneratedRegistryBinding {
+  extension_id : String
+  package_path : String
+  import_alias : String
+  spec_symbol : String
+} derive(Eq, ToJson, @debug.Debug)
+
+pub struct GeneratedRegistryModule {
+  function_name : String
+  recommended_file_name : String
+  moon_pkg_import_block : String
+  source : String
+  bindings : Array[GeneratedRegistryBinding]
+} derive(Eq, ToJson, @debug.Debug)
+pub fn GeneratedRegistryModule::bindings(Self) -> Array[GeneratedRegistryBinding]
+pub fn GeneratedRegistryModule::extension_ids(Self) -> Array[String]
+pub fn GeneratedRegistryModule::function_name(Self) -> String
+pub fn GeneratedRegistryModule::moon_pkg_import_block(Self) -> String
+pub fn GeneratedRegistryModule::recommended_file_name(Self) -> String
+pub fn GeneratedRegistryModule::source(Self) -> String
+
+// Type aliases
+
+// Traits

@@ -1,38 +1,25 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "justjavac/webview_app"
+package "justjavac/lepus_app"
 
 import {
-  "justjavac/webview_bootstrap",
-  "justjavac/webview_runtime",
+  "justjavac/lepus_core",
+  "justjavac/lepus_manifest",
+  "justjavac/lepus_runtime",
 }
 
 // Values
-pub fn create_app(@webview_bootstrap.BootstrapAppConfig, extensions? : Array[AppExtension]) -> Result[@webview_runtime.App, String]
+pub fn create_app(@lepus_manifest.AppManifest, ExtensionRegistry, base_dir? : String?) -> Result[@lepus_runtime.App, String]
 
-pub fn create_app_from_file(String, extensions? : Array[AppExtension]) -> Result[@webview_runtime.App, String]
-
-pub fn create_app_from_json(String, extensions? : Array[AppExtension]) -> Result[@webview_runtime.App, String]
+pub fn create_app_from_file(String, ExtensionRegistry) -> Result[@lepus_runtime.App, String]
 
 // Errors
 
 // Types and methods
-pub struct AppExtension {
-  name : String
-  dependencies : Array[String]
-  build : (AppExtensionContext) -> Result[@webview_runtime.Extension, String]
-}
-pub fn AppExtension::build_extension(Self, AppExtensionContext) -> Result[@webview_runtime.Extension, String]
-pub fn AppExtension::dependencies(Self) -> Array[String]
-pub fn AppExtension::name(Self) -> String
-pub fn AppExtension::new(String, (AppExtensionContext) -> Result[@webview_runtime.Extension, String], dependencies? : Array[String]) -> Self
-
-pub struct AppExtensionContext {
-  options : Json?
-  base_dir : String?
-}
-pub fn AppExtensionContext::base_dir(Self) -> String?
-pub fn AppExtensionContext::new(options? : Json?, base_dir? : String?) -> Self
-pub fn AppExtensionContext::options(Self) -> Json?
+type ExtensionRegistry
+pub fn ExtensionRegistry::get(Self, String) -> @lepus_core.ExtensionSpec?
+pub fn ExtensionRegistry::new() -> Self
+pub fn ExtensionRegistry::register(Self, @lepus_core.ExtensionSpec) -> Self
+pub fn ExtensionRegistry::registered_ids(Self) -> Array[String]
 
 // Type aliases
 

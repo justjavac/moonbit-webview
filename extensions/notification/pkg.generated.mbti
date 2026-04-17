@@ -2,24 +2,24 @@
 package "extensions/notification"
 
 import {
-  "justjavac/webview_app",
-  "justjavac/webview_runtime",
+  "justjavac/lepus_core",
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
 
 // Values
-pub fn app_extension() -> @webview_app.AppExtension
+pub fn extension() -> @lepus_core.Extension
 
-pub fn extension() -> @webview_runtime.Extension
+pub fn spec() -> @lepus_core.ExtensionSpec
 
 // Errors
 
 // Types and methods
-type NotificationActivity derive(Eq, Show, ToJson, @json.FromJson)
+type NotificationActivity derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type NotificationPayload derive(Eq, Show, ToJson, @json.FromJson)
+type NotificationPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type NotificationReply derive(Eq, Show, ToJson, @json.FromJson)
+type NotificationReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 // Type aliases
 

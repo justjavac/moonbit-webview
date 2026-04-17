@@ -2,40 +2,40 @@
 package "extensions/path"
 
 import {
-  "justjavac/webview_app",
-  "justjavac/webview_runtime",
+  "justjavac/lepus_core",
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
 
 // Values
-pub fn app_extension() -> @webview_app.AppExtension
+pub fn extension() -> @lepus_core.Extension
 
-pub fn extension() -> @webview_runtime.Extension
+pub fn spec() -> @lepus_core.ExtensionSpec
 
 // Errors
 
 // Types and methods
 type BasenamePayload derive(@json.FromJson)
 
-type BasenameReply derive(Eq, Show, ToJson, @json.FromJson)
+type BasenameReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type ExtnameReply derive(Eq, Show, ToJson, @json.FromJson)
+type ExtnameReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 type FormatPayload derive(@json.FromJson)
 
-type IsAbsoluteReply derive(Eq, Show, ToJson, @json.FromJson)
+type IsAbsoluteReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type JoinPayload derive(Eq, Show, ToJson, @json.FromJson)
+type JoinPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 type ParseReply derive(ToJson)
 
-type PathPayload derive(Eq, Show, ToJson, @json.FromJson)
+type PathPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type PathReply derive(Eq, Show, ToJson, @json.FromJson)
+type PathReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 type PathsPayload derive(@json.FromJson)
 
-type RelativePayload derive(Eq, Show, ToJson, @json.FromJson)
+type RelativePayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 // Type aliases
 

@@ -1,21 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "justjavac/webview_runtime"
+package "justjavac/lepus_runtime"
 
 import {
-  "justjavac/webview",
-  "moonbitlang/core/json",
+  "justjavac/lepus",
+  "justjavac/lepus_core",
+  "moonbitlang/core/debug",
 }
 
 // Values
-pub fn[Payload : ToJson] emit_extension(@webview.Webview, String, String, Payload) -> Unit
-
-pub fn extension_host(@webview.Webview) -> ExtensionHost
-
-pub fn install_extension(@webview.Webview, Extension) -> Unit
-
-pub fn render_js_template(String, Array[TemplateReplacement]) -> String
-
-pub fn replacement(String, String) -> TemplateReplacement
 
 // Errors
 
@@ -24,19 +16,19 @@ pub struct App {
   main_window : AppWindow
   config : AppConfig
   mut windows : Array[AppWindow]
-  installed_extensions : Array[Extension]
-  installed_extension_names : Map[String, Bool]
+  installed_extensions : Array[@lepus_core.Extension]
+  installed_extension_ids : Map[String, Bool]
+  installed_extension_namespaces : Map[String, Bool]
 }
 pub fn App::config(Self) -> AppConfig
 pub fn App::create_window(Self, AppWindowConfig) -> AppWindow
 pub fn App::destroy(Self) -> Unit
 pub fn[Payload : ToJson] App::emit_extension(Self, String, String, Payload) -> Unit
-pub fn App::extension_host(Self) -> ExtensionHost
-pub fn App::install_extension(Self, Extension) -> Unit
+pub fn App::install_extension(Self, @lepus_core.Extension) -> Unit
 pub fn App::main_window(Self) -> AppWindow
 pub fn App::new(AppConfig) -> Self
 pub fn App::run(Self) -> Unit
-pub fn App::webview(Self) -> @webview.Webview
+pub fn App::webview(Self) -> @lepus.Webview
 pub fn App::window(Self, String) -> AppWindow?
 pub fn App::windows(Self) -> Array[AppWindow]
 
@@ -52,18 +44,19 @@ pub(all) enum AppEntry {
   Html(String)
   Url(String)
   File(String)
+  Asset(String)
 }
 
 pub struct AppWindow {
   id : String
-  webview : @webview.Webview
+  webview : @lepus.Webview
   config : WindowConfig
   entry : AppEntry
 }
 pub fn AppWindow::config(Self) -> WindowConfig
 pub fn AppWindow::entry(Self) -> AppEntry
 pub fn AppWindow::id(Self) -> String
-pub fn AppWindow::webview(Self) -> @webview.Webview
+pub fn AppWindow::webview(Self) -> @lepus.Webview
 
 pub struct AppWindowConfig {
   id : String
@@ -72,47 +65,13 @@ pub struct AppWindowConfig {
 }
 pub fn AppWindowConfig::new(String, WindowConfig, AppEntry) -> Self
 
-type Extension
-pub fn Extension::name(Self) -> String
-pub fn Extension::new(String, (ExtensionContext) -> Unit, on_install? : (ExtensionContext) -> Unit, on_destroy? : (ExtensionContext) -> Unit, helper_script? : (String) -> String?) -> Self
-
-type ExtensionContext
-pub fn[Payload : ToJson] ExtensionContext::emit(Self, String, Payload) -> Unit
-pub fn ExtensionContext::name(Self) -> String
-pub fn[Payload : @json.FromJson, Reply : ToJson] ExtensionContext::op(Self, String, (Payload) -> Reply) -> Unit
-pub fn[Payload : @json.FromJson, Reply : ToJson] ExtensionContext::op_result(Self, String, (Payload) -> Result[Reply, String]) -> Unit
-pub fn ExtensionContext::webview(Self) -> @webview.Webview
-
-type ExtensionHost
-pub fn ExtensionHost::destroy(Self) -> Unit
-pub fn[Payload : ToJson] ExtensionHost::emit(Self, String, String, Payload) -> Unit
-pub fn ExtensionHost::install(Self, Extension) -> Unit
-pub fn ExtensionHost::new(@webview.Webview) -> Self
-pub fn ExtensionHost::run(Self) -> Unit
-
-pub struct ResourceTable[T] {
-  mut next_rid : Int
-  values : Map[Int, T]
-}
-pub fn[T] ResourceTable::add(Self[T], T) -> Int
-pub fn[T] ResourceTable::contains(Self[T], Int) -> Bool
-pub fn[T] ResourceTable::get(Self[T], Int) -> T?
-pub fn[T] ResourceTable::new() -> Self[T]
-pub fn[T] ResourceTable::remove(Self[T], Int) -> T?
-pub fn[T] ResourceTable::rids(Self[T]) -> Array[Int]
-
-pub struct TemplateReplacement {
-  token : String
-  value : String
-}
-
 pub struct WindowConfig {
   title : String
   width : Int
   height : Int
-  size_hint : @webview.SizeHint
-} derive(Show)
-pub fn WindowConfig::new(String, Int, Int, size_hint? : @webview.SizeHint) -> Self
+  size_hint : @lepus.SizeHint
+} derive(@debug.Debug)
+pub fn WindowConfig::new(String, Int, Int, size_hint? : @lepus.SizeHint) -> Self
 
 // Type aliases
 

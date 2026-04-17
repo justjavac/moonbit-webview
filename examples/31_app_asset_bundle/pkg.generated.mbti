@@ -1,0 +1,18 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "justjavac/lepus/examples/31_app_asset_bundle"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+type AssetBundleProbe derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+// Type aliases
+
+// Traits

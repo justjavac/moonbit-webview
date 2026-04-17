@@ -1,5 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "justjavac/webview"
+package "justjavac/lepus"
+
+import {
+  "moonbitlang/core/debug",
+}
 
 // Values
 pub fn webview_bind(Webview_t, Bytes, FuncRef[(CStr, CStr, (Bytes, Bytes) -> Unit) -> Unit], (Bytes, Bytes) -> Unit) -> BindingHandle
@@ -47,14 +51,14 @@ pub(all) enum NativeHandleKind {
   Window
   Widget
   Browser
-} derive(Show)
+} derive(@debug.Debug)
 
 pub(all) enum SizeHint {
   None
   Min
   Max
   Fixed
-} derive(Show)
+} derive(@debug.Debug)
 
 type Webview
 pub fn Webview::bind(Self, String, (Bytes, Bytes) -> Unit) -> Unit

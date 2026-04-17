@@ -2,30 +2,30 @@
 package "extensions/dialog"
 
 import {
-  "justjavac/webview_app",
-  "justjavac/webview_runtime",
+  "justjavac/lepus_core",
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
 
 // Values
-pub fn app_extension() -> @webview_app.AppExtension
+pub fn extension() -> @lepus_core.Extension
 
-pub fn extension() -> @webview_runtime.Extension
+pub fn spec() -> @lepus_core.ExtensionSpec
 
 // Errors
 
 // Types and methods
-type ConfirmReply derive(Eq, Show, ToJson, @json.FromJson)
+type ConfirmReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type DialogActivity derive(Eq, Show, ToJson, @json.FromJson)
+type DialogActivity derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type FileDialogPayload derive(Eq, Show, ToJson, @json.FromJson)
+type FileDialogPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type FileDialogReply derive(Eq, Show, ToJson, @json.FromJson)
+type FileDialogReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type MessagePayload derive(Eq, Show, ToJson, @json.FromJson)
+type MessagePayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type MessageReply derive(Eq, Show, ToJson, @json.FromJson)
+type MessageReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 // Type aliases
 

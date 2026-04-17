@@ -1,39 +1,74 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "justjavac/webview_bootstrap"
+package "justjavac/lepus_bootstrap"
 
 import {
-  "justjavac/webview_runtime",
+  "justjavac/lepus_manifest",
 }
 
 // Values
-pub fn load_app_config_document_from_file(String) -> Result[AppConfigDocument, String]
+pub fn disable_extension(AppManifestDocument, String) -> Result[AppManifestDocument, String]
 
-pub fn load_app_config_document_from_json(String) -> Result[AppConfigDocument, String]
+pub fn enable_extension(AppManifestDocument, String, options? : Json?) -> Result[AppManifestDocument, String]
 
-pub fn load_app_config_from_file(String) -> Result[BootstrapAppConfig, String]
+pub fn get_extension_options(AppManifestDocument, String) -> Json?
 
-pub fn load_app_config_from_json(String) -> Result[BootstrapAppConfig, String]
+pub fn load_app_manifest_document_from_file(String) -> Result[AppManifestDocument, String]
+
+pub fn load_app_manifest_document_from_json(String) -> Result[AppManifestDocument, String]
+
+pub fn load_app_manifest_from_file(String) -> Result[LoadedAppManifest, String]
+
+pub fn load_app_manifest_from_json(String) -> Result[LoadedAppManifest, String]
+
+pub fn load_document(String) -> Result[AppManifestDocument, String]
+
+pub fn normalize_document(AppManifestDocument) -> Result[AppManifestDocument, String]
+
+pub fn parse_document(String) -> Result[AppManifestDocument, String]
+
+pub fn remove_extension(AppManifestDocument, String) -> Result[AppManifestDocument, String]
+
+pub fn render_document(AppManifestDocument) -> String
+
+pub fn set_debug(AppManifestDocument, Int) -> Result[AppManifestDocument, String]
+
+pub fn set_entry(AppManifestDocument, @lepus_manifest.AppEntry) -> Result[AppManifestDocument, String]
+
+pub fn set_extension_options(AppManifestDocument, String, Json) -> Result[AppManifestDocument, String]
+
+pub fn set_window_size(AppManifestDocument, Int, Int, size_hint? : @lepus_manifest.WindowSizeHint?) -> Result[AppManifestDocument, String]
+
+pub fn set_window_title(AppManifestDocument, String) -> Result[AppManifestDocument, String]
+
+pub fn validate_document(AppManifestDocument) -> Result[Unit, String]
+
+pub fn write_document(String, AppManifestDocument) -> Result[Unit, String]
 
 // Errors
 
 // Types and methods
-type AppConfigDocument
-pub fn AppConfigDocument::config(Self) -> BootstrapAppConfig
-pub fn AppConfigDocument::extension_option_entries(Self) -> Array[(String, Json)]
-pub fn AppConfigDocument::extension_options(Self, String) -> Json?
-pub fn AppConfigDocument::remove_extension_options(Self, String) -> Result[Self, String]
-pub fn AppConfigDocument::set_extension_options(Self, String, Json) -> Result[Self, String]
-pub fn AppConfigDocument::to_json(Self) -> Json
-pub fn AppConfigDocument::to_pretty_json(Self) -> String
+type AppManifestDocument
+pub fn AppManifestDocument::base_dir(Self) -> String?
+pub fn AppManifestDocument::disable_extension(Self, String) -> Result[Self, String]
+pub fn AppManifestDocument::enable_extension(Self, String, options? : Json?) -> Result[Self, String]
+pub fn AppManifestDocument::extension_setting(Self, String) -> @lepus_manifest.ExtensionSetting?
+pub fn AppManifestDocument::extension_settings(Self) -> Array[(String, @lepus_manifest.ExtensionSetting)]
+pub fn AppManifestDocument::loaded_manifest(Self) -> LoadedAppManifest
+pub fn AppManifestDocument::manifest(Self) -> @lepus_manifest.AppManifest
+pub fn AppManifestDocument::remove_extension_setting(Self, String) -> Result[Self, String]
+pub fn AppManifestDocument::remove_window(Self, String) -> Result[Self, String]
+pub fn AppManifestDocument::set_debug(Self, Int) -> Result[Self, String]
+pub fn AppManifestDocument::set_entry(Self, @lepus_manifest.AppEntry) -> Result[Self, String]
+pub fn AppManifestDocument::set_extension_setting(Self, String, @lepus_manifest.ExtensionSetting) -> Result[Self, String]
+pub fn AppManifestDocument::set_window(Self, @lepus_manifest.WindowManifest) -> Result[Self, String]
+pub fn AppManifestDocument::to_json(Self) -> Json
+pub fn AppManifestDocument::to_pretty_json(Self) -> String
+pub fn AppManifestDocument::upsert_window(Self, @lepus_manifest.AppWindowManifest) -> Result[Self, String]
 
-pub struct BootstrapAppConfig {
-  window : @webview_runtime.WindowConfig
-  entry : @webview_runtime.AppEntry
-  windows : Array[@webview_runtime.AppWindowConfig]
-  debug : Int
-  base_dir : String?
-}
-pub fn BootstrapAppConfig::new(@webview_runtime.WindowConfig, @webview_runtime.AppEntry, debug? : Int, windows? : Array[@webview_runtime.AppWindowConfig], base_dir? : String?) -> Self
+type LoadedAppManifest
+pub fn LoadedAppManifest::base_dir(Self) -> String?
+pub fn LoadedAppManifest::manifest(Self) -> @lepus_manifest.AppManifest
+pub fn LoadedAppManifest::new(@lepus_manifest.AppManifest, base_dir? : String?) -> Self
 
 // Type aliases
 

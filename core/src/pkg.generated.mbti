@@ -1,0 +1,74 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "justjavac/lepus_core"
+
+import {
+  "justjavac/lepus",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn[Payload : ToJson] emit_extension(@lepus.Webview, String, String, Payload) -> Unit
+
+pub fn ensure_core_runtime(@lepus.Webview) -> Unit
+
+pub fn extension_host(@lepus.Webview) -> ExtensionHost
+
+pub fn install_extension(@lepus.Webview, Extension) -> Unit
+
+pub fn moonbit_global_name() -> String
+
+pub fn moonbit_op_binding_name() -> String
+
+pub fn render_js_template(String, Array[TemplateReplacement]) -> String
+
+pub fn replacement(String, String) -> TemplateReplacement
+
+// Errors
+
+// Types and methods
+type Extension
+pub fn Extension::id(Self) -> String
+pub fn Extension::js_namespace(Self) -> String
+pub fn Extension::new(String, String, (ExtensionContext) -> Unit, on_install? : (ExtensionContext) -> Unit, on_destroy? : (ExtensionContext) -> Unit, scripts? : Array[String]) -> Self
+
+type ExtensionBuildContext
+pub fn ExtensionBuildContext::base_dir(Self) -> String?
+pub fn ExtensionBuildContext::new(options? : Json?, base_dir? : String?) -> Self
+pub fn ExtensionBuildContext::options(Self) -> Json?
+
+type ExtensionContext
+pub fn[Payload : ToJson] ExtensionContext::emit(Self, String, Payload) -> Unit
+pub fn ExtensionContext::id(Self) -> String
+pub fn ExtensionContext::js_namespace(Self) -> String
+pub fn[Payload : @json.FromJson, Reply : ToJson] ExtensionContext::op(Self, String, (Payload) -> Reply) -> Unit
+pub fn[Payload : @json.FromJson, Reply : ToJson] ExtensionContext::op_result(Self, String, (Payload) -> Result[Reply, String]) -> Unit
+pub fn ExtensionContext::webview(Self) -> @lepus.Webview
+
+type ExtensionHost
+pub fn ExtensionHost::destroy(Self) -> Unit
+pub fn[Payload : ToJson] ExtensionHost::emit(Self, String, String, Payload) -> Unit
+pub fn ExtensionHost::install(Self, Extension) -> Unit
+pub fn ExtensionHost::new(@lepus.Webview) -> Self
+pub fn ExtensionHost::run(Self) -> Unit
+
+type ExtensionSpec
+pub fn ExtensionSpec::build_default(Self) -> Result[Extension, String]
+pub fn ExtensionSpec::build_extension(Self, ExtensionBuildContext) -> Result[Extension, String]
+pub fn ExtensionSpec::dependencies(Self) -> Array[String]
+pub fn ExtensionSpec::id(Self) -> String
+pub fn ExtensionSpec::js_namespace(Self) -> String
+pub fn ExtensionSpec::new(String, String, (ExtensionBuildContext) -> Result[Extension, String], dependencies? : Array[String]) -> Self
+
+type ResourceTable[T]
+pub fn[T] ResourceTable::add(Self[T], T) -> Int
+pub fn[T] ResourceTable::contains(Self[T], Int) -> Bool
+pub fn[T] ResourceTable::get(Self[T], Int) -> T?
+pub fn[T] ResourceTable::new() -> Self[T]
+pub fn[T] ResourceTable::remove(Self[T], Int) -> T?
+pub fn[T] ResourceTable::rids(Self[T]) -> Array[Int]
+
+type TemplateReplacement
+
+// Type aliases
+
+// Traits

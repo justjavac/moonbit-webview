@@ -2,28 +2,28 @@
 package "extensions/global_hotkey"
 
 import {
-  "justjavac/webview_app",
-  "justjavac/webview_runtime",
+  "justjavac/lepus_core",
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
 
 // Values
-pub fn app_extension() -> @webview_app.AppExtension
+pub fn extension() -> @lepus_core.Extension
 
-pub fn extension() -> @webview_runtime.Extension
+pub fn spec() -> @lepus_core.ExtensionSpec
 
 // Errors
 
 // Types and methods
-type EmptyPayload derive(Eq, Show, ToJson, @json.FromJson)
+type EmptyPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type GlobalHotkeyActivity derive(Eq, Show, ToJson, @json.FromJson)
+type GlobalHotkeyActivity derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type GlobalHotkeyListReply derive(Eq, Show, ToJson, @json.FromJson)
+type GlobalHotkeyListReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type GlobalHotkeyPayload derive(Eq, Show, ToJson, @json.FromJson)
+type GlobalHotkeyPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type GlobalHotkeyReply derive(Eq, Show, ToJson, @json.FromJson)
+type GlobalHotkeyReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 // Type aliases
 

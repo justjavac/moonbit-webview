@@ -1,0 +1,69 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "justjavac/lepus_manifest"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) enum AppEntry {
+  Html(String)
+  Url(String)
+  File(String)
+  Asset(String)
+} derive(Eq, @debug.Debug)
+pub impl Show for AppEntry
+
+pub struct AppManifest {
+  window : WindowManifest
+  entry : AppEntry
+  windows : Array[AppWindowManifest]
+  debug : Int
+  extensions : Map[String, ExtensionSetting]
+}
+pub fn AppManifest::extension_setting(Self, String) -> ExtensionSetting?
+pub fn AppManifest::extension_settings(Self) -> Array[(String, ExtensionSetting)]
+pub fn AppManifest::new(WindowManifest, AppEntry, debug? : Int, windows? : Array[AppWindowManifest], extensions? : Map[String, ExtensionSetting]) -> Self
+
+pub struct AppWindowManifest {
+  id : String
+  window : WindowManifest
+  entry : AppEntry
+} derive(Eq, @debug.Debug)
+pub fn AppWindowManifest::new(String, WindowManifest, AppEntry) -> Self
+pub impl Show for AppWindowManifest
+
+pub(all) enum ExtensionSetting {
+  Disabled
+  Enabled(Json?)
+} derive(Eq)
+pub fn ExtensionSetting::disabled() -> Self
+pub fn ExtensionSetting::enabled(options? : Json?) -> Self
+pub fn ExtensionSetting::is_enabled(Self) -> Bool
+pub fn ExtensionSetting::options(Self) -> Json?
+pub impl Show for ExtensionSetting
+
+pub struct WindowManifest {
+  title : String
+  width : Int
+  height : Int
+  size_hint : WindowSizeHint
+} derive(Eq, @debug.Debug)
+pub fn WindowManifest::new(String, Int, Int, size_hint? : WindowSizeHint) -> Self
+pub impl Show for WindowManifest
+
+pub(all) enum WindowSizeHint {
+  None
+  Fixed
+  Min
+  Max
+} derive(Eq, @debug.Debug)
+pub impl Show for WindowSizeHint
+
+// Type aliases
+
+// Traits

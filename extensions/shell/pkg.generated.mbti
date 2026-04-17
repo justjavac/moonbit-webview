@@ -2,26 +2,26 @@
 package "extensions/shell"
 
 import {
-  "justjavac/webview_app",
-  "justjavac/webview_runtime",
+  "justjavac/lepus_core",
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
 
 // Values
-pub fn app_extension() -> @webview_app.AppExtension
+pub fn extension() -> @lepus_core.Extension
 
-pub fn extension() -> @webview_runtime.Extension
+pub fn spec() -> @lepus_core.ExtensionSpec
 
 // Errors
 
 // Types and methods
-type RevealItemPayload derive(Eq, Show, ToJson, @json.FromJson)
+type RevealItemPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type ShellActivity derive(Eq, Show, ToJson, @json.FromJson)
+type ShellActivity derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type ShellPayload derive(Eq, Show, ToJson, @json.FromJson)
+type ShellPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
-type ShellReply derive(Eq, Show, ToJson, @json.FromJson)
+type ShellReply derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 // Type aliases
 
