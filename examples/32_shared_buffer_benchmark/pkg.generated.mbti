@@ -1,0 +1,27 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "justjavac/lepus/examples/32_shared_buffer_benchmark"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+type JsonAck derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+type JsonPayload derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+type NativeStatus derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+type SharedBufferCapabilities derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+type SharedBufferRequest derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+// Type aliases
+
+// Traits
+

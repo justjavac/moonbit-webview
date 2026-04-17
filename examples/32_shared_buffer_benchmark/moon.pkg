@@ -1,0 +1,16 @@
+import {
+  "moonbitlang/core/json",
+  "justjavac/ffi",
+  "justjavac/lepus_app" @app,
+  "justjavac/lepus_manifest" @manifest,
+  "justjavac/lepus" @webview,
+  "justjavac/lepus_runtime" @wvrt,
+}
+
+supported_targets = "native"
+
+options(
+  "is-main": true,
+  "native-stub": [ "shared_buffer_benchmark_windows.c" ],
+  targets: { "main.mbt": [ "native" ] },
+)

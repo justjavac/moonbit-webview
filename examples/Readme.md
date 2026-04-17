@@ -52,10 +52,11 @@ moon -C examples build --target native
 | 29_app_global_hotkey | Windows-only | Focused `globalHotkey` extension example |
 | 30_app_asset_origin | Windows-only | `AppEntry::Asset(...)` through a secure in-process origin with `SharedArrayBuffer` probing |
 | 31_app_asset_bundle | Windows-only | Asset bundle demo with separate `index.html`, `app.js`, and `styles.css` |
+| 32_shared_buffer_benchmark | Windows-only | Prototype benchmark comparing JSON bridge payloads with WebView2 shared buffers |
 
 ## Notes
 
 - Examples `17` and `18` show direct low-level installation with `@core.install_extension(...)`.
-- Examples `19` through `31` show app-style startup with `justjavac/lepus_app`.
+- Examples `19` through `32` show app-style startup with `justjavac/lepus_app`.
 - App examples declare extensions in MoonBit code and keep per-extension options in `app.json.extensions`.
 - Frontend code should use `window.__MoonBit__` throughout.
