@@ -13,7 +13,8 @@
         <h1>SharedBuffer vs JSON bridge</h1>
         <p class="lede">
           Measures the current JSON binding path against WebView2 shared
-          buffers for bulk bytes. The native side prints the final report.
+          buffers for scalar calls and bulk bytes. The native side prints the
+          final report.
         </p>
       </header>
       <section class="status" id="status-box">
@@ -33,7 +34,23 @@
         </dl>
       </section>
       <section>
-        <h2>Results</h2>
+        <h2>Scalar sum RPC</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>path</th>
+                <th>runs</th>
+                <th>ms/run</th>
+                <th>checksum</th>
+              </tr>
+            </thead>
+            <tbody id="sum-results"></tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <h2>Bulk payload results</h2>
         <div class="table-wrap">
           <table>
             <thead>

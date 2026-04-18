@@ -38,9 +38,28 @@ struct SharedBufferCapabilities {
 } derive(ToJson, FromJson, Eq, Debug)
 
 ///|
+struct GeneratedPayload {
+  payload : Bytes
+  checksum : Int
+}
+
+///|
 fn[Payload : @json.FromJson] decode_single_argument(
   raw_req : Bytes,
 ) -> Result[Payload, String] {
+  decode_arguments(raw_req).bind(fn(request_args) {
+    if request_args.length() == 1 {
+      Ok(request_args[0])
+    } else {
+      Err("Expected exactly one argument")
+    }
+  })
+}
+
+///|
+fn[Payload : @json.FromJson] decode_arguments(
+  raw_req : Bytes,
+) -> Result[Array[Payload], String] {
   let request_json : Result[Json, _] = try? @json.parse(@ffi.from_cstr(raw_req))
   request_json
   .map_err(fn(err) { err.to_string() })
@@ -48,15 +67,7 @@ fn[Payload : @json.FromJson] decode_single_argument(
     let request_args : Result[Array[Payload], _] = try? @json.from_json(
       request_json,
     )
-    request_args
-    .map_err(fn(err) { err.to_string() })
-    .bind(fn(request_args) {
-      if request_args.length() == 1 {
-        Ok(request_args[0])
-      } else {
-        Err("Expected exactly one argument")
-      }
-    })
+    request_args.map_err(fn(err) { err.to_string() })
   })
 }
 
@@ -64,14 +75,29 @@ fn[Payload : @json.FromJson] decode_single_argument(
 extern "C" fn shared_buffer_probe_ffi(controller : Int64) -> Int = "lepus_example_shared_buffer_probe"
 
 ///|
-extern "C" fn shared_buffer_publish_ffi(
+#borrow(payload)
+extern "C" fn shared_buffer_publish_bytes_ffi(
   controller : Int64,
+  payload : Bytes,
   size : Int,
   sequence : Int,
-) -> Int = "lepus_example_shared_buffer_publish"
+  checksum : Int,
+) -> Int = "lepus_example_shared_buffer_publish_bytes"
 
 ///|
 extern "C" fn shared_buffer_release_last_ffi() -> Unit = "lepus_example_shared_buffer_release_last"
+
+///|
+extern "C" fn shared_sum_prepare_ffi(controller : Int64) -> Int = "lepus_example_shared_sum_prepare"
+
+///|
+extern "C" fn shared_sum_read_x_ffi() -> Int = "lepus_example_shared_sum_read_x"
+
+///|
+extern "C" fn shared_sum_read_y_ffi() -> Int = "lepus_example_shared_sum_read_y"
+
+///|
+extern "C" fn shared_sum_write_result_ffi(result : Int) -> Int = "lepus_example_shared_sum_write_result"
 
 ///|
 extern "C" fn shared_buffer_last_error_ffi() -> Bytes = "lepus_example_shared_buffer_last_error"
@@ -84,6 +110,23 @@ fn shared_buffer_last_error() -> String {
 ///|
 fn mask_has(mask : Int, bit : Int) -> Bool {
   mask / bit % 2 == 1
+}
+
+///|
+fn sum(x : Int, y : Int) -> Int {
+  x + y
+}
+
+///|
+fn generate_payload(size : Int, sequence : Int) -> GeneratedPayload {
+  let payload = FixedArray::make(size, b'\x00')
+  let mut checksum = 0
+  for index in 0..<size {
+    let value = (index * 31 + sequence) & 0xff
+    payload[index] = value.to_byte()
+    checksum = checksum + value
+  }
+  GeneratedPayload::{ payload: payload.unsafe_reinterpret_as_bytes(), checksum }
 }
 
 ///|
@@ -134,6 +177,42 @@ fn main {
     let capabilities = shared_buffer_capabilities(controller)
     webview.response(request_id, 0, capabilities.to_json().stringify())
   })
+  webview.bind("sumJson", fn(id, req) {
+    let request_id = @ffi.from_cstr(id)
+    let args_result : Result[Array[Int], String] = decode_arguments(req)
+    match args_result {
+      Ok(args) =>
+        if args.length() == 2 {
+          let result = sum(args[0], args[1])
+          webview.response(request_id, 0, result.to_string())
+        } else {
+          respond_json_error(
+            webview, request_id, "Expected exactly two arguments",
+          )
+        }
+      Err(message) => respond_json_error(webview, request_id, message)
+    }
+  })
+  webview.bind("prepareSharedSumBuffer", fn(id, _req) {
+    let request_id = @ffi.from_cstr(id)
+    let status = shared_sum_prepare_ffi(controller)
+    if status == 0 {
+      webview.response(request_id, 0, "0")
+    } else {
+      respond_json_error(webview, request_id, shared_buffer_last_error())
+    }
+  })
+  webview.bind("sumSharedBuffer", fn(id, _req) {
+    let request_id = @ffi.from_cstr(id)
+    let x = shared_sum_read_x_ffi()
+    let y = shared_sum_read_y_ffi()
+    let status = shared_sum_write_result_ffi(sum(x, y))
+    if status == 0 {
+      webview.response(request_id, 0, "0")
+    } else {
+      respond_json_error(webview, request_id, shared_buffer_last_error())
+    }
+  })
   webview.bind("benchmarkJsonPayload", fn(id, req) {
     let request_id = @ffi.from_cstr(id)
     let raw_request = @ffi.from_cstr(req)
@@ -172,10 +251,13 @@ fn main {
     )
     match request_result {
       Ok(request) => {
-        let status = shared_buffer_publish_ffi(
+        let generated = generate_payload(request.size, request.sequence)
+        let status = shared_buffer_publish_bytes_ffi(
           controller,
+          generated.payload,
           request.size,
           request.sequence,
+          generated.checksum,
         )
         let message = shared_buffer_last_error()
         if status == 0 {

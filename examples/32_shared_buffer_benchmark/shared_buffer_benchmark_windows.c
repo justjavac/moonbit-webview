@@ -26,6 +26,12 @@
 #define LEPUS_SHARED_BUFFER_CLOSE_INDEX 7
 #define LEPUS_UNKNOWN_RELEASE_INDEX 2
 #define LEPUS_MAX_SHARED_BUFFER_SIZE (64 * 1024 * 1024)
+#define LEPUS_SHARED_BUFFER_ACCESS_READ_ONLY 0
+#define LEPUS_SHARED_BUFFER_ACCESS_READ_WRITE 1
+#define LEPUS_SUM_BUFFER_SIZE 64
+#define LEPUS_SUM_X_OFFSET 0
+#define LEPUS_SUM_Y_OFFSET 4
+#define LEPUS_SUM_RESULT_OFFSET 8
 
 static const IID LEPUS_IID_ICoreWebView2_17 = {
     0x702e75d4,
@@ -49,7 +55,21 @@ typedef HRESULT(STDMETHODCALLTYPE *lepus_post_shared_buffer_to_script_fn)(
     void *self, void *shared_buffer, int access, LPCWSTR additional_data_as_json);
 
 static char lepus_example_shared_buffer_error[512] = "ok";
-static void *lepus_example_last_shared_buffer = NULL;
+
+typedef struct {
+  int64_t controller_handle;
+  void *webview17;
+  void *environment12;
+  void *shared_buffer;
+  BYTE *buffer;
+  uint64_t capacity;
+  void *sum_shared_buffer;
+  BYTE *sum_buffer;
+  uint64_t sum_capacity;
+} lepus_example_shared_buffer_cache_t;
+
+static lepus_example_shared_buffer_cache_t lepus_example_shared_buffer_cache = {
+    0, NULL, NULL, NULL, NULL, 0, NULL, NULL, 0};
 
 static void lepus_example_set_ok(void) {
   snprintf(lepus_example_shared_buffer_error,
@@ -104,6 +124,31 @@ static void lepus_example_release_shared_buffer(void *shared_buffer) {
   lepus_example_release_unknown(shared_buffer);
 }
 
+static void lepus_example_release_cached_shared_buffer(void) {
+  lepus_example_release_shared_buffer(lepus_example_shared_buffer_cache.shared_buffer);
+  lepus_example_shared_buffer_cache.shared_buffer = NULL;
+  lepus_example_shared_buffer_cache.buffer = NULL;
+  lepus_example_shared_buffer_cache.capacity = 0;
+}
+
+static void lepus_example_release_cached_sum_buffer(void) {
+  lepus_example_release_shared_buffer(
+      lepus_example_shared_buffer_cache.sum_shared_buffer);
+  lepus_example_shared_buffer_cache.sum_shared_buffer = NULL;
+  lepus_example_shared_buffer_cache.sum_buffer = NULL;
+  lepus_example_shared_buffer_cache.sum_capacity = 0;
+}
+
+static void lepus_example_release_cache(void) {
+  lepus_example_release_cached_shared_buffer();
+  lepus_example_release_cached_sum_buffer();
+  lepus_example_release_unknown(lepus_example_shared_buffer_cache.environment12);
+  lepus_example_release_unknown(lepus_example_shared_buffer_cache.webview17);
+  lepus_example_shared_buffer_cache.controller_handle = 0;
+  lepus_example_shared_buffer_cache.webview17 = NULL;
+  lepus_example_shared_buffer_cache.environment12 = NULL;
+}
+
 static HRESULT lepus_example_create_shared_buffer(
     void *environment12, uint64_t size, void **shared_buffer) {
   void **vtbl = lepus_example_vtbl(environment12);
@@ -123,12 +168,16 @@ static HRESULT lepus_example_get_shared_buffer_bytes(
 }
 
 static HRESULT lepus_example_post_shared_buffer(
-    void *webview17, void *shared_buffer, LPCWSTR additional_data_as_json) {
+    void *webview17,
+    void *shared_buffer,
+    int access,
+    LPCWSTR additional_data_as_json) {
   void **vtbl = lepus_example_vtbl(webview17);
   lepus_post_shared_buffer_to_script_fn post_shared_buffer =
       (lepus_post_shared_buffer_to_script_fn)
           vtbl[LEPUS_WEBVIEW2_17_POST_SHARED_BUFFER_TO_SCRIPT_INDEX];
-  return post_shared_buffer(webview17, shared_buffer, 0, additional_data_as_json);
+  return post_shared_buffer(
+      webview17, shared_buffer, access, additional_data_as_json);
 }
 
 static HRESULT lepus_example_get_core_webview(
@@ -198,16 +247,104 @@ cleanup:
   return hr;
 }
 
-static uint32_t lepus_example_fill_pattern(
-    BYTE *buffer, uint64_t size, int32_t sequence) {
-  uint32_t checksum = 0;
-  uint64_t seed = (uint64_t)(uint32_t)sequence;
-  for (uint64_t index = 0; index < size; ++index) {
-    BYTE value = (BYTE)(((index * 31u) + seed) & 0xffu);
-    buffer[index] = value;
-    checksum += value;
+static HRESULT lepus_example_ensure_shared_buffer_interfaces(
+    int64_t controller_handle) {
+  HRESULT hr;
+  if (lepus_example_shared_buffer_cache.controller_handle == controller_handle &&
+      lepus_example_shared_buffer_cache.webview17 != NULL &&
+      lepus_example_shared_buffer_cache.environment12 != NULL) {
+    return S_OK;
   }
-  return checksum;
+  lepus_example_release_cache();
+  hr = lepus_example_get_shared_buffer_interfaces(
+      controller_handle,
+      &lepus_example_shared_buffer_cache.webview17,
+      &lepus_example_shared_buffer_cache.environment12);
+  if (FAILED(hr)) {
+    lepus_example_release_cache();
+    return hr;
+  }
+  lepus_example_shared_buffer_cache.controller_handle = controller_handle;
+  return S_OK;
+}
+
+static HRESULT lepus_example_ensure_shared_buffer_capacity(uint64_t size) {
+  HRESULT hr;
+  void *shared_buffer = NULL;
+  BYTE *buffer = NULL;
+  if (lepus_example_shared_buffer_cache.shared_buffer != NULL &&
+      lepus_example_shared_buffer_cache.capacity >= size &&
+      lepus_example_shared_buffer_cache.buffer != NULL) {
+    return S_OK;
+  }
+  lepus_example_release_cached_shared_buffer();
+  hr = lepus_example_create_shared_buffer(
+      lepus_example_shared_buffer_cache.environment12, size, &shared_buffer);
+  if (FAILED(hr)) {
+    return lepus_example_set_hresult(
+        "ICoreWebView2Environment12::CreateSharedBuffer", hr);
+  }
+  hr = lepus_example_get_shared_buffer_bytes(shared_buffer, &buffer);
+  if (FAILED(hr)) {
+    lepus_example_release_shared_buffer(shared_buffer);
+    return lepus_example_set_hresult("ICoreWebView2SharedBuffer::get_Buffer", hr);
+  }
+  lepus_example_shared_buffer_cache.shared_buffer = shared_buffer;
+  lepus_example_shared_buffer_cache.buffer = buffer;
+  lepus_example_shared_buffer_cache.capacity = size;
+  return S_OK;
+}
+
+static HRESULT lepus_example_ensure_sum_buffer(void) {
+  HRESULT hr;
+  void *shared_buffer = NULL;
+  BYTE *buffer = NULL;
+  if (lepus_example_shared_buffer_cache.sum_shared_buffer != NULL &&
+      lepus_example_shared_buffer_cache.sum_buffer != NULL &&
+      lepus_example_shared_buffer_cache.sum_capacity >= LEPUS_SUM_BUFFER_SIZE) {
+    return S_OK;
+  }
+  lepus_example_release_cached_sum_buffer();
+  hr = lepus_example_create_shared_buffer(
+      lepus_example_shared_buffer_cache.environment12,
+      LEPUS_SUM_BUFFER_SIZE,
+      &shared_buffer);
+  if (FAILED(hr)) {
+    return lepus_example_set_hresult(
+        "ICoreWebView2Environment12::CreateSharedBuffer(sum)", hr);
+  }
+  hr = lepus_example_get_shared_buffer_bytes(shared_buffer, &buffer);
+  if (FAILED(hr)) {
+    lepus_example_release_shared_buffer(shared_buffer);
+    return lepus_example_set_hresult(
+        "ICoreWebView2SharedBuffer::get_Buffer(sum)", hr);
+  }
+  memset(buffer, 0, LEPUS_SUM_BUFFER_SIZE);
+  lepus_example_shared_buffer_cache.sum_shared_buffer = shared_buffer;
+  lepus_example_shared_buffer_cache.sum_buffer = buffer;
+  lepus_example_shared_buffer_cache.sum_capacity = LEPUS_SUM_BUFFER_SIZE;
+  return S_OK;
+}
+
+static int32_t lepus_example_load_i32(const BYTE *buffer, size_t offset) {
+  int32_t value = 0;
+  memcpy(&value, buffer + offset, sizeof(value));
+  return value;
+}
+
+static void lepus_example_store_i32(BYTE *buffer, size_t offset, int32_t value) {
+  memcpy(buffer + offset, &value, sizeof(value));
+}
+
+static BYTE *lepus_example_get_sum_buffer_or_error(void) {
+  BYTE *buffer = lepus_example_shared_buffer_cache.sum_buffer;
+  if (buffer == NULL ||
+      lepus_example_shared_buffer_cache.sum_capacity < LEPUS_SUM_BUFFER_SIZE) {
+    lepus_example_set_message(
+        "Shared sum buffer has not been prepared", E_POINTER);
+    return NULL;
+  }
+  return buffer;
 }
 #endif
 
@@ -287,85 +424,166 @@ MOONBIT_FFI_EXPORT int32_t lepus_example_shared_buffer_probe(
 #endif
 }
 
-MOONBIT_FFI_EXPORT int32_t lepus_example_shared_buffer_publish(
-    int64_t controller_handle, int32_t size, int32_t sequence) {
+MOONBIT_FFI_EXPORT int32_t lepus_example_shared_buffer_publish_bytes(
+    int64_t controller_handle,
+    moonbit_bytes_t payload,
+    int32_t size,
+    int32_t sequence,
+    int32_t checksum) {
 #ifdef _WIN32
-  void *webview17 = NULL;
-  void *environment12 = NULL;
-  void *shared_buffer = NULL;
-  BYTE *buffer = NULL;
   wchar_t additional_data[256];
   HRESULT hr;
-  uint32_t checksum;
   int written;
 
   lepus_example_set_ok();
+  if (payload == NULL) {
+    return (int32_t)lepus_example_set_message(
+        "SharedBuffer payload is null", E_POINTER);
+  }
   if (size <= 0 || size > LEPUS_MAX_SHARED_BUFFER_SIZE) {
     return (int32_t)lepus_example_set_message(
         "SharedBuffer size is outside the prototype limit", E_INVALIDARG);
   }
-  lepus_example_release_shared_buffer(lepus_example_last_shared_buffer);
-  lepus_example_last_shared_buffer = NULL;
-  hr = lepus_example_get_shared_buffer_interfaces(
-      controller_handle, &webview17, &environment12);
+  hr = lepus_example_ensure_shared_buffer_interfaces(controller_handle);
   if (FAILED(hr)) {
-    goto cleanup;
+    return (int32_t)hr;
   }
-  hr = lepus_example_create_shared_buffer(
-      environment12, (uint64_t)(uint32_t)size, &shared_buffer);
+  hr = lepus_example_ensure_shared_buffer_capacity((uint64_t)(uint32_t)size);
   if (FAILED(hr)) {
-    lepus_example_set_hresult(
-        "ICoreWebView2Environment12::CreateSharedBuffer", hr);
-    goto cleanup;
+    return (int32_t)hr;
   }
-  hr = lepus_example_get_shared_buffer_bytes(shared_buffer, &buffer);
-  if (FAILED(hr)) {
-    lepus_example_set_hresult("ICoreWebView2SharedBuffer::get_Buffer", hr);
-    goto cleanup;
-  }
-  checksum = lepus_example_fill_pattern(buffer, (uint64_t)(uint32_t)size, sequence);
+  memcpy(
+      lepus_example_shared_buffer_cache.buffer,
+      payload,
+      (size_t)(uint32_t)size);
   written = swprintf(
       additional_data,
       sizeof(additional_data) / sizeof(additional_data[0]),
       L"{\"kind\":\"lepus-shared-buffer\",\"sequence\":%d,"
-      L"\"size\":%d,\"checksum\":%lu}",
+      L"\"size\":%d,\"capacity\":%llu,\"checksum\":%lu}",
       sequence,
       size,
-      (unsigned long)checksum);
+      (unsigned long long)lepus_example_shared_buffer_cache.capacity,
+      (unsigned long)(uint32_t)checksum);
   if (written < 0 ||
       written >= (int)(sizeof(additional_data) / sizeof(additional_data[0]))) {
-    hr = lepus_example_set_message(
+    return (int32_t)lepus_example_set_message(
         "SharedBuffer additional data did not fit in the fixed buffer",
         E_OUTOFMEMORY);
-    goto cleanup;
   }
   hr = lepus_example_post_shared_buffer(
-      webview17, shared_buffer, additional_data);
+      lepus_example_shared_buffer_cache.webview17,
+      lepus_example_shared_buffer_cache.shared_buffer,
+      LEPUS_SHARED_BUFFER_ACCESS_READ_ONLY,
+      additional_data);
   if (FAILED(hr)) {
-    lepus_example_set_hresult("ICoreWebView2_17::PostSharedBufferToScript", hr);
-    goto cleanup;
+    return (int32_t)lepus_example_set_hresult(
+        "ICoreWebView2_17::PostSharedBufferToScript", hr);
   }
-  lepus_example_last_shared_buffer = shared_buffer;
-  shared_buffer = NULL;
   lepus_example_set_ok();
-
-cleanup:
-  lepus_example_release_shared_buffer(shared_buffer);
-  lepus_example_release_unknown(environment12);
-  lepus_example_release_unknown(webview17);
-  return (int32_t)hr;
+  return 0;
 #else
   (void)controller_handle;
+  (void)payload;
   (void)size;
   (void)sequence;
+  (void)checksum;
+  return -1;
+#endif
+}
+
+MOONBIT_FFI_EXPORT int32_t lepus_example_shared_sum_prepare(
+    int64_t controller_handle) {
+#ifdef _WIN32
+  wchar_t additional_data[160];
+  HRESULT hr;
+  int written;
+
+  lepus_example_set_ok();
+  hr = lepus_example_ensure_shared_buffer_interfaces(controller_handle);
+  if (FAILED(hr)) {
+    return (int32_t)hr;
+  }
+  hr = lepus_example_ensure_sum_buffer();
+  if (FAILED(hr)) {
+    return (int32_t)hr;
+  }
+  written = swprintf(
+      additional_data,
+      sizeof(additional_data) / sizeof(additional_data[0]),
+      L"{\"kind\":\"lepus-sum-buffer\",\"size\":%d}",
+      LEPUS_SUM_BUFFER_SIZE);
+  if (written < 0 ||
+      written >= (int)(sizeof(additional_data) / sizeof(additional_data[0]))) {
+    return (int32_t)lepus_example_set_message(
+        "Shared sum additional data did not fit in the fixed buffer",
+        E_OUTOFMEMORY);
+  }
+  hr = lepus_example_post_shared_buffer(
+      lepus_example_shared_buffer_cache.webview17,
+      lepus_example_shared_buffer_cache.sum_shared_buffer,
+      LEPUS_SHARED_BUFFER_ACCESS_READ_WRITE,
+      additional_data);
+  if (FAILED(hr)) {
+    return (int32_t)lepus_example_set_hresult(
+        "ICoreWebView2_17::PostSharedBufferToScript(sum)", hr);
+  }
+  lepus_example_set_ok();
+  return 0;
+#else
+  (void)controller_handle;
+  return -1;
+#endif
+}
+
+MOONBIT_FFI_EXPORT int32_t lepus_example_shared_sum_read_x(void) {
+#ifdef _WIN32
+  lepus_example_set_ok();
+  BYTE *buffer = lepus_example_get_sum_buffer_or_error();
+  if (buffer == NULL) {
+    return 0;
+  }
+  MemoryBarrier();
+  return lepus_example_load_i32(buffer, LEPUS_SUM_X_OFFSET);
+#else
+  return 0;
+#endif
+}
+
+MOONBIT_FFI_EXPORT int32_t lepus_example_shared_sum_read_y(void) {
+#ifdef _WIN32
+  lepus_example_set_ok();
+  BYTE *buffer = lepus_example_get_sum_buffer_or_error();
+  if (buffer == NULL) {
+    return 0;
+  }
+  MemoryBarrier();
+  return lepus_example_load_i32(buffer, LEPUS_SUM_Y_OFFSET);
+#else
+  return 0;
+#endif
+}
+
+MOONBIT_FFI_EXPORT int32_t lepus_example_shared_sum_write_result(
+    int32_t result) {
+#ifdef _WIN32
+  lepus_example_set_ok();
+  BYTE *buffer = lepus_example_get_sum_buffer_or_error();
+  if (buffer == NULL) {
+    return (int32_t)E_POINTER;
+  }
+  lepus_example_store_i32(buffer, LEPUS_SUM_RESULT_OFFSET, result);
+  MemoryBarrier();
+  return 0;
+#else
+  (void)result;
   return -1;
 #endif
 }
 
 MOONBIT_FFI_EXPORT void lepus_example_shared_buffer_release_last(void) {
 #ifdef _WIN32
-  lepus_example_release_shared_buffer(lepus_example_last_shared_buffer);
-  lepus_example_last_shared_buffer = NULL;
+  lepus_example_release_cache();
   lepus_example_set_ok();
 #endif
 }
