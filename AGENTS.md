@@ -48,6 +48,7 @@ This document provides concise guidance for agents working in this repository. I
 - Error handling
   - Guard clauses; use `abort("message")` for unrecoverable issues
   - Return meaningful errors, propagate details in messages
+  - Convert raising expressions to `Result` with `try ... catch ... noraise`; avoid deprecated `try?`
 
 - Imports and module usage
   - Keep surface area small; re-export minimally
@@ -57,6 +58,7 @@ This document provides concise guidance for agents working in this repository. I
   - Trailing comma style for multi-line calls
   - Clear line breaks in long signatures
   - Derive explicit JSON (ToJson/FromJson) where cross-boundary data is exchanged
+  - Derive `Debug` for test snapshots and diagnostics; avoid `derive(Show)` (deprecated)
 
 - Documentation and examples
   - Document public APIs with purpose and side effects
@@ -84,7 +86,7 @@ This document provides concise guidance for agents working in this repository. I
 ### Structure & conventions
 - Plugins live under `plugins/<name>/` and export `plugin()`.
 - Public commands: `plugin.command_result("cmd", fn(payload : PayloadType) { ... })`.
-- Payloads should be JSON-derivable via `ToJson`/`FromJson` (and Show/Eq as needed).
+- Payloads should be JSON-derivable via `ToJson`/`FromJson` (and Debug/Eq as needed).
 - Plugins may emit activity via `plugin.emit` for observability.
 
 ### Data types & payloads
@@ -116,9 +118,9 @@ This document provides concise guidance for agents working in this repository. I
     })
   }
   ///|
-  struct PingPayload { } derive(ToJson, FromJson, Show, Eq)
+  struct PingPayload { } derive(ToJson, FromJson, Debug, Eq)
   ///|
-  struct PingReply { pong : Bool } derive(ToJson, FromJson, Show, Eq)
+  struct PingReply { pong : Bool } derive(ToJson, FromJson, Debug, Eq)
   ```
   
   - Host-side usage:
@@ -129,7 +131,7 @@ This document provides concise guidance for agents working in this repository. I
 ## 4) Examples Guide
 
 ### Structure
-- Each example contains: packaging (moon.mod.json or moon.pkg), a `main.mbt` entry, and optional `bundle.mbt`.
+- Each example contains: packaging (`moon.mod` / `moon.mod.json` and `moon.pkg`), a `main.mbt` entry, and optional `bundle.mbt`.
 
 ### Running
 - Build: `moon -C examples build --target native`.
@@ -145,7 +147,7 @@ This document provides concise guidance for agents working in this repository. I
 
 ## 5) Quick References
 
-- Packaging: `moon.mod.json` at repo root for module layout and dependencies.
+- Packaging: `moon.mod` at repo root for module layout and dependencies.
 - Tests: `test/webview_test.mbt`; other tests under `test/`.
 - CI: see `.github/workflows/ci.yml` for automated flows.
 

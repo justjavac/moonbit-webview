@@ -8,7 +8,7 @@ pub(all) enum NativeHandleKind {
   /// Browser controller. `WebKitWebView` pointer (WebKitGTK), `WKWebView`
   /// pointer (Cocoa/WebKit) or `ICoreWebView2Controller` pointer (Win32/WebView2).
   Browser = 2
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Window size hints
@@ -21,7 +21,7 @@ pub(all) enum SizeHint {
   Max = 2
   /// Window size can not be changed by a user.
   Fixed = 3
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// An instance of a webview window.

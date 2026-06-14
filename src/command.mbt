@@ -8,7 +8,7 @@
 pub struct Command {
   name : String
   payload : Json
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 /// Structured response returned from JS -> MoonBit commands.
@@ -25,7 +25,7 @@ pub struct CommandResponse {
   status : String
   payload : Json?
   error : String?
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 /// Builds a successful command response.
@@ -158,7 +158,11 @@ pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle(
   callback : (Payload) -> Reply,
 ) -> Unit {
   self.handlers.set(name, fn(payload_json) {
-    let payload : Result[Payload, _] = try? @json.from_json(payload_json)
+    let payload : Result[Payload, _] = try @json.from_json(payload_json) catch {
+      e => Err(e)
+    } noraise {
+      value => Ok(value)
+    }
     match payload {
       Ok(payload) => CommandResponse::ok(callback(payload))
       Err(err) => CommandResponse::error(err.to_string())
@@ -177,7 +181,11 @@ pub fn[Payload : @json.FromJson, Reply : ToJson] CommandBridge::handle_result(
   callback : (Payload) -> Result[Reply, String],
 ) -> Unit {
   self.handlers.set(name, fn(payload_json) {
-    let payload : Result[Payload, _] = try? @json.from_json(payload_json)
+    let payload : Result[Payload, _] = try @json.from_json(payload_json) catch {
+      e => Err(e)
+    } noraise {
+      value => Ok(value)
+    }
     match payload {
       Ok(payload) =>
         match callback(payload) {
@@ -243,13 +251,21 @@ fn CommandBridge::handle_request(
 fn parse_command_request(raw_req : String) -> Result[Command, String] {
   // A webview binding receives its JS arguments as a JSON array. The bridge
   // expects exactly one argument: the `{ name, payload }` command object.
-  let request_json : Result[Json, _] = try? @json.parse(raw_req)
+  let request_json : Result[Json, _] = try @json.parse(raw_req) catch {
+    e => Err(e)
+  } noraise {
+    value => Ok(value)
+  }
   match request_json {
     Err(err) => Err(err.to_string())
     Ok(request_json) => {
-      let request_args : Result[Array[Command], _] = try? @json.from_json(
-        request_json,
-      )
+      let request_args : Result[Array[Command], _] = try
+        @json.from_json(request_json)
+      catch {
+        e => Err(e)
+      } noraise {
+        value => Ok(value)
+      }
       match request_args {
         Err(err) => Err(err.to_string())
         Ok(request_args) =>

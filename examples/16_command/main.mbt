@@ -1,15 +1,15 @@
 struct SumPayload {
   left : Int
   right : Int
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 struct SumReply {
   total : Int
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 struct NativeNotice {
   message : String
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 fn main {
   let webview = @webview.Webview::new(debug=1)

@@ -1,8 +1,11 @@
 import {
   "moonbitlang/core/json",
+  "moonbitlang/core/debug",
   "justjavac/ffi",
   "justjavac/webview",
 }
+
+supported_targets = "+native"
 
 options(
   link: {

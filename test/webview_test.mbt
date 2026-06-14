@@ -2,54 +2,54 @@
 struct PingPayload {
   message : String
   count : Int
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 ///|
 struct PingReply {
   echoed : String
   next_count : Int
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 ///|
 struct NativeEvent {
   label : String
   total : Int
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 ///|
 struct MultiplyPayload {
   left : Int
   right : Int
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 ///|
 struct MultiplyReply {
   total : Int
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 ///|
 struct PluginNotice {
   message : String
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 ///|
 struct PluginNoticeEvent {
   plugin : String
   name : String
   payload : PluginNotice
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 ///|
 fn[Payload : @json.FromJson] decode_single_argument(
   raw_req : Bytes,
 ) -> Result[Payload, String] {
-  let request_json : Result[Json, _] = try? @json.parse(@ffi.from_cstr(raw_req))
+  let request_json : Result[Json, _] = try @json.parse(@ffi.from_cstr(raw_req)) catch { e => Err(e) } noraise { value => Ok(value) }
   match request_json {
     Err(err) => Err(err.to_string())
     Ok(request_json) => {
-      let request_args : Result[Array[Payload], _] = try? @json.from_json(
+      let request_args : Result[Array[Payload], _] = try @json.from_json(
         request_json,
-      )
+      ) catch { e => Err(e) } noraise { value => Ok(value) }
       match request_args {
         Err(err) => Err(err.to_string())
         Ok(request_args) =>
@@ -68,8 +68,8 @@ test "Start app loop and terminate it" {
   let webview = @webview.Webview::new()
   webview.dispatch(fn() { webview.terminate() })
   webview.run()
-  assert_eq(1 + 1, 2)
-  assert_eq(2 + 2, 4)
+  @debug.assert_eq(1 + 1, 2)
+  @debug.assert_eq(2 + 2, 4)
 }
 
 ///|
@@ -115,7 +115,7 @@ test "Bind callback marshals C strings safely" {
   webview.run()
   assert_true(called)
   assert_true(!callback_id.is_empty())
-  assert_eq(callback_req, "[\"hello\",123]")
+  @debug.assert_eq(callback_req, "[\"hello\",123]")
 }
 
 ///|
@@ -223,10 +223,10 @@ test "Command bridge exchanges typed commands with JavaScript" {
     ),
   )
   webview.run()
-  assert_eq(seen_ping, Some(expected_ping))
-  assert_eq(seen_response, Some(expected_response))
-  assert_eq(seen_event, Some(expected_event))
-  assert_eq(js_error, None)
+  @debug.assert_eq(seen_ping, Some(expected_ping))
+  @debug.assert_eq(seen_response, Some(expected_response))
+  @debug.assert_eq(seen_event, Some(expected_event))
+  @debug.assert_eq(js_error, None)
 }
 
 ///|
@@ -278,7 +278,7 @@ test "Command bridge returns structured errors for unknown commands" {
     ),
   )
   webview.run()
-  assert_eq(seen_response, Some(expected_response))
+  @debug.assert_eq(seen_response, Some(expected_response))
 }
 
 ///|
@@ -392,9 +392,9 @@ test "Plugin host exposes plugin APIs into JavaScript" {
     ),
   )
   webview.run()
-  assert_eq(seen_response, Some(expected_response))
-  assert_eq(seen_event, Some(expected_event))
-  assert_eq(js_error, None)
+  @debug.assert_eq(seen_response, Some(expected_response))
+  @debug.assert_eq(seen_event, Some(expected_event))
+  @debug.assert_eq(js_error, None)
 }
 
 ///|
@@ -479,8 +479,8 @@ test "Webview::emit_plugin delivers events to JavaScript listeners" {
     ),
   )
   webview.run()
-  assert_eq(seen_event, Some(expected_event))
-  assert_eq(js_error, None)
+  @debug.assert_eq(seen_event, Some(expected_event))
+  @debug.assert_eq(js_error, None)
 }
 
 ///|
@@ -526,10 +526,10 @@ test "Plugin lifecycle hooks run on install and destroy" {
       on_destroy=fn(plugin) { destroyed_plugin = Some(plugin.name()) },
     ),
   )
-  assert_eq(installed_plugin, Some("math"))
-  assert_eq(destroyed_plugin, None)
+  @debug.assert_eq(installed_plugin, Some("math"))
+  @debug.assert_eq(destroyed_plugin, None)
   webview.plugin_host().destroy()
-  assert_eq(destroyed_plugin, Some("math"))
+  @debug.assert_eq(destroyed_plugin, Some("math"))
 }
 
 ///|

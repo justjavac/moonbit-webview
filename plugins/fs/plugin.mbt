@@ -10,73 +10,73 @@ priv type DirectoryEntriesHandle
 struct OpenPayload {
   path : String
   mode : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct OpenReply {
   handle : Int
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ReadPayload {
   handle : Int
   size : Int
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ReadReply {
   content : String
   bytes_read : Int
   eof : Bool
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct WritePayload {
   handle : Int
   content : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct WriteReply {
   bytes_written : Int
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ClosePayload {
   handle : Int
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct CloseReply {
   closed : Bool
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct FlushPayload {
   handle : Int
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct FlushReply {
   flushed : Bool
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct SeekPayload {
   handle : Int
   offset : Int
   whence : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct SeekReply {
   position : Int
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct FstatPayload {
   handle : Int
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct FstatReply {
@@ -87,47 +87,47 @@ struct FstatReply {
   exists : Bool
   is_file : Bool
   is_dir : Bool
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ExistsPayload {
   path : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ExistsReply {
   exists : Bool
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct RemoveFilePayload {
   path : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct RemoveFileReply {
   removed : Bool
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ReadDirPayload {
   path : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ReadDirReply {
   entries : Array[String]
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ResolvePathPayload {
   path : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct ResolvePathReply {
   path : String
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 struct FsActivity {
@@ -135,7 +135,7 @@ struct FsActivity {
   path : String?
   handle : Int?
   bytes : Int?
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 #borrow(path, mode)

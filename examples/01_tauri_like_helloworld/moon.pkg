@@ -4,6 +4,8 @@ import {
   "justjavac/ffi",
 }
 
+supported_targets = "native"
+
 options(
   "is-main": true,
   link: {
@@ -20,5 +22,4 @@ options(
     },
   ],
   targets: { "main.mbt": [ "native" ] },
-  "supported-targets": "native",
 )

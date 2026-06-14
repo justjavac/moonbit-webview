@@ -67,7 +67,7 @@ pub struct PluginEvent {
   plugin : String
   name : String
   payload : Json
-} derive(ToJson, FromJson, Show, Eq)
+} derive(ToJson, FromJson, Debug, Eq)
 
 ///|
 /// Builds a plugin value that can later be installed on a `Webview` or

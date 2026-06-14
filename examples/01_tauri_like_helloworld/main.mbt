@@ -8,11 +8,11 @@ fn main {
   webview.bind("greet", fn(id, req) {
     let id = @ffi.from_cstr(id)
     let raw_req = @ffi.from_cstr(req)
-    let request_json : Result[Json, _] = try? @json.parse(raw_req)
+    let request_json : Result[Json, _] = try @json.parse(raw_req) catch { e => Err(e) } noraise { value => Ok(value) }
     let name = match request_json {
       Err(_) => "world"
       Ok(request_json) => {
-        let args : Result[Array[String], _] = try? @json.from_json(request_json)
+        let args : Result[Array[String], _] = try @json.from_json(request_json) catch { e => Err(e) } noraise { value => Ok(value) }
         match args {
           Err(_) => "world"
           Ok(args) => if args.length() > 0 { args[0] } else { "world" }

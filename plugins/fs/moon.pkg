@@ -5,6 +5,8 @@ import {
   "justjavac/webview",
 }
 
+supported_targets = "+native"
+
 options(
   link: {
     "native": {

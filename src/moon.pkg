@@ -3,6 +3,8 @@ import {
   "justjavac/ffi",
 }
 
+supported_targets = "+native"
+
 options(
   link: {
     "native": {
@@ -11,7 +13,6 @@ options(
     },
   },
   "native-stub": [ "stub.c" ],
-  "supported-targets": "+native",
   targets: {
     "binding.mbt": [ "native" ],
     "command.mbt": [ "native" ],

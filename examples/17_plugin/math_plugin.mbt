@@ -2,17 +2,17 @@
 struct SumPayload {
   left : Int
   right : Int
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 ///|
 struct SumReply {
   total : Int
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 ///|
 struct ComputedNotice {
   message : String
-} derive(ToJson, FromJson, Eq, Show)
+} derive(ToJson, FromJson, Eq, Debug)
 
 ///|
 pub fn plugin() -> @webview.Plugin {
